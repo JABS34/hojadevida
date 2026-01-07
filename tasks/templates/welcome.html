@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a Mi CV Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/DragControls.js"></script>
+    <style>
+        html, body { margin: 0; padding: 0; overflow: hidden; background-color: #020617; width: 100%; height: 100%; }
+        #canvas-3d { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 1; cursor: grab; }
+        #canvas-3d:active { cursor: grabbing; }
+        
+        .hero-content { 
+            position: relative; 
+            z-index: 10; 
+            pointer-events: none;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+        }
+        .hero-content button { pointer-events: auto; }
+        
+        .fade-out-all {
+            opacity: 0;
+            transform: scale(0.9);
+            filter: blur(10px);
+            transition: all 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <section id="hero-main" class="relative w-screen h-screen flex flex-col items-center justify-center text-center overflow-hidden">
+        <div id="canvas-3d"></div> 
+
+        <div class="hero-content" id="ui-wrapper">
+            <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-indigo-400 select-none">
+                Bienvenido a Mi CV <br>Profesional
+            </h1>
+            <p class="text-slate-300 text-xl md:text-2xl font-light mb-12 max-w-2xl mx-auto italic select-none">
+                Te invito a explorar mi trayectoria, mis proyectos y las habilidades que he cultivado.
+            </p>
+
+            <button onclick="goToProfile()" class="px-12 py-6 bg-indigo-600 rounded-2xl font-black text-2xl shadow-[0_15px_0_rgb(49,46,129)] hover:translate-y-1 active:shadow-none active:translate-y-[15px] transition-all">
+                Mira mi CV aquí 👇
+            </button>
+        </div>
+    </section>
+
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-3d').appendChild(renderer.domElement);
+
+        const objects = [];
+        const indigoMat = new THREE.MeshPhongMaterial({ color: 0x4338ca, wireframe: true, transparent: true, opacity: 0.4 });
+        const softWhiteMat = new THREE.MeshPhongMaterial({ color: 0xc7d2fe, transparent: true, opacity: 0.15 });
+
+        function createCodeBlock(text) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 512; canvas.height = 128;
+            ctx.fillStyle = '#818cf8';
+            ctx.font = 'Bold 44px monospace';
+            ctx.fillText(text, 20, 80);
+            const texture = new THREE.CanvasTexture(canvas);
+            const mat = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+            return new THREE.Mesh(new THREE.PlaneGeometry(8, 2), mat);
+        }
+
+        const codes = ["def push_code():", "import sqlite3", "render(request)", "os.path.join()", "class Meta:"];
+
+        for(let i=0; i<35; i++) {
+            let obj;
+            if(i < 12) {
+                obj = createCodeBlock(codes[i % codes.length]);
+            } else {
+                const size = Math.random() * 1.8 + 1;
+                const geo = i % 2 === 0 ? new THREE.IcosahedronGeometry(size, 0) : new THREE.BoxGeometry(size, size, size);
+                obj = new THREE.Mesh(geo, i % 3 === 0 ? softWhiteMat : indigoMat);
+            }
+            
+            const sideX = Math.random() > 0.5 ? 1 : -1;
+            const sideY = Math.random() > 0.5 ? 1 : -1;
+            obj.position.set((Math.random() * 25 + 12) * sideX, (Math.random() * 18 + 8) * sideY, Math.random() * -20);
+            
+            obj.userData = {
+                velocity: new THREE.Vector3((Math.random()-0.5)*0.08, (Math.random()-0.5)*0.08, (Math.random()-0.5)*0.02),
+                isDragging: false,
+                lastPos: new THREE.Vector3()
+            };
+
+            scene.add(obj);
+            objects.push(obj);
+        }
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+        camera.position.z = 28;
+
+        const dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
+        
+        dragControls.addEventListener('dragstart', (e) => {
+            e.object.userData.isDragging = true;
+            e.object.userData.velocity.set(0,0,0);
+        });
+
+        dragControls.addEventListener('drag', (e) => {
+            const currentPos = e.object.position.clone();
+            if(e.object.userData.lastPos) {
+                e.object.userData.velocity.subVectors(currentPos, e.object.userData.lastPos).multiplyScalar(0.7);
+            }
+            e.object.userData.lastPos.copy(currentPos);
+        });
+
+        dragControls.addEventListener('dragend', (e) => {
+            e.object.userData.isDragging = false;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            objects.forEach(obj => {
+                if (!obj.userData.isDragging) {
+                    obj.position.add(obj.userData.velocity);
+                    obj.rotation.x += 0.005;
+                    obj.rotation.y += 0.005;
+
+                    if (Math.abs(obj.position.x) > 40) obj.userData.velocity.x *= -1;
+                    if (Math.abs(obj.position.y) > 25) obj.userData.velocity.y *= -1;
+                    if (obj.position.z > 5 || obj.position.z < -40) obj.userData.velocity.z *= -1;
+
+                    obj.userData.velocity.multiplyScalar(0.992);
+                    
+                    if(obj.userData.velocity.length() < 0.015) {
+                        obj.userData.velocity.add(new THREE.Vector3((Math.random()-0.5)*0.008, (Math.random()-0.5)*0.008, 0));
+                    }
+                }
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- LÓGICA DE REDIRECCIÓN CORREGIDA ---
+        function goToProfile() {
+            document.getElementById('ui-wrapper').classList.add('fade-out-all');
+            document.getElementById('canvas-3d').classList.add('fade-out-all');
+            
+            // Usamos el nombre del admin_user enviado desde views.py
+            const username = "{{ admin_user.username|default:'admin' }}"; 
+
+            setTimeout(() => {
+                window.location.href = `/perfil/${username}/`;
+            }, 800);
+        }
+    </script>
+</body>
+</html>

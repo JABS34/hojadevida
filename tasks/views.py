@@ -8,8 +8,48 @@ from .models import Task, DatosPersonales, ExperienciaLaboral, Habilidad
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
+# 1. PANTALLA DE BIENVENIDA (CON DISEÑO 3D)
 def home(request):
-    return render(request, "home.html")
+    # Buscamos al primer superusuario (tú) para que el botón sepa a quién mostrar
+    # Si no hay superusuario, usará el usuario logueado o None
+    admin_user = User.objects.filter(is_superuser=True).first()
+    return render(request, "welcome.html", {"admin_user": admin_user})
+
+# 2. PANEL DE CONTROL / GESTIÓN (SOLO PARA TI - ADMIN)
+@login_required
+def dashboard(request):
+    perfil, created = DatosPersonales.objects.get_or_create(
+        user=request.user, 
+        defaults={'nombres': request.user.username, 'fechanacimiento': '1990-01-01'}
+    )
+    
+    if request.method == 'POST':
+        perfil.nombres = request.POST.get('nombres')
+        perfil.apellidos = request.POST.get('apellidos')
+        perfil.descripcionperfil = request.POST.get('descripcionperfil')
+        perfil.nacionalidad = request.POST.get('nacionalidad')
+        perfil.numerocedula = request.POST.get('numerocedula')
+        perfil.direcciondomiciliaria = request.POST.get('direcciondomiciliaria')
+        perfil.save()
+        return redirect('profile_cv', username=request.user.username)
+        
+    return render(request, 'dashboard.html', {'perfil': perfil})
+
+# 3. PERFIL INTERACTIVO / CV 3D
+def profile_cv(request, username):
+    user_profile = get_object_or_404(User, username=username)
+    datos = get_object_or_404(DatosPersonales, user=user_profile)
+    experiencias = ExperienciaLaboral.objects.filter(perfil=datos)
+    habilidades = Habilidad.objects.filter(perfil=datos)
+    
+    return render(request, 'profile_cv.html', {
+        'perfil': datos, 
+        'experiencias': experiencias, 
+        'habilidades': habilidades, 
+        'user_viewed': user_profile
+    })
+
+# --- VISTAS DE AUTENTICACIÓN ---
 
 def signup(request):
     if request.method == "GET":
@@ -23,17 +63,33 @@ def signup(request):
                 )
                 user.save()
                 login(request, user)
-                return redirect('tasks')
+                return redirect('dashboard')
             except IntegrityError:
                 return render(request, "signup.html", {"form": UserCreationForm, "error": "Username already exists"})
         return render(request, "signup.html", {"form": UserCreationForm, "error": "Password do not match"})
+
+def signin(request):
+    if request.method == 'GET':
+        return render(request, 'signin.html', {'form': AuthenticationForm})
+    else:
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        if user is None:
+            return render(request, 'signin.html', {'form': AuthenticationForm, 'error':'Username or password is incorrect'})
+        else:
+            login(request, user)
+            return redirect('dashboard')
+
+def signout(request):
+    logout(request)
+    return redirect('home')
+
+# --- VISTAS DE TAREAS ---
 
 @login_required
 def tasks(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
     return render(request, 'tasks.html',{'tasks':tasks, 'tipopagina':'Tareas Pendientes'})
 
-# ESTA ES LA FUNCIÓN QUE TE ESTÁ DANDO ERROR, ASEGÚRATE DE COPIARLA BIEN:
 @login_required
 def tasks_completed(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=False).order_by('-datecompleted')
@@ -81,31 +137,3 @@ def delete_task(request, task_id):
     if request.method == 'POST':
         task.delete()
         return redirect('tasks')
-
-def signout(request):
-    logout(request)
-    return redirect('home')
-
-def signin(request):
-    if request.method == 'GET':
-        return render(request, 'signin.html', {'form': AuthenticationForm})
-    else:
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
-        if user is None:
-            return render(request, 'signin.html', {'form': AuthenticationForm, 'error':'Username or password is incorrect'})
-        else:
-            login(request, user)
-            return redirect('tasks')
-
-# VISTA PARA EL PERFIL INTERACTIVO
-def profile_cv(request, username):
-    user_profile = get_object_or_404(User, username=username)
-    datos = get_object_or_404(DatosPersonales, user=user_profile)
-    experiencias = ExperienciaLaboral.objects.filter(perfil=datos)
-    habilidades = Habilidad.objects.filter(perfil=datos)
-    return render(request, 'profile_cv.html', {
-        'perfil': datos, 
-        'experiencias': experiencias, 
-        'habilidades': habilidades, 
-        'user_viewed': user_profile
-    })

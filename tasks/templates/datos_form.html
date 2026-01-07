@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Configurar Perfil Profesional</title>
+</head>
+<body class="bg-slate-50 p-6">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-lg border border-slate-200">
+        <h2 class="text-2xl font-bold text-indigo-600 mb-6">Información del Profesional</h2>
+        
+        <form method="POST" class="grid grid-cols-2 gap-4">
+            {% csrf_token %}
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-slate-700">Nombres</label>
+                <input type="text" name="nombres" class="w-full border rounded-lg p-2 mt-1" required>
+            </div>
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-slate-700">Apellidos</label>
+                <input type="text" name="apellidos" class="w-full border rounded-lg p-2 mt-1" required>
+            </div>
+            <div class="col-span-2">
+                <label class="block text-sm font-medium text-slate-700">Descripción Perfil</label>
+                <textarea name="descripcionperfil" class="w-full border rounded-lg p-2 mt-1" rows="3"></textarea>
+            </div>
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-slate-700">Cédula</label>
+                <input type="text" name="numerocedula" class="w-full border rounded-lg p-2 mt-1" required>
+            </div>
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-slate-700">Nacionalidad</label>
+                <input type="text" name="nacionalidad" class="w-full border rounded-lg p-2 mt-1">
+            </div>
+            <div class="col-span-2">
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition">
+                    Guardar Perfil y Ver CV 3D
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

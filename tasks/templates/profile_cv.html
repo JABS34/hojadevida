@@ -2,97 +2,71 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil Profesional | {{ perfil.nombres }}</title>
+    <title>{{ perfil.nombres }} - Perfil Profesional</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        #canvas-container { position: fixed; top: 0; left: 0; z-index: -1; }
-        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        body { background-color: #f8fafc; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans">
-
-    <div id="canvas-container"></div>
-
-    <nav class="p-6 flex justify-between items-center glass sticky top-0 z-50 border-b border-slate-200">
-        <h1 class="text-xl font-bold text-indigo-600">PROFESSIONAL ID</h1>
-        <div class="space-x-4">
-            {% if user.is_authenticated and user == user_viewed %}
-                <a href="/admin/tasks/datospersonales/{{ perfil.id }}/change/" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Modo Admin</a>
-            {% endif %}
-            <a href="#" class="border border-indigo-600 text-indigo-600 px-4 py-2 rounded-lg">Descargar PDF</a>
-        </div>
-    </nav>
-
-    <main class="max-w-4xl mx-auto mt-12 p-6">
-        <section class="glass p-8 rounded-3xl shadow-xl border border-white mb-8 text-center">
-            <div class="w-32 h-32 bg-indigo-100 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl font-bold text-indigo-600">
-                {{ perfil.nombres|slice:":1" }}{{ perfil.apellidos|slice:":1" }}
+<body class="p-4 md:p-10">
+    <div class="max-w-6xl mx-auto">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+            <div>
+                <h1 class="text-5xl font-black text-slate-900 tracking-tighter uppercase">
+                    {{ perfil.nombres }} <span class="text-indigo-600">{{ perfil.apellidos }}</span>
+                </h1>
+                <p class="text-slate-500 font-mono mt-2">ID: {{ perfil.numerocedula }} | {{ perfil.nacionalidad }}</p>
             </div>
-            <h2 class="text-3xl font-extrabold">{{ perfil.nombres }} {{ perfil.apellidos }}</h2>
-            <p class="text-indigo-500 font-medium uppercase tracking-widest text-sm mb-4">{{ perfil.nacionalidad }}</p>
-            <p class="text-slate-600 leading-relaxed max-w-2xl mx-auto">{{ perfil.descripcionperfil }}</p>
-        </section>
+            <button onclick="window.print()" class="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-indigo-600 transition-all shadow-lg">
+                DESCARGAR CV PDF
+            </button>
+        </div>
 
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-8">
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
+                    <h2 class="text-indigo-600 font-black uppercase tracking-widest text-sm mb-4">Resumen Profesional</h2>
+                    <p class="text-slate-700 text-xl leading-relaxed">{{ perfil.descripcionperfil }}</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
+                    <h2 class="text-indigo-600 font-black uppercase tracking-widest text-sm mb-6">Experiencia Laboral</h2>
+                    <div class="space-y-8">
+                        {% for exp in experiencias %}
+                        <div class="border-l-4 border-indigo-500 pl-6">
+                            <h3 class="text-xl font-bold text-slate-900">{{ exp.puesto }}</h3>
+                            <p class="text-indigo-600 font-medium">{{ exp.empresa }}</p>
+                            <p class="text-slate-500 text-sm mb-2">{{ exp.fecha_inicio }} - {% if exp.actualidad %}Actualidad{% else %}{{ exp.fecha_fin }}{% endif %}</p>
+                        </div>
+                        {% empty %}
+                        <p class="text-slate-400 italic">No hay experiencias registradas.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
             <div class="space-y-6">
-                <h3 class="text-lg font-bold border-l-4 border-indigo-600 pl-3">Habilidades Técnicas</h3>
-                {% for habilidad in habilidades %}
-                <div class="glass p-4 rounded-xl border border-slate-100 hover:scale-105 transition-transform">
-                    <div class="flex justify-between mb-1">
-                        <span class="text-sm font-semibold">{{ habilidad.nombre }}</span>
-                        <span class="text-sm text-indigo-600">{{ habilidad.nivel }}%</span>
-                    </div>
-                    <div class="w-full bg-slate-200 rounded-full h-2">
-                        <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ habilidad.nivel }}%"></div>
+                <div class="bg-slate-900 p-8 rounded-[3rem] text-white shadow-2xl">
+                    <h3 class="font-bold text-2xl mb-6 uppercase">Habilidades</h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for hab in habilidades %}
+                        <span class="px-4 py-2 bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-indigo-300 font-bold text-sm">
+                            {{ hab.nombre }}
+                        </span>
+                        {% endfor %}
                     </div>
                 </div>
-                {% endfor %}
+
+                <div class="bg-indigo-600 p-8 rounded-[3rem] text-white shadow-2xl">
+                    <h3 class="font-bold text-2xl mb-4 uppercase">Contacto</h3>
+                    <p class="text-indigo-100 opacity-80">{{ perfil.direcciondomiciliaria }}</p>
+                </div>
             </div>
 
-            <div class="md:col-span-2 space-y-6">
-                <h3 class="text-lg font-bold border-l-4 border-indigo-600 pl-3">Experiencia Laboral</h3>
-                {% for exp in experiencias %}
-                <div class="glass p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-2 bg-green-100 text-green-700 text-xs font-bold px-3 rounded-bl-xl">VERIFICADO</div>
-                    <h4 class="text-xl font-bold">{{ exp.cargodesempenado }}</h4>
-                    <p class="text-indigo-600 font-semibold">{{ exp.nombrempresa }}</p>
-                    <p class="text-slate-500 text-sm mb-4">{{ exp.fecha_inicio }} - {% if exp.fecha_fin %}{{ exp.fecha_fin }}{% else %}Actualidad{% endif %}</p>
-                    <p class="text-slate-600">{{ exp.logros }}</p>
-                </div>
-                {% endfor %}
-            </div>
         </div>
-    </main>
-
-    <script>
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
-        const material = new THREE.MeshBasicMaterial({ color: 0x4f46e5, wireframe: true });
-        const shape = new THREE.Mesh(geometry, material);
-        scene.add(shape);
-
-        camera.position.z = 30;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            shape.rotation.x += 0.001;
-            shape.rotation.y += 0.002;
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
+    </div>
 </body>
 </html>
