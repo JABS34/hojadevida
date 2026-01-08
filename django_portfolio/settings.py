@@ -1,16 +1,21 @@
 import os
 from pathlib import Path
+import dj_database_url
 
 # Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SEGURIDAD: En desarrollo esto puede ser cualquier cosa
-SECRET_KEY = 'django-insecure-tu-clave-aqui'
+# SEGURIDAD
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-aqui')
 
-# DEBUG: True para que nos muestre errores detallados mientras programamos
-DEBUG = True
+# DEBUG: False en producción (Render) automáticamente
+DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ["*"]
+# Permitir el dominio de Render
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if render_external_hostname:
+    ALLOWED_HOSTS.append(render_external_hostname)
 
 # Aplicaciones instaladas
 INSTALLED_APPS = [
@@ -20,12 +25,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "tasks", # Tu aplicación
+    "tasks", 
 ]
 
-# Middleware: Se quitó Whitenoise para evitar errores en local
+# Middleware con Whitenoise para archivos estáticos
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -54,13 +60,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# CONFIGURACIÓN DE BASE DE DATOS (SQLITE ESTÁNDAR)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# CONFIGURACIÓN DE BASE DE DATOS PARA RENDER (DISCO PERSISTENTE)
+if 'RENDER' in os.environ:
+    # Si estamos en Render, usamos la base de datos en el disco montado
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/data/db.sqlite3',
+        }
     }
-}
+else:
+    # Si estamos en local, usamos la base de datos normal
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -69,21 +85,20 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# Configuración de idioma y hora
-LANGUAGE_CODE = "es-es"
-TIME_ZONE = "UTC"
+# Configuración regional
+LANGUAGE_CODE = "es-ec"
+TIME_ZONE = "America/Guayaquil"
 USE_I18N = True
 USE_TZ = True
 
-# Archivos estáticos (CSS, JS, Imágenes del diseño)
+# Archivos estáticos
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')] # Si tienes carpeta static en la raíz
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Configuración de archivos multimedia (Fotos subidas por ti, certificados, etc.)
+# Media (Imágenes subidas)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 LOGIN_URL = "/signin"
