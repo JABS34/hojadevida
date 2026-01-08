@@ -3,6 +3,8 @@ from django.urls import path, include
 from tasks import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve # Necesario para forzar la visualización en Render
+import os
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -22,7 +24,11 @@ urlpatterns = [
     path('tasks/<int:task_id>/', views.task_detail, name='task_detail'),
     path('tasks/<int:task_id>/complete/', views.complete_task, name='complete_task'),
     path('tasks/<int:task_id>/delete/', views.delete_task, name='delete_task'),
+    
+    # RUTA CRÍTICA: Esto sirve las fotos en Render aunque DEBUG sea False
+    path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
-# Configuración para archivos media (fotos de certificados) tanto en desarrollo como producción
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# También mantenemos la configuración estándar por si acaso
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
