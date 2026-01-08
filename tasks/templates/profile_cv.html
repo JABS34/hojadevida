@@ -2,71 +2,208 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>{{ perfil.nombres }} - Perfil Profesional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ perfil.nombres }} | CV PROFESIONAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8fafc; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@300;400;600&display=swap');
+        
+        :root { --a4-width: 210mm; --a4-height: 297mm; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; margin: 0; padding: 0; }
+        
+        .cv-page {
+            width: var(--a4-width);
+            height: var(--a4-height);
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 0 30px rgba(0,0,0,0.15);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .profile-photo {
+            width: 170px;
+            height: 170px;
+            border: 6px solid rgba(255,255,255,0.4);
+            animation: pulse-photo 4s infinite ease-in-out;
+        }
+        @keyframes pulse-photo {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0px rgba(255,255,255,0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 25px 10px rgba(255,255,255,0.2); }
+        }
+
+        .btn-animated { animation: bounce-subtle 3s infinite; transition: all 0.3s; }
+        .btn-animated:hover { transform: translateY(-3px) scale(1.05); }
+        
+        @keyframes bounce-subtle {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+        }
+
+        .aside-bg { background: linear-gradient(180deg, #1e3a8a 0%, #336699 100%); width: 35%; color: white; }
+        .main-content { width: 65%; padding: 50px; }
+        .name-title { font-family: 'Montserrat', sans-serif; line-height: 1.1; }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { background: none; padding: 0; }
+            .no-print { display: none !important; }
+            .cv-page { box-shadow: none; margin: 0; width: 100%; height: 100vh; }
+            .aside-bg { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+
+        /* Estilo Lightbox para Certificado */
+        #lightbox { transition: opacity 0.3s ease; }
     </style>
 </head>
-<body class="p-4 md:p-10">
-    <div class="max-w-6xl mx-auto">
-        
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-            <div>
-                <h1 class="text-5xl font-black text-slate-900 tracking-tighter uppercase">
-                    {{ perfil.nombres }} <span class="text-indigo-600">{{ perfil.apellidos }}</span>
-                </h1>
-                <p class="text-slate-500 font-mono mt-2">ID: {{ perfil.numerocedula }} | {{ perfil.nacionalidad }}</p>
-            </div>
-            <button onclick="window.print()" class="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-indigo-600 transition-all shadow-lg">
-                DESCARGAR CV PDF
-            </button>
-        </div>
+<body>
 
-        <div class="grid lg:grid-cols-3 gap-8">
-            
-            <div class="lg:col-span-2 space-y-8">
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
-                    <h2 class="text-indigo-600 font-black uppercase tracking-widest text-sm mb-4">Resumen Profesional</h2>
-                    <p class="text-slate-700 text-xl leading-relaxed">{{ perfil.descripcionperfil }}</p>
+    <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex justify-end gap-4 px-4 no-print">
+        <button onclick="document.getElementById('modalCert').classList.remove('hidden')" 
+                class="btn-animated bg-indigo-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2">
+            <i class="fas fa-certificate"></i> CURSOS REALIZADOS
+        </button>
+        <button onclick="window.print()" 
+                class="bg-slate-800 text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg flex items-center gap-2 hover:bg-slate-700 transition">
+            <i class="fas fa-file-pdf"></i> DESCARGAR PDF
+        </button>
+    </div>
+
+    <div class="cv-page">
+        <aside class="aside-bg p-8 space-y-10">
+            <div class="flex justify-center py-4">
+                <div class="profile-photo rounded-full overflow-hidden bg-slate-300 shadow-2xl">
+                    {% if perfil.foto %} <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
+                    {% else %} <div class="h-full flex items-center justify-center text-6xl font-bold">{{ perfil.nombres|slice:":1" }}</div> {% endif %}
                 </div>
+            </div>
 
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
-                    <h2 class="text-indigo-600 font-black uppercase tracking-widest text-sm mb-6">Experiencia Laboral</h2>
-                    <div class="space-y-8">
-                        {% for exp in experiencias %}
-                        <div class="border-l-4 border-indigo-500 pl-6">
-                            <h3 class="text-xl font-bold text-slate-900">{{ exp.puesto }}</h3>
-                            <p class="text-indigo-600 font-medium">{{ exp.empresa }}</p>
-                            <p class="text-slate-500 text-sm mb-2">{{ exp.fecha_inicio }} - {% if exp.actualidad %}Actualidad{% else %}{{ exp.fecha_fin }}{% endif %}</p>
-                        </div>
-                        {% empty %}
-                        <p class="text-slate-400 italic">No hay experiencias registradas.</p>
-                        {% endfor %}
+            <section>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Contacto</h3>
+                <div class="space-y-3 text-[13px] opacity-90">
+                    <p class="flex items-center gap-3"><i class="fas fa-envelope text-indigo-300 w-4"></i> {{ user_viewed.email }}</p>
+                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-indigo-300 w-4"></i> {{ perfil.direcciondomiciliaria }}</p>
+                    {% if perfil.instagram %}<p class="flex items-center gap-3"><i class="fab fa-instagram text-indigo-300 w-4"></i> @{{ perfil.instagram }}</p>{% endif %}
+                </div>
+            </section>
+
+            <section>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Formación</h3>
+                <div class="space-y-4">
+                    {% for estudio in estudios %}
+                    <div class="text-[13px]">
+                        <p class="font-bold uppercase text-white leading-tight">{{ estudio.institucion }}</p>
+                        <p class="text-[11px] text-indigo-200 font-semibold">{{ estudio.fecha_graduacion|date:"Y" }}</p>
                     </div>
+                    {% endfor %}
                 </div>
-            </div>
+            </section>
 
-            <div class="space-y-6">
-                <div class="bg-slate-900 p-8 rounded-[3rem] text-white shadow-2xl">
-                    <h3 class="font-bold text-2xl mb-6 uppercase">Habilidades</h3>
+            <section>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Habilidades</h3>
+                <ul class="grid grid-cols-1 gap-2 text-[12px]">
+                    {% for hab in habilidades %} 
+                    <li class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/5">
+                        <i class="fas fa-check-circle text-indigo-300 text-[10px]"></i> {{ hab.nombre }}
+                    </li> 
+                    {% endfor %}
+                </ul>
+            </section>
+        </aside>
+
+        <main class="main-content flex flex-col justify-between">
+            <div>
+                <header class="mb-10 relative">
+                    <div class="absolute -left-5 top-0 w-2 h-full bg-indigo-600"></div>
+                    <h1 class="name-title text-[45px] font-extrabold text-[#0f172a] uppercase tracking-tighter">
+                        {{ perfil.nombres }}<br><span class="text-indigo-600">{{ perfil.apellidos }}</span>
+                    </h1>
+                    <div class="mt-4 flex items-center gap-4">
+                        <span class="h-[2px] w-12 bg-slate-200"></span>
+                        <p class="text-xl text-[#336699] font-bold tracking-[0.2em] uppercase italic">ING. EN SISTEMAS</p>
+                    </div>
+                </header>
+
+                <section class="mb-10">
+                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Stack Tecnológico</h2>
                     <div class="flex flex-wrap gap-2">
-                        {% for hab in habilidades %}
-                        <span class="px-4 py-2 bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-indigo-300 font-bold text-sm">
-                            {{ hab.nombre }}
+                        {% for lang in lenguajes %}
+                        <span class="bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider hover:bg-indigo-600 transition shadow-sm cursor-default">
+                            {{ lang.nombre|upper }}
                         </span>
                         {% endfor %}
                     </div>
-                </div>
+                </section>
 
-                <div class="bg-indigo-600 p-8 rounded-[3rem] text-white shadow-2xl">
-                    <h3 class="font-bold text-2xl mb-4 uppercase">Contacto</h3>
-                    <p class="text-indigo-100 opacity-80">{{ perfil.direcciondomiciliaria }}</p>
-                </div>
+                <section class="mb-10">
+                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Sobre mí</h2>
+                    <p class="text-slate-600 text-[14px] leading-relaxed text-justify font-medium italic border-l-2 border-indigo-100 pl-4">
+                        "{{ perfil.descripcionperfil }}"
+                    </p>
+                </section>
+
+                <section>
+                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Experiencia Reciente</h2>
+                    <div class="space-y-8">
+                        {% for exp in experiencias %}
+                        <div class="relative pl-6 border-l border-slate-100">
+                            <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-600 border-2 border-white"></div>
+                            <h3 class="font-extrabold text-slate-800 text-[16px]">{{ exp.puesto }}</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="text-indigo-600 text-[12px] font-black uppercase">{{ exp.empresa }}</p>
+                                <span class="text-[11px] font-bold text-slate-400">{{ exp.fecha_inicio|date:"Y" }}</span>
+                            </div>
+                            <p class="text-slate-500 text-[12px] leading-snug">{{ exp.descripcion }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
             </div>
+            
+            <footer class="text-[10px] text-slate-300 text-right border-t pt-4">
+                SISTEMA PROFESIONAL DE CURRÍCULUMS | 2026
+            </footer>
+        </main>
+    </div>
 
+    <div id="modalCert" class="fixed inset-0 bg-slate-900/95 hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-4xl max-h-[85vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center bg-indigo-600 text-white">
+                <h2 class="text-xl font-bold uppercase tracking-widest"><i class="fas fa-award mr-2"></i> Mis Certificados</h2>
+                <button onclick="document.getElementById('modalCert').classList.add('hidden')" class="text-white hover:text-red-300 text-3xl font-light">&times;</button>
+            </div>
+            
+            <div class="p-8 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-6">
+                {% for cert in certificados %}
+                <div onclick="openPreview('{{ cert.imagen.url }}', '{{ cert.titulo }}')" 
+                     class="group bg-slate-50 rounded-2xl p-3 border hover:border-indigo-400 transition cursor-zoom-in shadow-sm">
+                    <div class="relative overflow-hidden rounded-xl">
+                        <img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/20 transition flex items-center justify-center">
+                            <i class="fas fa-search-plus text-white opacity-0 group-hover:opacity-100 text-2xl"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-[12px] text-slate-800 mt-3 leading-tight">{{ cert.titulo }}</h3>
+                    <p class="text-[10px] text-indigo-500 font-bold uppercase mt-1">{{ cert.institucion }}</p>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
+
+    <div id="lightbox" class="fixed inset-0 bg-black/90 hidden z-[60] flex flex-col items-center justify-center p-4 no-print" onclick="this.classList.add('hidden')">
+        <button class="absolute top-6 right-8 text-white text-5xl font-thin">&times;</button>
+        <img id="lightboxImg" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl border-4 border-white/10">
+        <h2 id="lightboxTitle" class="text-white mt-6 text-xl font-bold tracking-wider uppercase"></h2>
+    </div>
+
+    <script>
+        function openPreview(url, title) {
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('lightboxTitle').innerText = title;
+            document.getElementById('lightbox').classList.remove('hidden');
+        }
+    </script>
 </body>
 </html>

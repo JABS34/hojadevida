@@ -1,111 +1,74 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Gestión | {{ user.username }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-slate-50 min-h-screen font-sans">
-
-    <nav class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <i class="fas fa-user-edit text-white text-sm"></i>
-            </div>
-            <span class="font-bold text-slate-800 text-lg tracking-tight">PROFESSIONAL DASHBOARD</span>
+{% extends 'base.html' %}
+{% block content %}
+<main class="container mx-auto py-10 px-4">
+    <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl overflow-hidden">
+        <div class="bg-indigo-600 p-8 text-white">
+            <h1 class="text-3xl font-bold">Panel de Control Profesional</h1>
+            <p class="opacity-80">Gestiona la información que aparece en tu CV público.</p>
         </div>
-        <div class="flex items-center gap-4">
-            <a href="{% url 'profile_cv' username=user.username %}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
-                <i class="fas fa-eye mr-1"></i> Ver CV Público
-            </a>
-            <a href="{% url 'home' %}" class="text-sm font-semibold text-slate-500 hover:text-slate-700">Volver</a>
-        </div>
-    </nav>
 
-    <main class="max-w-5xl mx-auto py-10 px-4">
-        <div class="grid md:grid-cols-3 gap-8">
+        <form method="POST" enctype="multipart/form-data" class="p-8 space-y-8">
+            {% csrf_token %}
             
-            <div class="md:col-span-1 space-y-6">
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
-                    <div class="text-center mb-6">
-                        <div class="w-20 h-20 bg-slate-100 rounded-2xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-indigo-600">
-                            {{ user.username|slice:":1"|upper }}
-                        </div>
-                        <h2 class="font-bold text-slate-800 text-xl">{{ user.username }}</h2>
-                        <p class="text-slate-500 text-sm">Usuario Activo</p>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between p-3 bg-indigo-50 rounded-xl text-indigo-700">
-                            <span class="text-sm font-medium">Información General</span>
-                            <i class="fas fa-check-circle text-xs"></i>
-                        </div>
-                        <div class="flex items-center justify-between p-3 text-slate-400 hover:bg-slate-50 rounded-xl transition cursor-not-allowed">
-                            <span class="text-sm font-medium">Experiencia (Próximamente)</span>
-                            <i class="fas fa-lock text-xs"></i>
-                        </div>
-                        <div class="flex items-center justify-between p-3 text-slate-400 hover:bg-slate-50 rounded-xl transition cursor-not-allowed">
-                            <span class="text-sm font-medium">Habilidades (Próximamente)</span>
-                            <i class="fas fa-lock text-xs"></i>
-                        </div>
-                    </div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Foto de Perfil</label>
+                    <input type="file" name="foto" class="w-full border p-2 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Instagram (Usuario)</label>
+                    <input type="text" name="instagram" value="{{ perfil.instagram }}" placeholder="ej: jabs6393" class="w-full border p-2 rounded-lg">
                 </div>
             </div>
 
-            <div class="md:col-span-2">
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="p-8 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
-                        <h3 class="text-xl font-bold text-slate-800">Editar Datos Personales</h3>
-                        <p class="text-slate-500 text-sm">Esta información se mostrará en tu perfil 3D público.</p>
-                    </div>
-
-                    <form method="POST" class="p-8 space-y-6">
-                        {% csrf_token %}
-                        
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nombres</label>
-                                <input type="text" name="nombres" value="{{ perfil.nombres }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Apellidos</label>
-                                <input type="text" name="apellidos" value="{{ perfil.apellidos }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition" required>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Descripción Profesional</label>
-                            <textarea name="descripcionperfil" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="Cuéntale al mundo quién eres...">{{ perfil.descripcionperfil }}</textarea>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Cédula / ID</label>
-                                <input type="text" name="numerocedula" value="{{ perfil.numerocedula }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nacionalidad</label>
-                                <input type="text" name="nacionalidad" value="{{ perfil.nacionalidad }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Dirección Domiciliaria</label>
-                            <input type="text" name="direcciondomiciliaria" value="{{ perfil.direcciondomiciliaria }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition">
-                        </div>
-
-                        <div class="pt-4">
-                            <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2">
-                                <i class="fas fa-save"></i>
-                                Guardar y Publicar Cambios
-                            </button>
-                        </div>
-                    </form>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Nombres</label>
+                    <input type="text" name="nombres" value="{{ perfil.nombres }}" class="w-full border p-2 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Apellidos</label>
+                    <input type="text" name="apellidos" value="{{ perfil.apellidos }}" class="w-full border p-2 rounded-lg">
                 </div>
             </div>
-        </div>
-    </main>
 
-</body>
-</html>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Descripción Profesional</label>
+                <textarea name="descripcionperfil" rows="4" class="w-full border p-2 rounded-lg">{{ perfil.descripcionperfil }}</textarea>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-indigo-600 mb-4 uppercase text-sm tracking-widest">Selecciona tus Lenguajes</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    {% for lang in lenguajes_disponibles %}
+                    <label class="flex items-center space-x-2 bg-white p-2 rounded-md border shadow-sm cursor-pointer hover:bg-indigo-50 transition">
+                        <input type="checkbox" name="lenguajes" value="{{ lang }}" class="text-indigo-600">
+                        <span class="text-xs font-bold text-gray-600">{{ lang }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-indigo-600 mb-4 uppercase text-sm tracking-widest">Agregar Educación / Título</h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <input type="text" name="edu_titulo" placeholder="Título (ej: Ing. Sistemas)" class="border p-2 rounded-lg text-sm">
+                    <input type="text" name="edu_inst" placeholder="Institución" class="border p-2 rounded-lg text-sm">
+                    <input type="date" name="edu_fecha" class="border p-2 rounded-lg text-sm">
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                <h3 class="font-bold text-indigo-600 mb-4 uppercase text-sm tracking-widest">Agregar Habilidad</h3>
+                <div class="flex gap-4">
+                    <input type="text" name="hab_nombre" placeholder="Ej: Trabajo en equipo" class="flex-1 border p-2 rounded-lg text-sm">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl hover:bg-indigo-700 transition shadow-lg">
+                GUARDAR Y VER CV
+            </button>
+        </form>
+    </div>
+</main>
+{% endblock %}
