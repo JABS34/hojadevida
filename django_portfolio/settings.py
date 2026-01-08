@@ -6,7 +6,7 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SEGURIDAD
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-aqui')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
 
 # DEBUG: False en producción (Render) automáticamente
 DEBUG = 'RENDER' not in os.environ
@@ -31,7 +31,7 @@ INSTALLED_APPS = [
 # Middleware con Whitenoise para archivos estáticos
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Servir estáticos en Render
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -60,23 +60,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# CONFIGURACIÓN DE BASE DE DATOS PARA RENDER (DISCO PERSISTENTE)
-if 'RENDER' in os.environ:
-    # Si estamos en Render, usamos la base de datos en el disco montado
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': '/data/db.sqlite3',
-        }
+# CONFIGURACIÓN DE BASE DE DATOS (Ajustada para Plan Gratuito)
+# Usamos SQLite dentro de la carpeta del proyecto
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    # Si estamos en local, usamos la base de datos normal
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
