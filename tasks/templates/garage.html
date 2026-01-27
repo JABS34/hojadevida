@@ -1,31 +1,66 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="container py-5">
-    <h1 class="text-center fw-bold mb-5" style="color: #2c3e8d;">🛒 Venta de Garage</h1>
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+<main class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-uppercase" style="color: #2c3e8d;">
+            🛒 Venta de Garage
+        </h1>
+        <p class="lead text-muted">Artículos tecnológicos y más a precios increíbles.</p>
+        <div style="width: 80px; height: 4px; background-color: #4b5cc4; margin: 0 auto;"></div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for producto in productos %}
         <div class="col">
-            <div class="card h-100 shadow-sm border-0" style="border-radius: 15px;">
-                <div class="position-relative">
-                    <img src="{{ producto.imagen.url }}" class="card-img-top p-3" style="height: 250px; object-fit: contain;">
-                    <span class="position-absolute top-0 end-0 m-3 badge bg-dark fs-5" style="border: 2px solid #dc3545;">
-                        <span class="text-danger">$</span> {{ producto.precio }}
-                    </span>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title fw-bold">{{ producto.nombre }}</h5>
-                    <div class="mb-2">
-                        <span class="badge bg-success">{{ producto.get_estado_display }}</span>
-                        <span class="badge bg-info text-dark">Disponible</span>
+            <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                <div class="position-relative bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" class="img-fluid p-3" alt="{{ producto.nombre }}" style="max-height: 100%; object-fit: contain;">
+                    {% else %}
+                        <i class="bi bi-image text-secondary" style="font-size: 3rem;"></i>
+                    {% endif %}
+                    
+                    <div class="position-absolute top-0 end-0 m-3 shadow" 
+                         style="background-color: #212529; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; border: 2px solid #dc3545;">
+                        <span style="color: #dc3545;">$</span> {{ producto.precio }}
                     </div>
-                    <p class="card-text text-muted small">{{ producto.descripcion }}</p>
-                    <a href="https://wa.me/593YOURNUMBER?text=Me%20interesa%20{{ producto.nombre }}" class="btn btn-primary w-100" style="background-color: #4b5cc4;">
-                        <i class="bi bi-cart"></i> Comprar / Contactar
+                </div>
+
+                <div class="card-body d-flex flex-column">
+                    <div class="mb-2">
+                        <small class="text-muted d-block mb-1">
+                            <i class="bi bi-calendar3"></i> Publicado: {{ producto.fecha_publicado|date:"d/m/Y H:i" }}
+                        </small>
+                        <span class="badge" style="background-color: #198754;">{{ producto.get_estado_display }}</span>
+                        <span class="badge" style="background-color: #0dcaf0; color: #000;">Disponible</span>
+                    </div>
+
+                    <h5 class="card-title fw-bold" style="color: #2c3e8d;">{{ producto.nombre }}</h5>
+                    <p class="card-text text-secondary flex-grow-1">
+                        {{ producto.description|default:"Sin descripción adicional." }}
+                    </p>
+
+                    <a href="https://wa.me/593987654321?text=Hola%20Jonathan,%20me%20interesa%20el%20producto:%20{{ producto.nombre }}" 
+                       target="_blank"
+                       class="btn btn-primary d-flex align-items-center justify-content-center gap-2 mt-3" 
+                       style="background-color: #4b5cc4; border: none; border-radius: 10px; padding: 10px;">
+                        <i class="bi bi-cart-fill"></i> Comprar / Contactar
                     </a>
                 </div>
             </div>
         </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">No hay productos disponibles por el momento.</p>
+        </div>
         {% endfor %}
     </div>
-</div>
+
+    <div class="text-center mt-5">
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary px-4 shadow-sm" style="border-radius: 10px;">
+            <i class="bi bi-arrow-left"></i> Volver al Inicio
+        </a>
+    </div>
+</main>
 {% endblock %}
