@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import Task, DatosPersonales, ExperienciaLaboral, Habilidad, Certificado, Educacion, Lenguaje
+from .models import (
+    Task, DatosPersonales, ExperienciaLaboral, 
+    Habilidad, Certificado, Educacion, Lenguaje,
+    ProductoGarage #
+)
 
 class DatosPersonalesAdmin(admin.ModelAdmin):
     list_display = ('nombres', 'apellidos', 'numerocedula', 'user')
@@ -19,6 +23,17 @@ class EducacionAdmin(admin.ModelAdmin):
 class LenguajeAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'perfil')
 
+# Nueva configuración profesional para tu Venta de Garage
+class ProductoGarageAdmin(admin.ModelAdmin):
+    # Permite ver los datos clave sin entrar al producto
+    list_display = ('nombre', 'precio', 'estado', 'disponible', 'fecha_publicado') 
+    # Filtros laterales para encontrar cosas rápido
+    list_filter = ('estado', 'disponible', 'fecha_publicado') 
+    # Buscador por nombre o descripción
+    search_fields = ('nombre', 'descripcion') 
+    # Permite cambiar precio y stock desde la lista principal
+    list_editable = ('precio', 'disponible') 
+
 admin.site.register(Task)
 admin.site.register(DatosPersonales, DatosPersonalesAdmin)
 admin.site.register(ExperienciaLaboral, ExperienciaAdmin)
@@ -26,3 +41,6 @@ admin.site.register(Habilidad)
 admin.site.register(Certificado, CertificadoAdmin)
 admin.site.register(Educacion, EducacionAdmin)
 admin.site.register(Lenguaje, LenguajeAdmin)
+
+# Registro del nuevo modelo de Garage
+admin.site.register(ProductoGarage, ProductoGarageAdmin)
