@@ -12,6 +12,9 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('perfil/<str:username>/', views.profile_cv, name='profile_cv'),
     
+    # NUEVA RUTA: Venta de Garage
+    path('garage/', views.garage_store, name='garage_store'),
+    
     # Autenticación
     path('signup/', views.signup, name='signup'),
     path('signin/', views.signin, name='signin'),
