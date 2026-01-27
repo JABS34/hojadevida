@@ -12,7 +12,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('perfil/<str:username>/', views.profile_cv, name='profile_cv'),
     
-    # NUEVA RUTA: Venta de Garage (Ya la tienes configurada correctamente)
+    # NUEVA RUTA: Venta de Garage
     path('garage/', views.garage_store, name='garage_store'),
     
     # Autenticación
@@ -32,6 +32,6 @@ urlpatterns = [
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
-# También mantenemos la configuración estándar por si acaso para desarrollo local
+# También mantenemos la configuración estándar por si acaso
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
