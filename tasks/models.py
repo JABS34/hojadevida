@@ -23,9 +23,15 @@ class ExperienciaLaboral(models.Model):
     empresa = models.CharField(max_length=200)
     descripcion = models.TextField()
 
+    def __str__(self):
+        return f"{self.puesto} en {self.empresa}"
+
 class Habilidad(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
 
 class Certificado(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
@@ -33,14 +39,23 @@ class Certificado(models.Model):
     institucion = models.CharField(max_length=200)
     imagen = models.ImageField(upload_to='certificados/')
 
+    def __str__(self):
+        return self.titulo
+
 class Educacion(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     institucion = models.CharField(max_length=200)
     fecha_graduacion = models.DateField()
 
+    def __str__(self):
+        return self.institucion
+
 class Lenguaje(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
 
 # --- NUEVA SECCIÓN: RECONOCIMIENTOS ---
 class Reconocimiento(models.Model):
@@ -75,4 +90,4 @@ class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.title + ' - by ' + self.user.username
+        return f"{self.title} - by {self.user.username}"
