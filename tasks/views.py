@@ -1,22 +1,45 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from django.contrib.auth import login, logout, authenticate
-from django.db import IntegrityError
-from .forms import TaskForm
 from .models import (
-    Task, DatosPersonales, ExperienciaLaboral, Habilidad, 
+    DatosPersonales, ExperienciaLaboral, Habilidad, 
     Certificado, Educacion, Lenguaje, ProductoGarage, Reconocimiento
 )
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
-# --- VISTAS GENERALES ---
-
+# --- INICIO ---
 def home(request):
+    # Busca al primer superusuario para mostrar su perfil por defecto
     admin_user = User.objects.filter(is_superuser=True).first()
     return render(request, "welcome.html", {"admin_user": admin_user})
 
+# --- EL CORAZÓN DE TU HOJA DE VIDA ---
+def profile_cv(request, username):
+    # Buscamos al usuario por su nombre de usuario en la URL
+    user_profile = get_object_or_404(User, username=username)
+    # Buscamos sus datos personales
+    datos = get_object_or_404(DatosPersonales, user=user_profile)
+    
+    # Consultas para todas las secciones que alimentan tu CV
+    context = {
+        'perfil': datos,
+        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos),
+        'habilidades': Habilidad.objects.filter(perfil=datos),
+        'certificados': Certificado.objects.filter(perfil=datos),
+        'estudios': Educacion.objects.filter(perfil=datos),
+        'lenguajes': Lenguaje.objects.filter(perfil=datos),
+        'reconocimientos': Reconocimiento.objects.filter(perfil=datos), # Esto activa el botón de logros
+        'user_viewed': user_profile,
+    }
+    return render(request, 'profile_cv.html', context)
+
+# --- SECCIÓN VENTA DE GARAGE ---
+def garage_store(request):
+    # Filtra solo productos marcados como disponibles
+    productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
+    return render(request, 'garage.html', {'productos': productos})
+
+# --- DASHBOARD (Solo para que tú edites tus datos) ---
 @login_required
 def dashboard(request):
     perfil, created = DatosPersonales.objects.get_or_create(
@@ -39,129 +62,10 @@ def dashboard(request):
             perfil.foto = request.FILES.get('foto')
         perfil.save()
 
-        # Agregar Educación rápida
-        if request.POST.get('edu_inst'):
-            Educacion.objects.create(
-                perfil=perfil, 
-                institucion=request.POST.get('edu_inst'), 
-                fecha_graduacion=request.POST.get('edu_fecha') or timezone.now().date()
-            )
-
-        # Agregar Habilidad rápida
+        # Agregar Habilidad rápida desde el dashboard
         if request.POST.get('hab_nombre'):
             Habilidad.objects.create(perfil=perfil, nombre=request.POST.get('hab_nombre'))
 
-        # Actualizar Lenguajes
-        lenguajes_seleccionados = request.POST.getlist('lenguajes')
-        if lenguajes_seleccionados:
-            Lenguaje.objects.filter(perfil=perfil).delete()
-            for lang in lenguajes_seleccionados:
-                Lenguaje.objects.create(perfil=perfil, nombre=lang)
-
         return redirect('profile_cv', username=request.user.username)
         
-    return render(request, 'dashboard.html', {
-        'perfil': perfil,
-        'lenguajes_disponibles': ['Python', 'Django', 'JavaScript', 'HTML/CSS', 'SQL', 'C++', 'Java', 'PHP', 'React', 'Node.js']
-    })
-
-def profile_cv(request, username):
-    user_profile = get_object_or_404(User, username=username)
-    datos = get_object_or_404(DatosPersonales, user=user_profile)
-    
-    # Consultas para todas las secciones del CV
-    context = {
-        'perfil': datos,
-        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos),
-        'habilidades': Habilidad.objects.filter(perfil=datos),
-        'certificados': Certificado.objects.filter(perfil=datos),
-        'estudios': Educacion.objects.filter(perfil=datos),
-        'lenguajes': Lenguaje.objects.filter(perfil=datos),
-        'reconocimientos': Reconocimiento.objects.filter(perfil=datos), # Activador de la sección
-        'user_viewed': user_profile,
-    }
-    return render(request, 'profile_cv.html', context)
-
-# --- SECCIÓN VENTA DE GARAGE ---
-
-def garage_store(request):
-    productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
-    return render(request, 'garage.html', {'productos': productos})
-
-# --- GESTIÓN DE TAREAS (CRUD) ---
-
-@login_required
-def tasks(request):
-    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
-    return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas Pendientes'})
-
-@login_required
-def tasks_completed(request):
-    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=False).order_by('-datecompleted')
-    return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas Completadas'})
-
-@login_required
-def create_task(request):
-    if request.method == 'GET':
-        return render(request, 'create_task.html', {'form': TaskForm()})
-    else:
-        try:
-            form = TaskForm(request.POST)
-            new_task = form.save(commit=False)
-            new_task.user = request.user
-            new_task.save()
-            return redirect('tasks')
-        except ValueError:
-            return render(request, 'create_task.html', {'form': TaskForm(), 'error': 'Datos inválidos'})
-
-@login_required
-def task_detail(request, task_id):
-    task = get_object_or_404(Task, pk=task_id, user=request.user)
-    if request.method == 'GET':
-        form = TaskForm(instance=task)
-        return render(request, 'task_detail.html', {'task': task, 'form': form})
-    else:
-        form = TaskForm(request.POST, instance=task)
-        form.save()
-        return redirect('tasks')
-
-@login_required
-def complete_task(request, task_id):
-    task = get_object_or_404(Task, pk=task_id, user=request.user)
-    task.datecompleted = timezone.now()
-    task.save()
-    return redirect('tasks')
-
-@login_required
-def delete_task(request, task_id):
-    task = get_object_or_404(Task, pk=task_id, user=request.user)
-    task.delete()
-    return redirect('tasks')
-
-# --- AUTENTICACIÓN ---
-
-def signup(request):
-    if request.method == 'GET':
-        return render(request, 'signup.html', {'form': UserCreationForm()})
-    else:
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('tasks')
-        return render(request, 'signup.html', {'form': UserCreationForm(), 'error': 'El usuario ya existe o datos inválidos'})
-
-def signout(request):
-    logout(request)
-    return redirect('home')
-
-def signin(request):
-    if request.method == 'GET':
-        return render(request, 'signin.html', {'form': AuthenticationForm()})
-    else:
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
-        if user is None:
-            return render(request, 'signin.html', {'form': AuthenticationForm(), 'error': 'Usuario o contraseña incorrectos'})
-        else:
-            login(request, user)
-            return redirect('tasks')
+    return render(request, 'dashboard.html', {'perfil': perfil})
