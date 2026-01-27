@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# --- PERFIL PRINCIPAL ---
 class DatosPersonales(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nombres = models.CharField(max_length=100)
@@ -16,22 +15,15 @@ class DatosPersonales(models.Model):
     def __str__(self):
         return f"{self.nombres} {self.apellidos}"
 
-# --- SECCIONES DEL CV ---
 class ExperienciaLaboral(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     puesto = models.CharField(max_length=200)
     empresa = models.CharField(max_length=200)
     descripcion = models.TextField()
 
-    def __str__(self):
-        return f"{self.puesto} en {self.empresa}"
-
 class Habilidad(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.nombre
 
 class Certificado(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
@@ -39,25 +31,15 @@ class Certificado(models.Model):
     institucion = models.CharField(max_length=200)
     imagen = models.ImageField(upload_to='certificados/')
 
-    def __str__(self):
-        return self.titulo
-
 class Educacion(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     institucion = models.CharField(max_length=200)
     fecha_graduacion = models.DateField()
 
-    def __str__(self):
-        return self.institucion
-
 class Lenguaje(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
 
-    def __str__(self):
-        return self.nombre
-
-# --- NUEVA SECCIÓN: RECONOCIMIENTOS ---
 class Reconocimiento(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     titulo = models.CharField(max_length=200)
@@ -68,7 +50,6 @@ class Reconocimiento(models.Model):
     def __str__(self):
         return f"{self.titulo} - {self.perfil.nombres}"
 
-# --- SECCIÓN: VENTA DE GARAGE ---
 class ProductoGarage(models.Model):
     nombre = models.CharField(max_length=200)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
@@ -80,7 +61,6 @@ class ProductoGarage(models.Model):
     def __str__(self):
         return self.nombre
 
-# --- TAREAS (DEL CRUD ORIGINAL) ---
 class Task(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -90,4 +70,4 @@ class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.title} - by {self.user.username}"
+        return self.title + ' - by ' + self.user.username
