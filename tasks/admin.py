@@ -5,25 +5,42 @@ from .models import (
     ProductoGarage, Reconocimiento
 )
 
-# Configuración de Datos Personales
+# 1. Configuración de Datos Personales
 @admin.register(DatosPersonales)
 class DatosPersonalesAdmin(admin.ModelAdmin):
-    list_display = ('nombres', 'apellidos', 'user')
-    search_fields = ('nombres', 'apellidos')
+    list_display = ('nombres', 'apellidos', 'user', 'numerocedula')
+    search_fields = ('nombres', 'apellidos', 'numerocedula')
 
-# Configuración del Garage
+# 2. Configuración de la Venta de Garage (Soluciona el Error 500)
 @admin.register(ProductoGarage)
 class ProductoGarageAdmin(admin.ModelAdmin):
+    # Usamos exactamente los nombres del modelo: nombre, precio, disponible, fecha_publicado
     list_display = ('nombre', 'precio', 'disponible', 'fecha_publicado')
     list_filter = ('disponible', 'fecha_publicado')
     list_editable = ('disponible', 'precio')
-    search_fields = ('nombre',)
+    search_fields = ('nombre', 'descripcion')
 
-# Registro simple para los demás modelos (evita errores de columnas)
+# 3. Configuración de Reconocimientos (Para que se vea bien el título)
+@admin.register(Reconocimiento)
+class ReconocimientoAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'institucion_otorga', 'fecha', 'perfil')
+    list_filter = ('fecha', 'institucion_otorga')
+    search_fields = ('titulo', 'descripcion')
+
+# 4. Configuración de Certificados
+@admin.register(Certificado)
+class CertificadoAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'institucion', 'perfil')
+    search_fields = ('titulo', 'institucion')
+
+# 5. Configuración de Experiencia Laboral
+@admin.register(ExperienciaLaboral)
+class ExperienciaAdmin(admin.ModelAdmin):
+    list_display = ('puesto', 'empresa', 'perfil')
+    search_fields = ('puesto', 'empresa')
+
+# 6. Registros Simples (Para modelos con pocos campos)
 admin.site.register(Task)
-admin.site.register(ExperienciaLaboral)
 admin.site.register(Habilidad)
-admin.site.register(Certificado)
 admin.site.register(Educacion)
 admin.site.register(Lenguaje)
-admin.site.register(Reconocimiento)
