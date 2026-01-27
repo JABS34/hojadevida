@@ -30,22 +30,22 @@
                 <div class="card-body d-flex flex-column">
                     <div class="mb-2">
                         <small class="text-muted d-block mb-1">
-                            <i class="bi bi-calendar3"></i> Publicado: {{ producto.fecha_publicado|date:"d/m/Y H:i" }}
+                            <i class="bi bi-calendar3"></i> Publicado: {{ producto.fecha_publicado|date:"d/m/Y" }}
                         </small>
-                        <span class="badge" style="background-color: #198754;">{{ producto.get_estado_display }}</span>
+                        <span class="badge" style="background-color: #198754;">Original</span>
                         <span class="badge" style="background-color: #0dcaf0; color: #000;">Disponible</span>
                     </div>
 
                     <h5 class="card-title fw-bold" style="color: #2c3e8d;">{{ producto.nombre }}</h5>
                     <p class="card-text text-secondary flex-grow-1">
-                        {{ producto.description|default:"Sin descripción adicional." }}
+                        {{ producto.descripcion|default:"Sin descripción adicional." }}
                     </p>
 
-                    <a href="https://wa.me/593987654321?text=Hola%20Jonathan,%20me%20interesa%20el%20producto:%20{{ producto.nombre }}" 
+                    <a href="https://wa.me/593987654321?text=Hola,%20me%20interesa%20el%20producto:%20{{ producto.nombre }}" 
                        target="_blank"
                        class="btn btn-primary d-flex align-items-center justify-content-center gap-2 mt-3" 
                        style="background-color: #4b5cc4; border: none; border-radius: 10px; padding: 10px;">
-                        <i class="bi bi-cart-fill"></i> Comprar / Contactar
+                        <i class="fab fa-whatsapp"></i> Consultar por WhatsApp
                     </a>
                 </div>
             </div>
@@ -59,7 +59,7 @@
 
     <div class="text-center mt-5">
         <a href="{% url 'home' %}" class="btn btn-outline-secondary px-4 shadow-sm" style="border-radius: 10px;">
-            <i class="bi bi-arrow-left"></i> Volver al Inicio
+            <i class="fas fa-arrow-left"></i> Volver al Inicio
         </a>
     </div>
 </main>
