@@ -5,27 +5,25 @@ from .models import (
     ProductoGarage, Reconocimiento
 )
 
-# --- Registro simplificado (A prueba de errores) ---
-
-# Usamos el registro básico para estos modelos. 
-# Esto hará que Django use los nombres por defecto y NO falle el despliegue.
-admin.site.register(Task)
-admin.site.register(Habilidad)
-admin.site.register(Lenguaje)
-admin.site.register(Reconocimiento)
-admin.site.register(Certificado) # Sin clase Admin para evitar el error 'nombre'
-admin.site.register(ExperienciaLaboral) # Sin clase Admin para evitar error de fechas
-admin.site.register(Educacion)
-
+# Configuración de Datos Personales
+@admin.register(DatosPersonales)
 class DatosPersonalesAdmin(admin.ModelAdmin):
-    # Solo nombres y apellidos que son campos estándar
     list_display = ('nombres', 'apellidos', 'user')
     search_fields = ('nombres', 'apellidos')
 
+# Configuración del Garage
+@admin.register(ProductoGarage)
 class ProductoGarageAdmin(admin.ModelAdmin):
-    # Solo nombre y precio para asegurar que el build pase
-    list_display = ('nombre', 'precio', 'disponible')
+    list_display = ('nombre', 'precio', 'disponible', 'fecha_publicado')
+    list_filter = ('disponible', 'fecha_publicado')
     list_editable = ('disponible', 'precio')
+    search_fields = ('nombre',)
 
-admin.site.register(DatosPersonales, DatosPersonalesAdmin)
-admin.site.register(ProductoGarage, ProductoGarageAdmin)
+# Registro simple para los demás modelos (evita errores de columnas)
+admin.site.register(Task)
+admin.site.register(ExperienciaLaboral)
+admin.site.register(Habilidad)
+admin.site.register(Certificado)
+admin.site.register(Educacion)
+admin.site.register(Lenguaje)
+admin.site.register(Reconocimiento)
