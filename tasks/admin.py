@@ -1,8 +1,8 @@
 from django.contrib import admin
 from .models import (
     Task, DatosPersonales, ExperienciaLaboral, 
-    Habilidad, Certificado, Educacion, Lenguaje,
-    ProductoGarage #
+    Habilidad, Certificado, Educacion, Lenguaje, 
+    ProductoGarage # Importamos el nuevo modelo
 )
 
 class DatosPersonalesAdmin(admin.ModelAdmin):
@@ -23,16 +23,16 @@ class EducacionAdmin(admin.ModelAdmin):
 class LenguajeAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'perfil')
 
-# Nueva configuración profesional para tu Venta de Garage
+# --- Nueva configuración para la Venta de Garage ---
 class ProductoGarageAdmin(admin.ModelAdmin):
-    # Permite ver los datos clave sin entrar al producto
-    list_display = ('nombre', 'precio', 'estado', 'disponible', 'fecha_publicado') 
-    # Filtros laterales para encontrar cosas rápido
-    list_filter = ('estado', 'disponible', 'fecha_publicado') 
-    # Buscador por nombre o descripción
-    search_fields = ('nombre', 'descripcion') 
-    # Permite cambiar precio y stock desde la lista principal
-    list_editable = ('precio', 'disponible') 
+    # Esto muestra columnas útiles en la lista del admin
+    list_display = ('nombre', 'precio', 'estado', 'disponible', 'fecha_publicado')
+    # Permite filtrar por estado o disponibilidad en el lateral
+    list_filter = ('estado', 'disponible', 'fecha_publicado')
+    # Permite buscar productos por nombre
+    search_fields = ('nombre', 'descripcion')
+    # Permite editar la disponibilidad directamente desde la lista sin entrar al producto
+    list_editable = ('disponible', 'precio')
 
 admin.site.register(Task)
 admin.site.register(DatosPersonales, DatosPersonalesAdmin)
@@ -42,5 +42,5 @@ admin.site.register(Certificado, CertificadoAdmin)
 admin.site.register(Educacion, EducacionAdmin)
 admin.site.register(Lenguaje, LenguajeAdmin)
 
-# Registro del nuevo modelo de Garage
+# Registramos el nuevo modelo con su configuración
 admin.site.register(ProductoGarage, ProductoGarageAdmin)
