@@ -4,19 +4,45 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
 from .forms import TaskForm
-from .models import Task, DatosPersonales, ExperienciaLaboral, Habilidad, Certificado, Educacion, Lenguaje
+from .models import (
+    Task, DatosPersonales, ExperienciaLaboral, Habilidad, 
+    Certificado, Educacion, Lenguaje, ProductoGarage, Reconocimiento
+)
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+
+# --- VISTAS DE NAVEGACIÓN ---
 
 def home(request):
     admin_user = User.objects.filter(is_superuser=True).first()
     return render(request, "welcome.html", {"admin_user": admin_user})
 
+def profile_cv(request, username):
+    user_profile = get_object_or_404(User, username=username)
+    datos = get_object_or_404(DatosPersonales, user=user_profile)
+    
+    context = {
+        'perfil': datos, 
+        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos), 
+        'habilidades': Habilidad.objects.filter(perfil=datos), 
+        'certificados': Certificado.objects.filter(perfil=datos),
+        'estudios': Educacion.objects.filter(perfil=datos),
+        'lenguajes': Lenguaje.objects.filter(perfil=datos),
+        'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
+        'user_viewed': user_profile,
+    }
+    return render(request, 'profile_cv.html', context)
+
 @login_required
 def dashboard(request):
     perfil, created = DatosPersonales.objects.get_or_create(
         user=request.user,
-        defaults={'nombres': request.user.username, 'apellidos': "Actualizar", 'fechanacimiento': "1990-01-01", 'numerocedula': f"ID-{request.user.id}"}
+        defaults={
+            'nombres': request.user.username, 
+            'apellidos': "Actualizar", 
+            'fechanacimiento': "1990-01-01", 
+            'numerocedula': f"ID-{request.user.id}"
+        }
     )
 
     if request.method == 'POST':
@@ -30,16 +56,14 @@ def dashboard(request):
         perfil.save()
 
         if request.POST.get('edu_inst'):
-            Educacion.objects.create(perfil=perfil, institucion=request.POST.get('edu_inst'), fecha_graduacion=request.POST.get('edu_fecha') or timezone.now().date())
+            Educacion.objects.create(
+                perfil=perfil, 
+                institucion=request.POST.get('edu_inst'), 
+                fecha_graduacion=request.POST.get('edu_fecha') or timezone.now().date()
+            )
 
         if request.POST.get('hab_nombre'):
             Habilidad.objects.create(perfil=perfil, nombre=request.POST.get('hab_nombre'))
-
-        lenguajes_seleccionados = request.POST.getlist('lenguajes')
-        if lenguajes_seleccionados:
-            Lenguaje.objects.filter(perfil=perfil).delete()
-            for lang in lenguajes_seleccionados:
-                Lenguaje.objects.create(perfil=perfil, nombre=lang)
 
         return redirect('profile_cv', username=request.user.username)
         
@@ -48,97 +72,88 @@ def dashboard(request):
         'lenguajes_disponibles': ['Python', 'Django', 'JavaScript', 'HTML/CSS', 'SQL', 'C++', 'Java', 'PHP', 'React', 'Node.js']
     })
 
-def profile_cv(request, username):
-    user_profile = get_object_or_404(User, username=username)
-    datos = get_object_or_404(DatosPersonales, user=user_profile)
-    experiencias = ExperienciaLaboral.objects.filter(perfil=datos)
-    habilidades = Habilidad.objects.filter(perfil=datos)
-    certificados = Certificado.objects.filter(perfil=datos)
-    estudios = Educacion.objects.filter(perfil=datos)
-    lenguajes = Lenguaje.objects.filter(perfil=datos)
-    
-    return render(request, 'profile_cv.html', {
-        'perfil': datos, 
-        'experiencias': experiencias, 
-        'habilidades': habilidades, 
-        'certificados': certificados,
-        'estudios': estudios,
-        'lenguajes': lenguajes,
-        'user_viewed': user_profile,
-    })
+# --- SECCIÓN VENTA DE GARAGE ---
 
-# --- Mantener el resto de funciones (signup, signin, tasks, etc.) igual que antes ---
+def garage_store(request):
+    productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
+    return render(request, 'garage.html', {'productos': productos})
+
+# --- AUTENTICACIÓN ---
+
 def signup(request):
-    if request.method == "GET": return render(request, "signup.html", {"form": UserCreationForm})
+    if request.method == "GET":
+        return render(request, "signup.html", {"form": UserCreationForm()})
     else:
-        if request.POST["password1"] == request.POST["password2"]:
-            try:
-                user = User.objects.create_user(username=request.POST["username"], password=request.POST["password1"])
-                user.save()
-                login(request, user)
-                return redirect('dashboard')
-            except IntegrityError: return render(request, "signup.html", {"form": UserCreationForm, "error": "El usuario ya existe"})
-        return render(request, "signup.html", {"form": UserCreationForm, "error": "Las contraseñas no coinciden"})
-
-def signin(request):
-    if request.method == 'GET': return render(request, 'signin.html', {'form': AuthenticationForm})
-    else:
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
-        if user is None: return render(request, 'signin.html', {'form': AuthenticationForm, 'error':'Usuario o contraseña incorrectos'})
-        else:
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
             login(request, user)
             return redirect('dashboard')
+        return render(request, "signup.html", {"form": form, "error": "Datos inválidos o el usuario ya existe"})
+
+def signin(request):
+    if request.method == 'GET':
+        return render(request, 'signin.html', {'form': AuthenticationForm()})
+    else:
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        if user is None:
+            return render(request, 'signin.html', {'form': AuthenticationForm(), 'error': 'Usuario o contraseña incorrectos'})
+        login(request, user)
+        return redirect('dashboard')
 
 def signout(request):
     logout(request)
     return redirect('home')
 
+# --- TAREAS (CRUD) ---
+
 @login_required
 def tasks(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
-    return render(request, 'tasks.html',{'tasks':tasks, 'tipopagina':'Tareas Pendientes'})
+    return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas Pendientes'})
 
 @login_required
 def tasks_completed(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=False).order_by('-datecompleted')
-    return render(request, 'tasks.html',{'tasks':tasks,'tipopagina':'Tareas completadas'})
+    return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas completadas'})
 
 @login_required
 def create_task(request):
-    if request.method == 'GET': return render(request,"create_task.html",{'form': TaskForm})
+    if request.method == 'GET':
+        return render(request, "create_task.html", {'form': TaskForm()})
     else:
-        try:
-            form = TaskForm(request.POST)
+        form = TaskForm(request.POST)
+        if form.is_valid():
             new_task = form.save(commit=False)
             new_task.user = request.user
             new_task.save()
             return redirect('tasks')
-        except ValueError: return render(request,"create_task.html",{'form': TaskForm, 'error': 'Datos incorrectos'})
+        return render(request, "create_task.html", {'form': form, 'error': 'Datos incorrectos'})
 
 @login_required
 def task_detail(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
     if request.method == 'GET':
         form = TaskForm(instance=task)
-        return render(request,'task_detail.html',{'task':task, 'form': form})
+        return render(request, 'task_detail.html', {'task': task, 'form': form})
     else:
-        try:
-            form = TaskForm(request.POST, instance=task)
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
             form.save()
             return redirect('tasks')
-        except ValueError: return render(request,'task_detail.html',{'task':task, 'form': form, 'error':'Error al actualizar'})
+        return render(request, 'task_detail.html', {'task': task, 'form': form, 'error': 'Error al actualizar'})
 
 @login_required
 def complete_task(request, task_id):
-    task = get_object_or_404(Task, pk=task_id, user=request.user) 
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
     if request.method == 'POST':
         task.datecompleted = timezone.now()
         task.save()
-        return redirect('tasks')
+    return redirect('tasks')
 
 @login_required
 def delete_task(request, task_id):
-    task = get_object_or_404(Task, pk=task_id, user=request.user) 
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
     if request.method == 'POST':
         task.delete()
-        return redirect('tasks')
+    return redirect('tasks')
