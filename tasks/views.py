@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
 from .forms import TaskForm
-from .models import Task, DatosPersonales, ExperienciaLaboral, Habilidad, Certificado, Educacion, Lenguaje
+# IMPORTANTE: Añadimos ProductoGarage a la lista de modelos
+from .models import Task, DatosPersonales, ExperienciaLaboral, Habilidad, Certificado, Educacion, Lenguaje, ProductoGarage
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
@@ -67,7 +68,15 @@ def profile_cv(request, username):
         'user_viewed': user_profile,
     })
 
-# --- Mantener el resto de funciones (signup, signin, tasks, etc.) igual ---
+# --- VENTA DE GARAGE (Nueva función) ---
+
+def garage_store(request):
+    # Obtenemos solo los productos marcados como disponibles
+    productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
+    return render(request, 'garage.html', {'productos': productos})
+
+# --- Autenticación ---
+
 def signup(request):
     if request.method == "GET": return render(request, "signup.html", {"form": UserCreationForm})
     else:
@@ -92,6 +101,8 @@ def signin(request):
 def signout(request):
     logout(request)
     return redirect('home')
+
+# --- Gestión de Tareas ---
 
 @login_required
 def tasks(request):
