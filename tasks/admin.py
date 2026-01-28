@@ -12,7 +12,6 @@ class DatosPersonalesAdmin(admin.ModelAdmin):
 
 @admin.register(ProductoGarage)
 class ProductoGarageAdmin(admin.ModelAdmin):
-    # Ahora incluimos 'estado' en la visualización
     list_display = ('nombre', 'precio', 'estado', 'disponible', 'fecha_publicado')
     list_filter = ('disponible', 'estado', 'fecha_publicado')
     list_editable = ('disponible', 'precio', 'estado')
@@ -20,8 +19,12 @@ class ProductoGarageAdmin(admin.ModelAdmin):
 
 @admin.register(Reconocimiento)
 class ReconocimientoAdmin(admin.ModelAdmin):
+    # Ahora mostramos los campos clave en la lista del admin
     list_display = ('titulo', 'institucion_otorga', 'fecha', 'perfil')
+    list_filter = ('institucion_otorga', 'fecha')
+    search_fields = ('titulo', 'descripcion')
 
+# Registros de modelos secundarios
 admin.site.register(Task)
 admin.site.register(Certificado)
 admin.site.register(ExperienciaLaboral)
