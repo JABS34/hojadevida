@@ -11,8 +11,11 @@
         :root { --a4-width: 210mm; --a4-height: 297mm; }
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; margin: 0; padding: 0; }
         .cv-page { width: var(--a4-width); height: var(--a4-height); margin: 20px auto; background: white; box-shadow: 0 0 30px rgba(0,0,0,0.15); display: flex; overflow: hidden; }
+        .profile-photo { width: 170px; height: 170px; border: 6px solid rgba(255,255,255,0.4); animation: pulse-photo 4s infinite ease-in-out; }
+        @keyframes pulse-photo { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0px rgba(255,255,255,0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 25px 10px rgba(255,255,255,0.2); } }
         .aside-bg { background: linear-gradient(180deg, #1e3a8a 0%, #336699 100%); width: 35%; color: white; }
         .main-content { width: 65%; padding: 50px; }
+        .name-title { font-family: 'Montserrat', sans-serif; line-height: 1.1; }
         @media print { .no-print { display: none !important; } .cv-page { box-shadow: none; margin: 0; width: 100%; height: 100vh; } }
         .cursor-zoom { cursor: zoom-in; transition: transform 0.2s; }
         .cursor-zoom:hover { transform: scale(1.02); }
@@ -39,19 +42,97 @@
     </div>
 
     <div class="cv-page">
-        <aside class="aside-bg p-8">
-            <h2 class="text-xl font-bold mb-4 italic border-b border-white/20 pb-2">CONTACTO</h2>
-            <p class="text-sm opacity-90 mb-2">{{ user_viewed.email }}</p>
-            <p class="text-sm opacity-90">{{ perfil.direcciondomiciliaria }}</p>
+        <aside class="aside-bg p-8 space-y-10">
+            <div class="flex justify-center py-4">
+                <div class="profile-photo rounded-full overflow-hidden bg-slate-300 shadow-2xl">
+                    {% if perfil.foto %} 
+                        <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
+                    {% else %} 
+                        <div class="h-full flex items-center justify-center text-6xl font-bold bg-indigo-800 text-white">
+                            {{ perfil.nombres|slice:":1"|upper }}
+                        </div> 
+                    {% endif %}
+                </div>
+            </div>
+
+            <section>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Contacto</h3>
+                <div class="space-y-3 text-[13px] opacity-90">
+                    <p class="flex items-center gap-3"><i class="fas fa-envelope text-indigo-300 w-4"></i> {{ user_viewed.email }}</p>
+                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-indigo-300 w-4"></i> {{ perfil.direcciondomiciliaria|default:"No especificada" }}</p>
+                    {% if perfil.instagram %}<p class="flex items-center gap-3"><i class="fab fa-instagram text-indigo-300 w-4"></i> @{{ perfil.instagram }}</p>{% endif %}
+                </div>
+            </section>
+
+            <section>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Formación</h3>
+                <div class="space-y-4">
+                    {% for estudio in estudios %}
+                    <div class="text-[13px]">
+                        <p class="font-bold uppercase text-white leading-tight">{{ estudio.institucion }}</p>
+                        <p class="text-[11px] text-indigo-200 font-semibold">{{ estudio.fecha_graduacion|date:"Y" }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Habilidades</h3>
+                <ul class="grid grid-cols-1 gap-2 text-[12px]">
+                    {% for hab in habilidades %} 
+                    <li class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/5">
+                        <i class="fas fa-check-circle text-indigo-300 text-[10px]"></i> {{ hab.nombre }}
+                    </li> 
+                    {% endfor %}
+                </ul>
+            </section>
         </aside>
 
-        <main class="main-content">
-            <h1 class="text-4xl font-extrabold text-slate-800 uppercase">{{ perfil.nombres }} {{ perfil.apellidos }}</h1>
-            <p class="text-indigo-600 font-bold tracking-widest mb-8">PROFESIONAL</p>
-            <section>
-                <h3 class="font-bold text-slate-400 text-xs tracking-widest uppercase mb-4">Sobre mí</h3>
-                <p class="text-slate-600 text-sm leading-relaxed">{{ perfil.descripcionperfil }}</p>
-            </section>
+        <main class="main-content flex flex-col justify-between">
+            <div>
+                <header class="mb-10 relative">
+                    <div class="absolute -left-5 top-0 w-2 h-full bg-indigo-600"></div>
+                    <h1 class="name-title text-[45px] font-extrabold text-[#0f172a] uppercase tracking-tighter">
+                        {{ perfil.nombres|default:"NOMBRES" }}<br><span class="text-indigo-600">{{ perfil.apellidos|default:"APELLIDOS" }}</span>
+                    </h1>
+                    <p class="text-xl text-[#336699] font-bold tracking-[0.2em] uppercase mt-4 italic">PROFESIONAL</p>
+                </header>
+
+                <section class="mb-10">
+                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Stack Tecnológico</h2>
+                    <div class="flex flex-wrap gap-2">
+                        {% for lang in lenguajes %}
+                        <span class="bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider">
+                            {{ lang.nombre|upper }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <section class="mb-10">
+                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Sobre mí</h2>
+                    <p class="text-slate-600 text-[14px] leading-relaxed text-justify italic border-l-2 border-indigo-100 pl-4">
+                        "{{ perfil.descripcionperfil|default:"Sin descripción disponible." }}"
+                    </p>
+                </section>
+
+                <section>
+                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Experiencia</h2>
+                    <div class="space-y-8">
+                        {% for exp in experiencias %}
+                        <div class="relative pl-6 border-l border-slate-100">
+                            <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
+                            <h3 class="font-extrabold text-slate-800 text-[16px]">{{ exp.puesto }}</h3>
+                            <p class="text-indigo-600 text-[12px] font-black uppercase">{{ exp.empresa }}</p>
+                            <p class="text-slate-500 text-[12px] leading-snug">{{ exp.descripcion }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+            <footer class="text-[10px] text-slate-300 text-right border-t pt-4 uppercase">
+                Perfil Profesional Generado | 2026
+            </footer>
         </main>
     </div>
 
