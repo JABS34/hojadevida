@@ -1,9 +1,9 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from tasks import views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.static import serve # Necesario para forzar la visualización en Render
+from django.views.static import serve
 import os
 
 urlpatterns = [
@@ -11,6 +11,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('perfil/<str:username>/', views.profile_cv, name='profile_cv'),
+    path('garage/', views.garage_store, name='garage_store'), # Ruta añadida
     
     # Autenticación
     path('signup/', views.signup, name='signup'),
@@ -25,10 +26,9 @@ urlpatterns = [
     path('tasks/<int:task_id>/complete/', views.complete_task, name='complete_task'),
     path('tasks/<int:task_id>/delete/', views.delete_task, name='delete_task'),
     
-    # RUTA CRÍTICA: Esto sirve las fotos en Render aunque DEBUG sea False
+    # Media para Render
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
-# También mantenemos la configuración estándar por si acaso
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
