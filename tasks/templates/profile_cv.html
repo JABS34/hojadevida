@@ -13,9 +13,6 @@
         .cv-page { width: var(--a4-width); height: var(--a4-height); margin: 20px auto; background: white; box-shadow: 0 0 30px rgba(0,0,0,0.15); display: flex; overflow: hidden; }
         .profile-photo { width: 170px; height: 170px; border: 6px solid rgba(255,255,255,0.4); animation: pulse-photo 4s infinite ease-in-out; }
         @keyframes pulse-photo { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0px rgba(255,255,255,0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 25px 10px rgba(255,255,255,0.2); } }
-        .btn-animated { animation: bounce-subtle 3s infinite; transition: all 0.3s; }
-        .btn-animated:hover { transform: translateY(-3px) scale(1.05); }
-        @keyframes bounce-subtle { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-5px); } }
         .aside-bg { background: linear-gradient(180deg, #1e3a8a 0%, #336699 100%); width: 35%; color: white; }
         .main-content { width: 65%; padding: 50px; }
         .name-title { font-family: 'Montserrat', sans-serif; line-height: 1.1; }
@@ -26,21 +23,17 @@
 
     {% if error %}
     <div class="bg-red-600 text-white p-4 text-center font-bold no-print">
-        ⚠️ ERROR: {{ error }} <br>
-        <small>Verifica si creaste los "Datos Personales" en el Admin para el usuario: {{ user_viewed.username }}</small>
+        ⚠️ ERROR: {{ error }}
     </div>
     {% endif %}
 
-    <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex flex-wrap justify-end gap-3 px-4 no-print">
-        <a href="{% url 'garage_store' %}" class="bg-amber-500 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-amber-600 transition">
-            <i class="fas fa-shopping-cart"></i> VENTA DE GARAGE
-        </a>
-        <button onclick="document.getElementById('modalCert').classList.remove('hidden')" class="btn-animated bg-indigo-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2">
-            <i class="fas fa-certificate"></i> CURSOS REALIZADOS
+    <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex justify-end gap-3 px-4 no-print">
+        <button onclick="document.getElementById('modalCert').classList.remove('hidden')" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-indigo-700 transition">
+            <i class="fas fa-certificate"></i> CURSOS
         </button>
         {% if reconocimientos %}
         <button onclick="document.getElementById('modalRec').classList.remove('hidden')" class="bg-emerald-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-emerald-700 transition">
-            <i class="fas fa-trophy"></i> RECONOCIMIENTOS
+            <i class="fas fa-trophy"></i> LOGROS
         </button>
         {% endif %}
         <button onclick="window.print()" class="bg-slate-800 text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg flex items-center gap-2 hover:bg-slate-700 transition">
@@ -79,8 +72,6 @@
                         <p class="font-bold uppercase text-white leading-tight">{{ estudio.institucion }}</p>
                         <p class="text-[11px] text-indigo-200 font-semibold">{{ estudio.fecha_graduacion|date:"Y" }}</p>
                     </div>
-                    {% empty %}
-                    <p class="text-[11px] opacity-50">Sin información educativa</p>
                     {% endfor %}
                 </div>
             </section>
@@ -92,8 +83,6 @@
                     <li class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/5">
                         <i class="fas fa-check-circle text-indigo-300 text-[10px]"></i> {{ hab.nombre }}
                     </li> 
-                    {% empty %}
-                    <li class="opacity-50 text-[11px]">Habilidades no registradas</li>
                     {% endfor %}
                 </ul>
             </section>
@@ -106,10 +95,7 @@
                     <h1 class="name-title text-[45px] font-extrabold text-[#0f172a] uppercase tracking-tighter">
                         {{ perfil.nombres|default:"NOMBRES" }}<br><span class="text-indigo-600">{{ perfil.apellidos|default:"APELLIDOS" }}</span>
                     </h1>
-                    <div class="mt-4 flex items-center gap-4">
-                        <span class="h-[2px] w-12 bg-slate-200"></span>
-                        <p class="text-xl text-[#336699] font-bold tracking-[0.2em] uppercase italic">PROFESIONAL</p>
-                    </div>
+                    <p class="text-xl text-[#336699] font-bold tracking-[0.2em] uppercase mt-4 italic">PROFESIONAL</p>
                 </header>
 
                 <section class="mb-10">
@@ -119,38 +105,33 @@
                         <span class="bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider">
                             {{ lang.nombre|upper }}
                         </span>
-                        {% empty %}
-                        <span class="text-slate-300 italic text-xs">Sin tecnologías registradas</span>
                         {% endfor %}
                     </div>
                 </section>
 
                 <section class="mb-10">
                     <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Sobre mí</h2>
-                    <p class="text-slate-600 text-[14px] leading-relaxed text-justify font-medium italic border-l-2 border-indigo-100 pl-4">
+                    <p class="text-slate-600 text-[14px] leading-relaxed text-justify italic border-l-2 border-indigo-100 pl-4">
                         "{{ perfil.descripcionperfil|default:"Sin descripción disponible." }}"
                     </p>
                 </section>
 
                 <section>
-                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Experiencia Reciente</h2>
+                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Experiencia</h2>
                     <div class="space-y-8">
                         {% for exp in experiencias %}
                         <div class="relative pl-6 border-l border-slate-100">
-                            <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-600 border-2 border-white"></div>
+                            <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
                             <h3 class="font-extrabold text-slate-800 text-[16px]">{{ exp.puesto }}</h3>
                             <p class="text-indigo-600 text-[12px] font-black uppercase">{{ exp.empresa }}</p>
                             <p class="text-slate-500 text-[12px] leading-snug">{{ exp.descripcion }}</p>
                         </div>
-                        {% empty %}
-                        <p class="text-slate-300 italic text-sm">Buscando nuevos retos profesionales.</p>
                         {% endfor %}
                     </div>
                 </section>
             </div>
-            
-            <footer class="text-[10px] text-slate-300 text-right border-t pt-4">
-                SISTEMA PROFESIONAL DE CURRÍCULUMS | 2026
+            <footer class="text-[10px] text-slate-300 text-right border-t pt-4 uppercase">
+                Perfil Profesional Generado | 2026
             </footer>
         </main>
     </div>
@@ -158,16 +139,14 @@
     <div id="modalCert" class="fixed inset-0 bg-slate-900/95 hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-4xl max-h-[85vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
             <div class="p-6 border-b flex justify-between items-center bg-indigo-600 text-white">
-                <h2 class="text-xl font-bold uppercase tracking-widest">Mis Certificados</h2>
+                <h2 class="text-xl font-bold uppercase tracking-widest">Certificados</h2>
                 <button onclick="document.getElementById('modalCert').classList.add('hidden')" class="text-3xl">&times;</button>
             </div>
             <div class="p-8 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-6">
                 {% for cert in certificados %}
-                <div class="bg-slate-50 p-3 rounded-2xl border">
-                    {% if cert.imagen %}
-                        <img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-xl mb-3 cursor-zoom-in" onclick="openPreview('{{ cert.imagen.url }}', '{{ cert.titulo }}')">
-                    {% endif %}
-                    <h3 class="font-bold text-[12px]">{{ cert.titulo }}</h3>
+                <div class="bg-slate-50 p-3 rounded-2xl border cursor-pointer" onclick="openPreview('{{ cert.imagen.url }}', '{{ cert.titulo }}')">
+                    {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-xl mb-3">{% endif %}
+                    <h3 class="font-bold text-[12px] text-center">{{ cert.titulo }}</h3>
                 </div>
                 {% endfor %}
             </div>
@@ -175,14 +154,12 @@
     </div>
 
     <div id="lightbox" class="fixed inset-0 bg-black/90 hidden z-[60] flex flex-col items-center justify-center p-4 no-print" onclick="this.classList.add('hidden')">
-        <img id="lightboxImg" src="" class="max-w-full max-h-[80vh] rounded-lg">
-        <h2 id="lightboxTitle" class="text-white mt-6 text-xl font-bold"></h2>
+        <img id="lightboxImg" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl">
     </div>
 
     <script>
         function openPreview(url, title) {
             document.getElementById('lightboxImg').src = url;
-            document.getElementById('lightboxTitle').innerText = title;
             document.getElementById('lightbox').classList.remove('hidden');
         }
     </script>
