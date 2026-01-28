@@ -11,157 +11,103 @@
         :root { --a4-width: 210mm; --a4-height: 297mm; }
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; margin: 0; padding: 0; }
         .cv-page { width: var(--a4-width); height: var(--a4-height); margin: 20px auto; background: white; box-shadow: 0 0 30px rgba(0,0,0,0.15); display: flex; overflow: hidden; }
-        .profile-photo { width: 170px; height: 170px; border: 6px solid rgba(255,255,255,0.4); animation: pulse-photo 4s infinite ease-in-out; }
-        @keyframes pulse-photo { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0px rgba(255,255,255,0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 25px 10px rgba(255,255,255,0.2); } }
         .aside-bg { background: linear-gradient(180deg, #1e3a8a 0%, #336699 100%); width: 35%; color: white; }
         .main-content { width: 65%; padding: 50px; }
-        .name-title { font-family: 'Montserrat', sans-serif; line-height: 1.1; }
         @media print { .no-print { display: none !important; } .cv-page { box-shadow: none; margin: 0; width: 100%; height: 100vh; } }
+        .cursor-zoom { cursor: zoom-in; transition: transform 0.2s; }
+        .cursor-zoom:hover { transform: scale(1.02); }
     </style>
 </head>
 <body>
 
-    {% if error %}
-    <div class="bg-red-600 text-white p-4 text-center font-bold no-print">
-        ⚠️ ERROR: {{ error }}
-    </div>
-    {% endif %}
-
     <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex flex-wrap justify-end gap-3 px-4 no-print">
-        
-        <a href="{% url 'garage_store' %}" class="bg-amber-500 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-amber-600 transition scale-100 hover:scale-105 active:scale-95">
-            <i class="fas fa-shopping-cart"></i> MI TIENDA / GARAGE
+        <a href="{% url 'garage_store' %}" class="bg-amber-500 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-amber-600 transition">
+            <i class="fas fa-shopping-cart"></i> GARAGE
         </a>
 
-        <button onclick="document.getElementById('modalCert').classList.remove('hidden')" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-indigo-700 transition">
+        <button onclick="openModal('modalCert')" class="bg-indigo-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-indigo-700 transition">
             <i class="fas fa-certificate"></i> CURSOS
         </button>
 
-        <button onclick="window.print()" class="bg-slate-800 text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg flex items-center gap-2 hover:bg-slate-700 transition">
+        <button onclick="openModal('modalRec')" class="bg-emerald-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-emerald-700 transition">
+            <i class="fas fa-trophy"></i> RECONOCIMIENTOS
+        </button>
+
+        <button onclick="window.print()" class="bg-slate-800 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2">
             <i class="fas fa-file-pdf"></i> PDF
         </button>
     </div>
 
     <div class="cv-page">
-        <aside class="aside-bg p-8 space-y-10">
-            <div class="flex justify-center py-4">
-                <div class="profile-photo rounded-full overflow-hidden bg-slate-300 shadow-2xl">
-                    {% if perfil.foto %} 
-                        <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
-                    {% else %} 
-                        <div class="h-full flex items-center justify-center text-6xl font-bold bg-indigo-800 text-white">
-                            {{ perfil.nombres|slice:":1"|upper }}
-                        </div> 
-                    {% endif %}
-                </div>
-            </div>
-
-            <section>
-                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Contacto</h3>
-                <div class="space-y-3 text-[13px] opacity-90">
-                    <p class="flex items-center gap-3"><i class="fas fa-envelope text-indigo-300 w-4"></i> {{ user_viewed.email }}</p>
-                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-indigo-300 w-4"></i> {{ perfil.direcciondomiciliaria|default:"No especificada" }}</p>
-                    {% if perfil.instagram %}<p class="flex items-center gap-3"><i class="fab fa-instagram text-indigo-300 w-4"></i> @{{ perfil.instagram }}</p>{% endif %}
-                </div>
-            </section>
-
-            <section>
-                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Formación</h3>
-                <div class="space-y-4">
-                    {% for estudio in estudios %}
-                    <div class="text-[13px]">
-                        <p class="font-bold uppercase text-white leading-tight">{{ estudio.institucion }}</p>
-                        <p class="text-[11px] text-indigo-200 font-semibold">{{ estudio.fecha_graduacion|date:"Y" }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </section>
-
-            <section>
-                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Habilidades</h3>
-                <ul class="grid grid-cols-1 gap-2 text-[12px]">
-                    {% for hab in habilidades %} 
-                    <li class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/5">
-                        <i class="fas fa-check-circle text-indigo-300 text-[10px]"></i> {{ hab.nombre }}
-                    </li> 
-                    {% endfor %}
-                </ul>
-            </section>
+        <aside class="aside-bg p-8">
+            <h2 class="text-xl font-bold mb-4 italic border-b border-white/20 pb-2">CONTACTO</h2>
+            <p class="text-sm opacity-90 mb-2">{{ user_viewed.email }}</p>
+            <p class="text-sm opacity-90">{{ perfil.direcciondomiciliaria }}</p>
         </aside>
 
-        <main class="main-content flex flex-col justify-between">
-            <div>
-                <header class="mb-10 relative">
-                    <div class="absolute -left-5 top-0 w-2 h-full bg-indigo-600"></div>
-                    <h1 class="name-title text-[45px] font-extrabold text-[#0f172a] uppercase tracking-tighter">
-                        {{ perfil.nombres|default:"NOMBRES" }}<br><span class="text-indigo-600">{{ perfil.apellidos|default:"APELLIDOS" }}</span>
-                    </h1>
-                    <p class="text-xl text-[#336699] font-bold tracking-[0.2em] uppercase mt-4 italic">PROFESIONAL</p>
-                </header>
-
-                <section class="mb-10">
-                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Stack Tecnológico</h2>
-                    <div class="flex flex-wrap gap-2">
-                        {% for lang in lenguajes %}
-                        <span class="bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider">
-                            {{ lang.nombre|upper }}
-                        </span>
-                        {% endfor %}
-                    </div>
-                </section>
-
-                <section class="mb-10">
-                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Sobre mí</h2>
-                    <p class="text-slate-600 text-[14px] leading-relaxed text-justify italic border-l-2 border-indigo-100 pl-4">
-                        "{{ perfil.descripcionperfil|default:"Sin descripción disponible." }}"
-                    </p>
-                </section>
-
-                <section>
-                    <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Experiencia</h2>
-                    <div class="space-y-8">
-                        {% for exp in experiencias %}
-                        <div class="relative pl-6 border-l border-slate-100">
-                            <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
-                            <h3 class="font-extrabold text-slate-800 text-[16px]">{{ exp.puesto }}</h3>
-                            <p class="text-indigo-600 text-[12px] font-black uppercase">{{ exp.empresa }}</p>
-                            <p class="text-slate-500 text-[12px] leading-snug">{{ exp.descripcion }}</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </section>
-            </div>
-            <footer class="text-[10px] text-slate-300 text-right border-t pt-4 uppercase">
-                Perfil Profesional Generado | 2026
-            </footer>
+        <main class="main-content">
+            <h1 class="text-4xl font-extrabold text-slate-800 uppercase">{{ perfil.nombres }} {{ perfil.apellidos }}</h1>
+            <p class="text-indigo-600 font-bold tracking-widest mb-8">PROFESIONAL</p>
+            <section>
+                <h3 class="font-bold text-slate-400 text-xs tracking-widest uppercase mb-4">Sobre mí</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">{{ perfil.descripcionperfil }}</p>
+            </section>
         </main>
     </div>
 
-    <div id="modalCert" class="fixed inset-0 bg-slate-900/95 hidden z-50 flex items-center justify-center p-4 no-print">
-        <div class="bg-white w-full max-w-4xl max-h-[85vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-            <div class="p-6 border-b flex justify-between items-center bg-indigo-600 text-white">
-                <h2 class="text-xl font-bold uppercase tracking-widest">Certificados</h2>
-                <button onclick="document.getElementById('modalCert').classList.add('hidden')" class="text-3xl">&times;</button>
+    <div id="modalCert" class="fixed inset-0 bg-black/90 hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl overflow-hidden flex flex-col">
+            <div class="p-4 bg-indigo-600 text-white flex justify-between items-center">
+                <h2 class="font-bold uppercase tracking-tighter">Certificados y Cursos</h2>
+                <button onclick="closeModal('modalCert')" class="text-2xl">&times;</button>
             </div>
-            <div class="p-8 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div class="p-6 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-4">
                 {% for cert in certificados %}
-                <div class="bg-slate-50 p-3 rounded-2xl border cursor-pointer" onclick="openPreview('{{ cert.imagen.url }}')">
-                    {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-xl mb-3">{% endif %}
-                    <h3 class="font-bold text-[12px] text-center">{{ cert.titulo }}</h3>
+                <div class="text-center">
+                    <img src="{{ cert.imagen.url }}" onclick="fullZoom(this.src)" class="w-full h-32 object-cover rounded-lg cursor-zoom shadow-sm mb-2">
+                    <p class="text-[10px] font-bold text-slate-700">{{ cert.titulo }}</p>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 
-    <div id="lightbox" class="fixed inset-0 bg-black/90 hidden z-[60] flex items-center justify-center p-4 no-print" onclick="this.classList.add('hidden')">
-        <img id="lightboxImg" src="" class="max-w-full max-h-[80vh] rounded-lg">
+    <div id="modalRec" class="fixed inset-0 bg-black/90 hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl overflow-hidden flex flex-col">
+            <div class="p-4 bg-emerald-600 text-white flex justify-between items-center">
+                <h2 class="font-bold uppercase tracking-tighter">Logros y Reconocimientos</h2>
+                <button onclick="closeModal('modalRec')" class="text-2xl">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-4">
+                {% for rec in reconocimientos %}
+                <div class="text-center">
+                    {% if rec.imagen %}
+                        <img src="{{ rec.imagen.url }}" onclick="fullZoom(this.src)" class="w-full h-32 object-cover rounded-lg cursor-zoom shadow-sm mb-2">
+                    {% else %}
+                        <div class="w-full h-32 bg-slate-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-trophy text-emerald-300 text-3xl"></i>
+                        </div>
+                    {% endif %}
+                    <p class="text-[10px] font-bold text-slate-700">{{ rec.titulo }}</p>
+                    <p class="text-[9px] text-slate-500">{{ rec.institucion_otorga }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="lightbox" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 cursor-zoom-out" onclick="this.classList.add('hidden')">
+        <img id="zoomImg" src="" class="max-w-full max-h-full rounded-lg shadow-2xl">
     </div>
 
     <script>
-        function openPreview(url) {
-            document.getElementById('lightboxImg').src = url;
-            document.getElementById('lightbox').classList.remove('hidden');
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        
+        function fullZoom(src) {
+            const lb = document.getElementById('lightbox');
+            document.getElementById('zoomImg').src = src;
+            lb.classList.remove('hidden');
         }
     </script>
 </body>
