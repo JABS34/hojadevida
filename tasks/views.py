@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
 from django.utils import timezone
+from django.http import HttpResponse
 from .forms import TaskForm
 from .models import (
     Task, DatosPersonales, ExperienciaLaboral, Habilidad, 
@@ -17,32 +18,38 @@ def home(request):
 
 @login_required
 def dashboard(request):
-    # Obtiene o crea el perfil automáticamente al entrar para evitar errores
-    perfil, created = DatosPersonales.objects.get_or_create(
-        user=request.user,
-        defaults={
-            'nombres': request.user.first_name or request.user.username,
-            'apellidos': request.user.last_name or '',
-            'fechanacimiento': '1990-01-01',
-            'numerocedula': request.user.id # Valor temporal para evitar errores de integridad
-        }
-    )
+    # Intentamos obtener el perfil, si no existe lo creamos con datos seguros
+    try:
+        perfil, created = DatosPersonales.objects.get_or_create(
+            user=request.user,
+            defaults={
+                'nombres': request.user.first_name or request.user.username,
+                'apellidos': request.user.last_name or 'Completar',
+                'fechanacimiento': '1990-01-01',
+                'numerocedula': f"TEMP-{request.user.id}" # Formato string para evitar errores de integridad
+            }
+        )
+    except Exception as e:
+        # Si falla la creación (por la DB), mostramos el dashboard sin el objeto perfil
+        perfil = None
+    
     return render(request, 'dashboard.html', {'perfil': perfil})
 
 def profile_cv(request, username):
-    # Buscamos al usuario por su nombre de usuario
+    # 1. Buscamos al usuario. Si no existe, Django lanza un 404 (Página no encontrada)
     user_profile = get_object_or_404(User, username=username)
     
-    # IMPORTANTE: Cambiamos get_object_or_404 por filter().first() para manejar el error 500
+    # 2. Buscamos sus datos. Usamos filter().first() para que no explote si no hay datos.
     datos = DatosPersonales.objects.filter(user=user_profile).first()
     
+    # 3. Si no existen datos, devolvemos la plantilla con un mensaje de error amigable
     if not datos:
-        # Si el usuario no tiene perfil creado, enviamos un mensaje en lugar de romper la web
         return render(request, 'profile_cv.html', {
-            'error': 'Este perfil profesional aún no ha sido configurado.',
+            'error': 'Este perfil profesional aún no ha sido configurado en el panel administrativo.',
             'user_viewed': user_profile
         })
     
+    # 4. Si todo está OK, armamos el contexto con todas las relaciones
     context = {
         'perfil': datos, 
         'experiencias': ExperienciaLaboral.objects.filter(perfil=datos), 
