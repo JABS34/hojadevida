@@ -57,11 +57,11 @@ def profile_cv(request, username):
     }
     return render(request, 'profile_cv.html', context)
 
+# --- NUEVA FUNCIÓN PARA EL PDF ---
 def export_pdf(request, username):
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
     
-    # Obtener preferencias de la URL
     show_sobre_mi = request.GET.get('sobre_mi') == 'true'
     show_cursos = request.GET.get('cursos') == 'true'
     show_reconocimientos = request.GET.get('reconocimientos') == 'true'
@@ -71,7 +71,6 @@ def export_pdf(request, username):
         'perfil': datos,
         'experiencias': ExperienciaLaboral.objects.filter(perfil=datos),
         'habilidades': Habilidad.objects.filter(perfil=datos),
-        'estudios': Educacion.objects.filter(perfil=datos),
         'certificados': Certificado.objects.filter(perfil=datos) if show_cursos else [],
         'reconocimientos': Reconocimiento.objects.filter(perfil=datos) if show_reconocimientos else [],
         'productos': ProductoGarage.objects.filter(disponible=True) if show_garage else [],
@@ -87,5 +86,83 @@ def garage_store(request):
     productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
     return render(request, 'garage.html', {'productos': productos})
 
-# --- AUTENTICACIÓN Y TAREAS SE MANTIENEN IGUAL (Omitido por brevedad pero mantenlo en tu archivo) ---
-# ... (signup, signin, signout, tasks, create_task, etc.)
+# --- AUTENTICACIÓN (Recuperado) ---
+def signup(request):
+    if request.method == 'GET':
+        return render(request, 'signup.html', {'form': UserCreationForm()})
+    else:
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save()
+                login(request, user)
+                return redirect('dashboard')
+            except IntegrityError:
+                return render(request, 'signup.html', {'form': form, 'error': 'El usuario ya existe'})
+        return render(request, 'signup.html', {'form': form, 'error': 'Datos inválidos'})
+
+def signin(request):
+    if request.method == 'GET':
+        return render(request, 'signin.html', {'form': AuthenticationForm()})
+    else:
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        if user is None:
+            return render(request, 'signin.html', {'form': AuthenticationForm(), 'error': 'Usuario o contraseña incorrectos'})
+        login(request, user)
+        return redirect('dashboard')
+
+def signout(request):
+    logout(request)
+    return redirect('home')
+
+# --- TAREAS (Recuperado) ---
+@login_required
+def tasks(request):
+    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
+    return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas Pendientes'})
+
+@login_required
+def tasks_completed(request):
+    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=False).order_by('-datecompleted')
+    return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas completadas'})
+
+@login_required
+def create_task(request):
+    if request.method == 'GET':
+        return render(request, 'create_task.html', {'form': TaskForm()})
+    else:
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            new_task = form.save(commit=False)
+            new_task.user = request.user
+            new_task.save()
+            return redirect('tasks')
+        return render(request, 'create_task.html', {'form': form, 'error': 'Datos incorrectos'})
+
+@login_required
+def task_detail(request, task_id):
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
+    if request.method == 'GET':
+        form = TaskForm(instance=task)
+        return render(request, 'task_detail.html', {'task': task, 'form': form})
+    else:
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect('tasks')
+        return render(request, 'task_detail.html', {'task': task, 'form': form, 'error': 'Error al actualizar'})
+
+@login_required
+def complete_task(request, task_id):
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
+    if request.method == 'POST':
+        task.datecompleted = timezone.now()
+        task.save()
+    return redirect('tasks')
+
+@login_required
+def delete_task(request, task_id):
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
+    if request.method == 'POST':
+        task.delete()
+    return redirect('tasks')
