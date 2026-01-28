@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <style>
+        @page { size: A4; margin: 0; }
+        body { font-family: sans-serif; color: #333; margin: 0; padding: 20px; }
+        .section { page-break-before: always; padding: 40px; }
+        .section:first-child { page-break-before: avoid; }
+        h1 { color: #1e3a8a; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; }
+        .grid-images { display: flex; flex-direction: column; gap: 30px; }
+        .img-container { text-align: center; border: 1px solid #ddd; padding: 15px; border-radius: 10px; }
+        .img-container img { max-width: 100%; height: auto; border-radius: 5px; }
+        .info-box { background: #f8fafc; padding: 20px; border-left: 5px solid #1e3a8a; }
+    </style>
+</head>
+<body onload="window.print()">
+
+    {% if show_sobre_mi %}
+    <div class="section">
+        <h1>Sobre mí</h1>
+        <div class="info-box">
+            <p style="font-size: 18px; line-height: 1.6;">{{ perfil.descripcionperfil }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if show_cursos and certificados %}
+    <div class="section">
+        <h1>Certificados y Cursos Realizados</h1>
+        <div class="grid-images">
+            {% for cert in certificados %}
+            <div class="img-container">
+                <h3 style="margin-top:0;">{{ cert.titulo }}</h3>
+                <img src="{{ cert.imagen.url }}">
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if show_reconocimientos and reconocimientos %}
+    <div class="section">
+        <h1>Logros y Reconocimientos</h1>
+        <div class="grid-images">
+            {% for rec in reconocimientos %}
+            <div class="img-container">
+                <h3>{{ rec.titulo }}</h3>
+                {% if rec.imagen %}<img src="{{ rec.imagen.url }}">{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if show_garage and productos %}
+    <div class="section">
+        <h1>Catálogo de Venta de Garage</h1>
+        <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 20px;">
+            {% for prod in productos %}
+            <div style="border: 1px solid #eee; padding: 10px;">
+                {% if prod.imagen %}<img src="{{ prod.imagen.url }}" style="width:100%;">{% endif %}
+                <h4>{{ prod.nombre }}</h4>
+                <p>Precio: ${{ prod.precio }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</body>
+</html>
