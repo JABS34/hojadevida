@@ -5,13 +5,13 @@ set -o errexit
 # Instalar dependencias
 pip install -r requirements.txt
 
-# Recolectar archivos estáticos (CSS, JS)
+# Recolectar archivos estáticos
 python manage.py collectstatic --no-input
 
-# Aplicar migraciones de base de datos
+# GENERAR Y APLICAR MIGRACIONES (Paso crítico)
+python manage.py makemigrations
 python manage.py migrate
 
-# CREAR CARPETA DE FOTOS Y DAR PERMISOS
-# Esto evita que salga el cuadro roto por falta de acceso
+# CREAR CARPETA DE FOTOS
 mkdir -p media
 chmod -R 755 media
