@@ -1,81 +1,207 @@
-<div id="modalCert" class="fixed inset-0 bg-black/90 hidden z-[70] flex items-center justify-center p-6 no-print">
-    <div class="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-        <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-            <h2 class="text-2xl font-bold text-indigo-900"><i class="fas fa-certificate mr-2"></i> Mis Cursos y Certificados</h2>
-            <button onclick="closeModal('modalCert')" class="text-slate-400 hover:text-red-500 text-2xl transition">&times;</button>
-        </div>
-        <div class="modal-content overflow-y-auto p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            {% for cert in certificados %}
-            <div class="group cursor-pointer" onclick="verCertificado('{{ cert.imagen.url }}', '{{ cert.titulo }}')">
-                <p class="font-bold text-slate-700 mb-2 group-hover:text-indigo-600 transition">{{ cert.titulo }}</p>
-                <div class="relative overflow-hidden rounded-xl border shadow-md">
-                    <img src="{{ cert.imagen.url }}" class="w-full hover:scale-110 transition duration-500">
-                    <div class="absolute inset-0 bg-indigo-600/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                        <span class="bg-white text-indigo-600 px-4 py-2 rounded-full font-bold shadow-lg text-xs">VER PREVIA</span>
-                    </div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ perfil.nombres|default:"CV" }} | CV PROFESIONAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@300;400;600&display=swap');
+        :root { --a4-width: 210mm; --a4-height: 297mm; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; margin: 0; padding: 0; }
+        .cv-page { width: var(--a4-width); min-height: var(--a4-height); margin: 20px auto; background: white; box-shadow: 0 0 30px rgba(0,0,0,0.15); display: flex; overflow: hidden; }
+        .profile-photo { width: 170px; height: 170px; border: 6px solid rgba(255,255,255,0.4); animation: pulse-photo 4s infinite ease-in-out; }
+        @keyframes pulse-photo { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0px rgba(255,255,255,0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 25px 10px rgba(255,255,255,0.2); } }
+        .aside-bg { background: linear-gradient(180deg, #1e3a8a 0%, #336699 100%); width: 35%; color: white; }
+        .main-content { width: 65%; padding: 50px; }
+        .name-title { font-family: 'Montserrat', sans-serif; line-height: 1.1; }
+        @media print { .no-print { display: none !important; } .cv-page { box-shadow: none; margin: 0; width: 100%; height: 100%; } }
+        
+        /* Estilo para que las imágenes de los certificados se vean normales en el modal */
+        .img-zoom { cursor: zoom-in; transition: transform 0.3s ease; }
+        .img-zoom:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex flex-wrap justify-end gap-3 px-4 no-print">
+        {% if config.mostrar_garage %}
+        <a href="{% url 'garage_store' %}" class="bg-amber-500 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-amber-600 transition">
+            <i class="fas fa-shopping-cart"></i> GARAGE
+        </a>
+        {% endif %}
+
+        <button onclick="openModal('modalCert')" class="bg-indigo-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-indigo-700 transition">
+            <i class="fas fa-certificate"></i> CURSOS
+        </button>
+
+        <button onclick="openModal('modalRec')" class="bg-emerald-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-emerald-700 transition">
+            <i class="fas fa-trophy"></i> RECONOCIMIENTOS
+        </button>
+
+        <button onclick="openModal('modalPDF')" class="bg-red-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-red-700 transition">
+            <i class="fas fa-file-pdf"></i> CONFIGURAR PDF
+        </button>
+    </div>
+
+    <div class="cv-page">
+        <aside class="aside-bg p-8 space-y-10">
+            <div class="flex justify-center py-4">
+                <div class="profile-photo rounded-full overflow-hidden bg-slate-300 shadow-2xl">
+                    {% if perfil.foto %} <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
+                    {% else %} <div class="h-full flex items-center justify-center text-6xl font-bold bg-indigo-800 text-white">{{ perfil.nombres|slice:":1"|upper }}</div> {% endif %}
                 </div>
             </div>
-            {% empty %}
-            <p class="col-span-full text-center text-slate-500 italic">No hay certificados cargados.</p>
+
+            <section>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Contacto</h3>
+                <div class="space-y-3 text-[13px] opacity-90">
+                    <p class="flex items-center gap-3"><i class="fas fa-envelope text-indigo-300 w-4"></i> {{ user_viewed.email }}</p>
+                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-indigo-300 w-4"></i> {{ perfil.direcciondomiciliaria|default:"Manta" }}</p>
+                    {% if perfil.instagram %}
+                    <p class="flex items-center gap-3"><i class="fab fa-instagram text-indigo-300 w-4"></i> @{{ perfil.instagram }}</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Formación</h3>
+                <div class="space-y-4">
+                    {% for estudio in estudios %}
+                    <div class="text-[13px]">
+                        <p class="font-bold uppercase text-white leading-tight">{{ estudio.institucion }}</p>
+                        <p class="text-[11px] text-indigo-200 font-semibold">{{ estudio.fecha_graduacion|date:"Y" }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </aside>
+
+        <main class="main-content">
+            <header class="mb-10 relative">
+                <div class="absolute -left-5 top-0 w-2 h-full bg-indigo-600"></div>
+                <h1 class="name-title text-[45px] font-extrabold text-[#0f172a] uppercase tracking-tighter">{{ perfil.nombres }}<br><span class="text-indigo-600">{{ perfil.apellidos }}</span></h1>
+            </header>
+
+            <section class="mb-10">
+                <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4 italic">Lenguajes de Programación</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for lang in lenguajes %}
+                    <span class="text-[12px] font-bold bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-lg border border-indigo-100 flex items-center gap-2">
+                        <i class="fas fa-code text-[10px]"></i> {{ lang.nombre }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="mb-10">
+                <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Sobre mí</h2>
+                <p class="text-slate-600 text-[14px] leading-relaxed italic border-l-2 border-indigo-100 pl-4">"{{ perfil.descripcionperfil }}"</p>
+            </section>
+
+            <section>
+                <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Experiencia</h2>
+                <div class="space-y-8">
+                    {% for exp in experiencias %}
+                    <div class="relative pl-6 border-l border-slate-100">
+                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
+                        <h3 class="font-extrabold text-slate-800 text-[16px]">{{ exp.puesto }}</h3>
+                        <p class="text-indigo-600 text-[12px] font-black uppercase">{{ exp.empresa }}</p>
+                        <p class="text-slate-500 text-[12px] mt-1">{{ exp.descripcion }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="modalCert" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center bg-slate-100">
+                <h2 class="text-lg font-bold">Mis Cursos y Certificados</h2>
+                <button onclick="closeModal('modalCert')" class="bg-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-300">x</button>
+            </div>
+            <div class="overflow-y-auto p-6 space-y-8">
+                {% for cert in certificados %}
+                <div>
+                    <p class="font-bold text-sm mb-2 italic">{{ cert.titulo }}</p>
+                    <img src="{{ cert.imagen.url }}" 
+                         onclick="zoomImagen('{{ cert.imagen.url }}', '{{ cert.titulo }}')"
+                         class="img-zoom w-full border rounded shadow-sm">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="visorZoom" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 no-print">
+        <div class="absolute top-6 right-20">
+            <a id="linkDescarga" href="#" download class="bg-red-600 text-white px-6 py-3 rounded-full font-bold flex items-center gap-2 shadow-2xl hover:bg-red-700 transition">
+                <i class="fas fa-file-download"></i> DESCARGAR
+            </a>
+        </div>
+        <button onclick="closeModal('visorZoom')" class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition">&times;</button>
+        
+        <div class="max-w-full max-h-full flex flex-col items-center">
+            <p id="tituloZoom" class="text-white mb-4 italic font-bold tracking-widest"></p>
+            <img id="imgZoomed" src="" class="max-w-[90vw] max-h-[80vh] object-contain shadow-2xl border border-white/20">
+        </div>
+    </div>
+
+    <div id="modalRec" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold italic border-b-2 border-emerald-500 pb-2">Reconocimientos</h2>
+                <button onclick="closeModal('modalRec')" class="text-2xl font-bold">&times;</button>
+            </div>
+            {% for rec in reconocimientos %}
+            <div class="mb-10 text-center">
+                <h3 class="font-bold text-lg mb-4">{{ rec.titulo }}</h3>
+                {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="w-full rounded shadow-lg">{% endif %}
+            </div>
             {% endfor %}
         </div>
     </div>
-</div>
 
-<div id="visorCert" class="fixed inset-0 bg-black/95 hidden z-[80] flex items-center justify-center p-4 no-print">
-    <div class="absolute top-5 right-5 flex gap-4">
-        <a id="btnDescargar" href="#" download class="bg-white text-slate-900 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-50 transition shadow-2xl">
-            <i class="fas fa-download text-red-600"></i> DESCARGAR PDF
-        </a>
-        <button onclick="closeModal('visorCert')" class="bg-white/10 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-red-600 transition">
-            <i class="fas fa-times text-xl"></i>
-        </button>
+    <div id="modalPDF" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-xl p-8 max-w-sm w-full shadow-2xl">
+            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2">Opciones PDF</h2>
+            <div class="space-y-4">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="check_sobre_mi" checked class="w-5 h-5 accent-red-600">
+                    <span class="text-slate-700 font-medium italic">Incluir "Sobre mí"</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="check_cursos" checked class="w-5 h-5 accent-red-600">
+                    <span class="text-slate-700 font-medium italic">Incluir Cursos</span>
+                </label>
+            </div>
+            <div class="mt-8 flex gap-3">
+                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition uppercase text-xs italic">Generar PDF</button>
+                <button onclick="closeModal('modalPDF')" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-lg font-bold uppercase text-xs">Cerrar</button>
+            </div>
+        </div>
     </div>
-    
-    <div class="max-w-5xl w-full flex flex-col items-center">
-        <h3 id="tituloVisor" class="text-white text-xl font-bold mb-6 italic tracking-wider"></h3>
-        <img id="imgVisor" src="" class="max-w-full max-h-[75vh] rounded-lg shadow-2xl border border-white/10">
-    </div>
-</div>
 
-<script>
-    function openModal(id) { 
-        document.getElementById(id).classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeModal(id) { 
-        document.getElementById(id).classList.add('hidden');
-        if(id !== 'visorCert') document.body.style.overflow = 'auto';
-    }
-
-    // Nueva función para la vista previa
-    function verCertificado(url, titulo) {
-        document.getElementById('imgVisor').src = url;
-        document.getElementById('tituloVisor').innerText = titulo;
+    <script>
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         
-        // El botón de descarga apunta a la URL de la imagen
-        // Los navegadores modernos permiten descargar imágenes como archivos al usar el atributo 'download'
-        document.getElementById('btnDescargar').href = url;
-        document.getElementById('btnDescargar').download = "Certificado_" + titulo.replace(/\s+/g, '_') + ".jpg";
-        
-        openModal('visorCert');
-    }
-
-    // Cerrar con tecla Escape
-    document.addEventListener('keydown', (e) => {
-        if (e.key === "Escape") {
-            closeModal('visorCert');
-            closeModal('modalCert');
-            closeModal('modalRec');
-            closeModal('modalPDF');
+        // FUNCIÓN DE ZOOM Y DESCARGA
+        function zoomImagen(url, titulo) {
+            document.getElementById('imgZoomed').src = url;
+            document.getElementById('tituloZoom').innerText = titulo;
+            document.getElementById('linkDescarga').href = url; // Link para descargar la imagen
+            openModal('visorZoom');
         }
-    });
 
-    function generarPDF() {
-        const s_mi = document.getElementById('check_sobre_mi').checked;
-        const curs = document.getElementById('check_cursos').checked;
-        const url = "{% url 'export_pdf' user_viewed.username %}?sobre_mi=" + s_mi + "&cursos=" + curs;
-        window.open(url, '_blank');
-    }
-</script>
+        function generarPDF() {
+            const s_mi = document.getElementById('check_sobre_mi').checked;
+            const curs = document.getElementById('check_cursos').checked;
+            const url = "{% url 'export_pdf' user_viewed.username %}?sobre_mi=" + s_mi + "&cursos=" + curs;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
