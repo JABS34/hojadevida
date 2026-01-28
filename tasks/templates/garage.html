@@ -8,93 +8,82 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8fafc; padding-top: 30px; padding-bottom: 50px; }
-        .card { border: none; border-radius: 20px; transition: all 0.3s ease; }
-        .card:hover { transform: translateY(-10px); shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .card { border: none; border-radius: 20px; transition: all 0.3s ease; overflow: hidden; }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
         .price-tag { 
-            background: #1e293b; 
-            color: #fbbf24; 
-            padding: 5px 15px; 
-            border-radius: 50px; 
-            font-weight: 800; 
-            border: 2px solid #fbbf24; 
-            font-size: 1.1rem;
+            background: #1e293b; color: #fbbf24; padding: 5px 15px; border-radius: 50px; 
+            font-weight: 800; border: 2px solid #fbbf24; font-size: 1.1rem;
         }
-        .btn-whatsapp { background: #25d366; border: none; border-radius: 12px; color: white; font-weight: bold; transition: background 0.3s; }
+        .status-badge {
+            position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.9);
+            padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: bold;
+            color: #1e3a8a; border: 1px solid #e2e8f0;
+        }
+        .btn-whatsapp { background: #25d366; border: none; border-radius: 12px; color: white; font-weight: bold; }
         .btn-whatsapp:hover { background: #1ebe57; color: white; }
-        .btn-back { border-radius: 50px; font-weight: bold; padding: 10px 25px; transition: all 0.3s; }
+        .btn-back { border-radius: 50px; font-weight: bold; padding: 10px 25px; }
     </style>
 </head>
 <body>
 
 <main class="container">
     <div class="mb-4">
-        <a href="/perfil/jabs6393/" class="btn btn-outline-dark btn-back">
-            <i class="fas fa-arrow-left me-2"></i> VOLVER A LA HOJA DE VIDA
+        <a href="/perfil/jabs6393/" class="btn btn-outline-dark btn-back shadow-sm">
+            <i class="fas fa-arrow-left me-2"></i> VOLVER A MI CV
         </a>
     </div>
 
     <div class="text-center mb-5">
         <h1 class="display-4 fw-bold text-uppercase" style="color: #1e3a8a;">
-            <i class="fas fa-shopping-basket"></i> Venta de Garage
+            <i class="fas fa-shopping-basket"></i> Mi Tienda Garage
         </h1>
-        <p class="lead text-secondary">Artículos tecnológicos y más a precios increíbles.</p>
-        <div style="width: 60px; height: 5px; background: #3b82f6; margin: 10px auto; border-radius: 10px;"></div>
+        <p class="lead text-secondary">Calidad tecnológica a precios de oportunidad.</p>
+        <div style="width: 60px; height: 5px; background: #3b82f6; margin: 0 auto; border-radius: 10px;"></div>
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for producto in productos %}
         <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="position-relative bg-white d-flex align-items-center justify-content-center p-3" style="height: 250px; border-radius: 20px 20px 0 0;">
+            <div class="card h-100 shadow-sm bg-white">
+                <div class="position-relative d-flex align-items-center justify-content-center p-3" style="height: 260px; background: #fff;">
+                    
+                    <div class="status-badge shadow-sm">
+                        <i class="fas fa-tag me-1"></i> {{ producto.estado|upper }}
+                    </div>
+
                     {% if producto.imagen %}
                         <img src="{{ producto.imagen.url }}" class="img-fluid" alt="{{ producto.nombre }}" style="max-height: 100%; object-fit: contain;">
-                    {% else %}
-                        <i class="fas fa-image text-light" style="font-size: 4rem;"></i>
                     {% endif %}
                     
-                    <div class="position-absolute top-0 end-0 m-3 shadow price-tag">
+                    <div class="position-absolute bottom-0 end-0 m-3 shadow price-tag">
                         ${{ producto.precio }}
                     </div>
                 </div>
 
                 <div class="card-body d-flex flex-column">
-                    <div class="mb-2">
-                        <span class="badge bg-success opacity-75">Disponible</span>
-                        <small class="text-muted ms-2">{{ producto.fecha_publicado|date:"d M" }}</small>
-                    </div>
-                    
-                    <h5 class="card-title fw-bold text-dark">{{ producto.nombre }}</h5>
-                    <p class="card-text text-muted small flex-grow-1">
-                        {{ producto.descripcion|default:"Sin descripción adicional disponible." }}
+                    <h5 class="card-title fw-bold text-dark mb-1">{{ producto.nombre }}</h5>
+                    <p class="card-text text-muted small flex-grow-1 mb-3">
+                        {{ producto.descripcion }}
                     </p>
 
-                    <a href="https://wa.me/593987654321?text=Hola,%20me%20interesa%20el%20producto:%20{{ producto.nombre }}" 
+                    <a href="https://wa.me/593987654321?text=Hola%20Jonathan!%20Me%20interesa%20el%20producto:%20{{ producto.nombre }}%20que%20tienes%20en%20tu%20garage%20por%20${{ producto.precio }}." 
                        target="_blank"
                        class="btn btn-whatsapp w-100 py-2 shadow-sm">
-                        <i class="fab fa-whatsapp me-2"></i> CONSULTAR DISPONIBILIDAD
+                        <i class="fab fa-whatsapp me-2"></i> LO QUIERO COMPRAR
                     </a>
                 </div>
             </div>
         </div>
         {% empty %}
         <div class="col-12 text-center py-5">
-            <div class="p-5 bg-white rounded-4 shadow-sm">
-                <i class="fas fa-box-open text-light mb-3" style="font-size: 3rem;"></i>
-                <p class="text-muted">Por el momento no hay artículos disponibles. ¡Vuelve pronto!</p>
-            </div>
+            <p class="text-muted">No hay artículos disponibles actualmente.</p>
         </div>
         {% endfor %}
     </div>
-
-    <div class="text-center mt-5 pt-4">
-        <a href="/perfil/jabs6393/" class="text-decoration-none text-secondary fw-bold uppercase" style="font-size: 0.8rem; letter-spacing: 2px;">
-            <i class="fas fa-user-tie me-1"></i> Ver Perfil Profesional de Jonathan
-        </a>
-    </div>
 </main>
 
-<footer class="text-center py-5 text-muted small uppercase">
-    &copy; 2026 | Sistema de Venta de Garage
+<footer class="text-center py-5 text-muted small">
+    &copy; 2026 | JONATHAN ALEXANDER - SHOWCASE
 </footer>
 
 </body>
