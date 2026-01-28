@@ -17,16 +17,31 @@ def home(request):
 
 @login_required
 def dashboard(request):
-    # Obtiene o crea el perfil automáticamente al entrar
+    # Obtiene o crea el perfil automáticamente al entrar para evitar errores
     perfil, created = DatosPersonales.objects.get_or_create(
         user=request.user,
-        defaults={'nombres': request.user.username, 'fechanacimiento': '1990-01-01'}
+        defaults={
+            'nombres': request.user.first_name or request.user.username,
+            'apellidos': request.user.last_name or '',
+            'fechanacimiento': '1990-01-01',
+            'numerocedula': request.user.id # Valor temporal para evitar errores de integridad
+        }
     )
     return render(request, 'dashboard.html', {'perfil': perfil})
 
 def profile_cv(request, username):
+    # Buscamos al usuario por su nombre de usuario
     user_profile = get_object_or_404(User, username=username)
-    datos = get_object_or_404(DatosPersonales, user=user_profile)
+    
+    # IMPORTANTE: Cambiamos get_object_or_404 por filter().first() para manejar el error 500
+    datos = DatosPersonales.objects.filter(user=user_profile).first()
+    
+    if not datos:
+        # Si el usuario no tiene perfil creado, enviamos un mensaje en lugar de romper la web
+        return render(request, 'profile_cv.html', {
+            'error': 'Este perfil profesional aún no ha sido configurado.',
+            'user_viewed': user_profile
+        })
     
     context = {
         'perfil': datos, 
@@ -52,9 +67,12 @@ def signup(request):
     else:
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('dashboard')
+            try:
+                user = form.save()
+                login(request, user)
+                return redirect('dashboard')
+            except IntegrityError:
+                return render(request, 'signup.html', {'form': form, 'error': 'El usuario ya existe'})
         return render(request, 'signup.html', {'form': form, 'error': 'Datos inválidos'})
 
 def signin(request):
