@@ -27,15 +27,16 @@
     </div>
     {% endif %}
 
-    <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex justify-end gap-3 px-4 no-print">
+    <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex flex-wrap justify-end gap-3 px-4 no-print">
+        
+        <a href="{% url 'garage_store' %}" class="bg-amber-500 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-amber-600 transition scale-100 hover:scale-105 active:scale-95">
+            <i class="fas fa-shopping-cart"></i> MI TIENDA / GARAGE
+        </a>
+
         <button onclick="document.getElementById('modalCert').classList.remove('hidden')" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-indigo-700 transition">
             <i class="fas fa-certificate"></i> CURSOS
         </button>
-        {% if reconocimientos %}
-        <button onclick="document.getElementById('modalRec').classList.remove('hidden')" class="bg-emerald-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-emerald-700 transition">
-            <i class="fas fa-trophy"></i> LOGROS
-        </button>
-        {% endif %}
+
         <button onclick="window.print()" class="bg-slate-800 text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg flex items-center gap-2 hover:bg-slate-700 transition">
             <i class="fas fa-file-pdf"></i> PDF
         </button>
@@ -144,7 +145,7 @@
             </div>
             <div class="p-8 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-6">
                 {% for cert in certificados %}
-                <div class="bg-slate-50 p-3 rounded-2xl border cursor-pointer" onclick="openPreview('{{ cert.imagen.url }}', '{{ cert.titulo }}')">
+                <div class="bg-slate-50 p-3 rounded-2xl border cursor-pointer" onclick="openPreview('{{ cert.imagen.url }}')">
                     {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-xl mb-3">{% endif %}
                     <h3 class="font-bold text-[12px] text-center">{{ cert.titulo }}</h3>
                 </div>
@@ -153,12 +154,12 @@
         </div>
     </div>
 
-    <div id="lightbox" class="fixed inset-0 bg-black/90 hidden z-[60] flex flex-col items-center justify-center p-4 no-print" onclick="this.classList.add('hidden')">
-        <img id="lightboxImg" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl">
+    <div id="lightbox" class="fixed inset-0 bg-black/90 hidden z-[60] flex items-center justify-center p-4 no-print" onclick="this.classList.add('hidden')">
+        <img id="lightboxImg" src="" class="max-w-full max-h-[80vh] rounded-lg">
     </div>
 
     <script>
-        function openPreview(url, title) {
+        function openPreview(url) {
             document.getElementById('lightboxImg').src = url;
             document.getElementById('lightbox').classList.remove('hidden');
         }
