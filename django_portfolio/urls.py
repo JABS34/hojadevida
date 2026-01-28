@@ -10,14 +10,13 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('perfil/<str:username>/', views.profile_cv, name='profile_cv'),
+    path('perfil/<str:username>/pdf/', views.export_pdf, name='export_pdf'), # Nueva ruta
     path('garage/', views.garage_store, name='garage_store'),
     
-    # Autenticación
     path('signup/', views.signup, name='signup'),
     path('signin/', views.signin, name='signin'),
     path('logout/', views.signout, name='logout'),
     
-    # Tareas
     path('tasks/', views.tasks, name='tasks'),
     path('tasks_completed/', views.tasks_completed, name='tasks_completed'),
     path('tasks/create/', views.create_task, name='create_task'),
@@ -25,7 +24,6 @@ urlpatterns = [
     path('tasks/<int:task_id>/complete/', views.complete_task, name='complete_task'),
     path('tasks/<int:task_id>/delete/', views.delete_task, name='delete_task'),
     
-    # Media para Render
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
