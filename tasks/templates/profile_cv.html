@@ -24,6 +24,13 @@
 </head>
 <body>
 
+    {% if error %}
+    <div class="bg-red-600 text-white p-4 text-center font-bold no-print">
+        ⚠️ ERROR: {{ error }} <br>
+        <small>Verifica si creaste los "Datos Personales" en el Admin para el usuario: {{ user_viewed.username }}</small>
+    </div>
+    {% endif %}
+
     <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex flex-wrap justify-end gap-3 px-4 no-print">
         <a href="{% url 'garage_store' %}" class="bg-amber-500 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-amber-600 transition">
             <i class="fas fa-shopping-cart"></i> VENTA DE GARAGE
@@ -97,11 +104,11 @@
                 <header class="mb-10 relative">
                     <div class="absolute -left-5 top-0 w-2 h-full bg-indigo-600"></div>
                     <h1 class="name-title text-[45px] font-extrabold text-[#0f172a] uppercase tracking-tighter">
-                        {{ perfil.nombres }}<br><span class="text-indigo-600">{{ perfil.apellidos }}</span>
+                        {{ perfil.nombres|default:"NOMBRES" }}<br><span class="text-indigo-600">{{ perfil.apellidos|default:"APELLIDOS" }}</span>
                     </h1>
                     <div class="mt-4 flex items-center gap-4">
                         <span class="h-[2px] w-12 bg-slate-200"></span>
-                        <p class="text-xl text-[#336699] font-bold tracking-[0.2em] uppercase italic">ING. EN SISTEMAS</p>
+                        <p class="text-xl text-[#336699] font-bold tracking-[0.2em] uppercase italic">PROFESIONAL</p>
                     </div>
                 </header>
 
@@ -109,7 +116,7 @@
                     <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Stack Tecnológico</h2>
                     <div class="flex flex-wrap gap-2">
                         {% for lang in lenguajes %}
-                        <span class="bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider hover:bg-indigo-600 transition shadow-sm cursor-default">
+                        <span class="bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider">
                             {{ lang.nombre|upper }}
                         </span>
                         {% empty %}
@@ -132,9 +139,7 @@
                         <div class="relative pl-6 border-l border-slate-100">
                             <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-600 border-2 border-white"></div>
                             <h3 class="font-extrabold text-slate-800 text-[16px]">{{ exp.puesto }}</h3>
-                            <div class="flex justify-between items-center mb-2">
-                                <p class="text-indigo-600 text-[12px] font-black uppercase">{{ exp.empresa }}</p>
-                            </div>
+                            <p class="text-indigo-600 text-[12px] font-black uppercase">{{ exp.empresa }}</p>
                             <p class="text-slate-500 text-[12px] leading-snug">{{ exp.descripcion }}</p>
                         </div>
                         {% empty %}
@@ -153,41 +158,16 @@
     <div id="modalCert" class="fixed inset-0 bg-slate-900/95 hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-4xl max-h-[85vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
             <div class="p-6 border-b flex justify-between items-center bg-indigo-600 text-white">
-                <h2 class="text-xl font-bold uppercase tracking-widest"><i class="fas fa-award mr-2"></i> Mis Certificados</h2>
-                <button onclick="document.getElementById('modalCert').classList.add('hidden')" class="text-white hover:text-red-300 text-3xl font-light">&times;</button>
+                <h2 class="text-xl font-bold uppercase tracking-widest">Mis Certificados</h2>
+                <button onclick="document.getElementById('modalCert').classList.add('hidden')" class="text-3xl">&times;</button>
             </div>
             <div class="p-8 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-6">
                 {% for cert in certificados %}
-                <div {% if cert.imagen %}onclick="openPreview('{{ cert.imagen.url }}', '{{ cert.titulo }}')"{% endif %} class="group bg-slate-50 rounded-2xl p-3 border hover:border-indigo-400 transition cursor-zoom-in shadow-sm">
+                <div class="bg-slate-50 p-3 rounded-2xl border">
                     {% if cert.imagen %}
-                        <img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-xl mb-3">
-                    {% else %}
-                        <div class="w-full h-32 bg-slate-200 rounded-xl mb-3 flex items-center justify-center text-slate-400">Sin imagen</div>
+                        <img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-xl mb-3 cursor-zoom-in" onclick="openPreview('{{ cert.imagen.url }}', '{{ cert.titulo }}')">
                     {% endif %}
-                    <h3 class="font-bold text-[12px] text-slate-800 leading-tight">{{ cert.titulo }}</h3>
-                </div>
-                {% empty %}
-                <div class="col-span-full text-center py-10 text-slate-400">No hay certificados registrados.</div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <div id="modalRec" class="fixed inset-0 bg-slate-900/95 hidden z-50 flex items-center justify-center p-4 no-print">
-        <div class="bg-white w-full max-w-2xl max-h-[80vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-            <div class="p-6 border-b flex justify-between items-center bg-emerald-600 text-white">
-                <h2 class="text-xl font-bold uppercase tracking-widest"><i class="fas fa-trophy mr-2"></i> Logros y Premios</h2>
-                <button onclick="document.getElementById('modalRec').classList.add('hidden')" class="text-white hover:text-red-300 text-3xl font-light">&times;</button>
-            </div>
-            <div class="p-6 overflow-y-auto space-y-4">
-                {% for rec in reconocimientos %}
-                <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-emerald-500 shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <h3 class="font-bold text-lg text-slate-800">{{ rec.titulo }}</h3>
-                        <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">{{ rec.fecha|date:"M Y" }}</span>
-                    </div>
-                    <p class="text-sm text-slate-600 mt-2 italic">"{{ rec.descripcion }}"</p>
-                    <p class="text-xs font-bold text-indigo-600 mt-3 uppercase">{{ rec.institucion_otorga }}</p>
+                    <h3 class="font-bold text-[12px]">{{ cert.titulo }}</h3>
                 </div>
                 {% endfor %}
             </div>
@@ -195,8 +175,8 @@
     </div>
 
     <div id="lightbox" class="fixed inset-0 bg-black/90 hidden z-[60] flex flex-col items-center justify-center p-4 no-print" onclick="this.classList.add('hidden')">
-        <img id="lightboxImg" src="" class="max-w-full max-h-[80vh] rounded-lg border-4 border-white/10">
-        <h2 id="lightboxTitle" class="text-white mt-6 text-xl font-bold tracking-wider uppercase"></h2>
+        <img id="lightboxImg" src="" class="max-w-full max-h-[80vh] rounded-lg">
+        <h2 id="lightboxTitle" class="text-white mt-6 text-xl font-bold"></h2>
     </div>
 
     <script>
