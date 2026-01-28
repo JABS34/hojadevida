@@ -17,14 +17,31 @@
         .main-content { width: 65%; padding: 50px; }
         .name-title { font-family: 'Montserrat', sans-serif; line-height: 1.1; }
         @media print { .no-print { display: none !important; } .cv-page { box-shadow: none; margin: 0; width: 100%; height: 100%; } }
+        /* Scroll suave para modales */
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body>
 
     <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex flex-wrap justify-end gap-3 px-4 no-print">
-        {% if config.mostrar_garage %}<a href="{% url 'garage_store' %}" class="bg-amber-500 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-amber-600 transition"><i class="fas fa-shopping-cart"></i> GARAGE</a>{% endif %}
-        {% if config.mostrar_cursos %}<button onclick="openModal('modalCert')" class="bg-indigo-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-indigo-700 transition"><i class="fas fa-certificate"></i> CURSOS</button>{% endif %}
-        <button onclick="openModal('modalPDF')" class="bg-red-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-red-700 transition"><i class="fas fa-file-pdf"></i> CONFIGURAR PDF</button>
+        {% if config.mostrar_garage %}
+        <a href="{% url 'garage_store' %}" class="bg-amber-500 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-amber-600 transition">
+            <i class="fas fa-shopping-cart"></i> GARAGE
+        </a>
+        {% endif %}
+
+        <button onclick="openModal('modalCert')" class="bg-indigo-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-indigo-700 transition">
+            <i class="fas fa-certificate"></i> CURSOS
+        </button>
+
+        <button onclick="openModal('modalRec')" class="bg-emerald-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-emerald-700 transition">
+            <i class="fas fa-trophy"></i> RECONOCIMIENTOS
+        </button>
+
+        <button onclick="openModal('modalPDF')" class="bg-red-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-red-700 transition">
+            <i class="fas fa-file-pdf"></i> CONFIGURAR PDF
+        </button>
     </div>
 
     <div class="cv-page">
@@ -48,7 +65,7 @@
             </section>
 
             <section>
-                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Formación Académica</h3>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Formación</h3>
                 <div class="space-y-4">
                     {% for estudio in estudios %}
                     <div class="text-[13px]">
@@ -60,13 +77,13 @@
             </section>
 
             <section>
-                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Habilidades Técnicas</h3>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Habilidades</h3>
                 <div class="space-y-3">
                     {% for hab in habilidades %}
                     <div class="flex flex-col text-[12px]">
                         <span class="font-medium">{{ hab.nombre }}</span>
                         <div class="w-full bg-white/20 h-1 rounded-full mt-1">
-                            <div class="bg-indigo-300 h-1 rounded-full" style="width: 80%"></div>
+                            <div class="bg-indigo-300 h-1 rounded-full" style="width: 85%"></div>
                         </div>
                     </div>
                     {% endfor %}
@@ -77,17 +94,15 @@
         <main class="main-content">
             <header class="mb-10 relative">
                 <div class="absolute -left-5 top-0 w-2 h-full bg-indigo-600"></div>
-                <h1 class="name-title text-[45px] font-extrabold text-[#0f172a] uppercase tracking-tighter">
-                    {{ perfil.nombres }}<br><span class="text-indigo-600">{{ perfil.apellidos }}</span>
-                </h1>
+                <h1 class="name-title text-[45px] font-extrabold text-[#0f172a] uppercase tracking-tighter">{{ perfil.nombres }}<br><span class="text-indigo-600">{{ perfil.apellidos }}</span></h1>
             </header>
 
             <section class="mb-10">
-                <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4 italic">Dominio de Lenguajes</h2>
+                <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4 italic">Lenguajes de Programación</h2>
                 <div class="flex flex-wrap gap-2">
                     {% for lang in lenguajes %}
                     <span class="text-[12px] font-bold bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-lg border border-indigo-100 flex items-center gap-2">
-                        <i class="fas fa-terminal text-[10px]"></i> {{ lang.nombre }}
+                        <i class="fas fa-code text-[10px]"></i> {{ lang.nombre }}
                     </span>
                     {% endfor %}
                 </div>
@@ -95,20 +110,18 @@
 
             <section class="mb-10">
                 <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Sobre mí</h2>
-                <p class="text-slate-600 text-[14px] leading-relaxed italic border-l-2 border-indigo-100 pl-4 text-justify">
-                    "{{ perfil.descripcionperfil }}"
-                </p>
+                <p class="text-slate-600 text-[14px] leading-relaxed italic border-l-2 border-indigo-100 pl-4">"{{ perfil.descripcionperfil }}"</p>
             </section>
 
             <section>
-                <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Experiencia Laboral</h2>
+                <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Experiencia</h2>
                 <div class="space-y-8">
                     {% for exp in experiencias %}
                     <div class="relative pl-6 border-l border-slate-100">
                         <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
                         <h3 class="font-extrabold text-slate-800 text-[16px]">{{ exp.puesto }}</h3>
-                        <p class="text-indigo-600 text-[12px] font-black uppercase tracking-wider">{{ exp.empresa }}</p>
-                        <p class="text-slate-500 text-[12px] mt-2 leading-snug">{{ exp.descripcion }}</p>
+                        <p class="text-indigo-600 text-[12px] font-black uppercase tracking-widest">{{ exp.empresa }}</p>
+                        <p class="text-slate-500 text-[12px] mt-1">{{ exp.descripcion }}</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -116,29 +129,88 @@
         </main>
     </div>
 
-    <div id="modalPDF" class="fixed inset-0 bg-black/80 hidden z-[60] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center">
-            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2">Opciones de Exportación</h2>
-            <div class="space-y-4 text-left">
-                <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded transition">
+    <div id="modalCert" class="fixed inset-0 bg-black/90 hidden z-[70] flex items-center justify-center p-6 no-print">
+        <div class="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                <h2 class="text-2xl font-bold text-indigo-900"><i class="fas fa-certificate mr-2"></i> Mis Cursos y Certificados</h2>
+                <button onclick="closeModal('modalCert')" class="text-slate-400 hover:text-red-500 text-2xl transition">&times;</button>
+            </div>
+            <div class="modal-content overflow-y-auto p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                {% for cert in certificados %}
+                <div class="group">
+                    <p class="font-bold text-slate-700 mb-2 group-hover:text-indigo-600 transition">{{ cert.titulo }}</p>
+                    <img src="{{ cert.imagen.url }}" class="w-full rounded-xl shadow-md border hover:scale-[1.02] transition duration-300">
+                </div>
+                {% empty %}
+                <p class="col-span-full text-center text-slate-500 italic">No hay certificados cargados.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="modalRec" class="fixed inset-0 bg-black/90 hidden z-[70] flex items-center justify-center p-6 no-print">
+        <div class="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                <h2 class="text-2xl font-bold text-emerald-900"><i class="fas fa-trophy mr-2"></i> Logros y Reconocimientos</h2>
+                <button onclick="closeModal('modalRec')" class="text-slate-400 hover:text-red-500 text-2xl transition">&times;</button>
+            </div>
+            <div class="modal-content overflow-y-auto p-8 space-y-12">
+                {% for rec in reconocimientos %}
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">{{ rec.titulo }}</h3>
+                    {% if rec.imagen %}
+                    <img src="{{ rec.imagen.url }}" class="max-w-full mx-auto rounded-2xl shadow-lg border">
+                    {% endif %}
+                    <p class="text-slate-600 mt-4 italic">{{ rec.descripcion|default:"" }}</p>
+                </div>
+                {% empty %}
+                <p class="text-center text-slate-500 italic">No hay reconocimientos cargados.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPDF" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl">
+            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2 text-center">Exportar a PDF</h2>
+            <div class="space-y-4">
+                <label class="flex items-center gap-3 cursor-pointer p-3 hover:bg-slate-50 rounded-xl transition">
                     <input type="checkbox" id="check_sobre_mi" checked class="w-5 h-5 accent-red-600">
-                    <span class="text-slate-700 font-medium italic italic italic">Incluir "Sobre mí"</span>
+                    <span class="text-slate-700 font-medium italic">Incluir "Sobre mí"</span>
                 </label>
-                <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded transition">
+                <label class="flex items-center gap-3 cursor-pointer p-3 hover:bg-slate-50 rounded-xl transition">
                     <input type="checkbox" id="check_cursos" checked class="w-5 h-5 accent-red-600">
-                    <span class="text-slate-700 font-medium italic italic italic">Incluir Certificados</span>
+                    <span class="text-slate-700 font-medium italic">Incluir Certificados</span>
                 </label>
             </div>
             <div class="mt-8 flex gap-3">
-                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-red-700 transition uppercase text-[10px]">Generar PDF</button>
-                <button onclick="closeModal('modalPDF')" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
+                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-red-700 transition uppercase text-[10px]">Descargar</button>
+                <button onclick="closeModal('modalPDF')" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold uppercase text-[10px]">Cerrar</button>
             </div>
         </div>
     </div>
 
     <script>
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function openModal(id) { 
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Evita scroll de fondo
+        }
+        
+        function closeModal(id) { 
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto'; // Restaura scroll
+        }
+
+        // Cerrar modales al hacer clic fuera del contenido
+        window.onclick = function(event) {
+            if (event.target.classList.contains('fixed')) {
+                event.target.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
         function generarPDF() {
             const s_mi = document.getElementById('check_sobre_mi').checked;
             const curs = document.getElementById('check_cursos').checked;
