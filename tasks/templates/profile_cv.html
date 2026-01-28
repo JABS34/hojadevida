@@ -48,7 +48,7 @@
             </section>
 
             <section>
-                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Formación</h3>
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Formación Académica</h3>
                 <div class="space-y-4">
                     {% for estudio in estudios %}
                     <div class="text-[13px]">
@@ -60,24 +60,15 @@
             </section>
 
             <section>
-                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Habilidades</h3>
-                <div class="space-y-2">
+                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Habilidades Técnicas</h3>
+                <div class="space-y-3">
                     {% for hab in habilidades %}
                     <div class="flex flex-col text-[12px]">
                         <span class="font-medium">{{ hab.nombre }}</span>
                         <div class="w-full bg-white/20 h-1 rounded-full mt-1">
-                            <div class="bg-indigo-300 h-1 rounded-full" style="width: 85%"></div>
+                            <div class="bg-indigo-300 h-1 rounded-full" style="width: 80%"></div>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
-            </section>
-
-            <section>
-                <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Lenguajes</h3>
-                <div class="flex flex-wrap gap-2">
-                    {% for lang in lenguajes %}
-                    <span class="text-[11px] bg-white/10 px-2 py-1 rounded border border-white/20">{{ lang.nombre }}</span>
                     {% endfor %}
                 </div>
             </section>
@@ -86,23 +77,38 @@
         <main class="main-content">
             <header class="mb-10 relative">
                 <div class="absolute -left-5 top-0 w-2 h-full bg-indigo-600"></div>
-                <h1 class="name-title text-[45px] font-extrabold text-[#0f172a] uppercase tracking-tighter">{{ perfil.nombres }}<br><span class="text-indigo-600">{{ perfil.apellidos }}</span></h1>
+                <h1 class="name-title text-[45px] font-extrabold text-[#0f172a] uppercase tracking-tighter">
+                    {{ perfil.nombres }}<br><span class="text-indigo-600">{{ perfil.apellidos }}</span>
+                </h1>
             </header>
 
             <section class="mb-10">
+                <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4 italic">Dominio de Lenguajes</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for lang in lenguajes %}
+                    <span class="text-[12px] font-bold bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-lg border border-indigo-100 flex items-center gap-2">
+                        <i class="fas fa-terminal text-[10px]"></i> {{ lang.nombre }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="mb-10">
                 <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Sobre mí</h2>
-                <p class="text-slate-600 text-[14px] leading-relaxed italic border-l-2 border-indigo-100 pl-4">"{{ perfil.descripcionperfil }}"</p>
+                <p class="text-slate-600 text-[14px] leading-relaxed italic border-l-2 border-indigo-100 pl-4 text-justify">
+                    "{{ perfil.descripcionperfil }}"
+                </p>
             </section>
 
             <section>
-                <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Experiencia</h2>
+                <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Experiencia Laboral</h2>
                 <div class="space-y-8">
                     {% for exp in experiencias %}
                     <div class="relative pl-6 border-l border-slate-100">
                         <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
                         <h3 class="font-extrabold text-slate-800 text-[16px]">{{ exp.puesto }}</h3>
-                        <p class="text-indigo-600 text-[12px] font-black uppercase">{{ exp.empresa }}</p>
-                        <p class="text-slate-500 text-[12px]">{{ exp.descripcion }}</p>
+                        <p class="text-indigo-600 text-[12px] font-black uppercase tracking-wider">{{ exp.empresa }}</p>
+                        <p class="text-slate-500 text-[12px] mt-2 leading-snug">{{ exp.descripcion }}</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -112,20 +118,20 @@
 
     <div id="modalPDF" class="fixed inset-0 bg-black/80 hidden z-[60] flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center">
-            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2">Opciones del PDF</h2>
+            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2">Opciones de Exportación</h2>
             <div class="space-y-4 text-left">
-                <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded transition">
                     <input type="checkbox" id="check_sobre_mi" checked class="w-5 h-5 accent-red-600">
-                    <span class="text-slate-700 font-medium italic italic">Sección "Sobre mí"</span>
+                    <span class="text-slate-700 font-medium italic italic italic">Incluir "Sobre mí"</span>
                 </label>
-                <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded">
+                <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded transition">
                     <input type="checkbox" id="check_cursos" checked class="w-5 h-5 accent-red-600">
-                    <span class="text-slate-700 font-medium italic italic">Cursos Realizados</span>
+                    <span class="text-slate-700 font-medium italic italic italic">Incluir Certificados</span>
                 </label>
             </div>
             <div class="mt-8 flex gap-3">
-                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-red-700 transition uppercase text-xs">Generar PDF</button>
-                <button onclick="closeModal('modalPDF')" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold uppercase text-xs">Cerrar</button>
+                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-red-700 transition uppercase text-[10px]">Generar PDF</button>
+                <button onclick="closeModal('modalPDF')" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
             </div>
         </div>
     </div>
