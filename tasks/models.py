@@ -55,9 +55,13 @@ class Reconocimiento(models.Model):
     descripcion = models.TextField()
     fecha = models.DateField()
     institucion_otorga = models.CharField(max_length=200)
-    def __str__(self): return f"{self.titulo} - {self.perfil.nombres}"
+    # CAMBIO: Se agrega el campo imagen para el zoom
+    imagen = models.ImageField(upload_to='reconocimientos/', null=True, blank=True)
 
-# 3. VENTA DE GARAGE (MODIFICADO)
+    def __str__(self):
+        return f"{self.titulo} - {self.perfil.nombres}"
+
+# 3. VENTA DE GARAGE
 class ProductoGarage(models.Model):
     ESTADO_OPCIONES = [
         ('Nuevo', 'Nuevo'),
