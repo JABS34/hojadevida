@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ perfil.nombres }} | CV PROFESIONAL</title>
+    <title>{{ perfil.nombres|default:"CV" }} | CV PROFESIONAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -25,22 +25,18 @@
 <body>
 
     <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex flex-wrap justify-end gap-3 px-4 no-print">
-        <a href="{% url 'garage_store' %}" 
-           class="bg-amber-500 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-amber-600 transition">
+        <a href="{% url 'garage_store' %}" class="bg-amber-500 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-amber-600 transition">
             <i class="fas fa-shopping-cart"></i> VENTA DE GARAGE
         </a>
-        <button onclick="document.getElementById('modalCert').classList.remove('hidden')" 
-                class="btn-animated bg-indigo-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2">
+        <button onclick="document.getElementById('modalCert').classList.remove('hidden')" class="btn-animated bg-indigo-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2">
             <i class="fas fa-certificate"></i> CURSOS REALIZADOS
         </button>
         {% if reconocimientos %}
-        <button onclick="document.getElementById('modalRec').classList.remove('hidden')" 
-                class="bg-emerald-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-emerald-700 transition">
+        <button onclick="document.getElementById('modalRec').classList.remove('hidden')" class="bg-emerald-600 text-white px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-emerald-700 transition">
             <i class="fas fa-trophy"></i> RECONOCIMIENTOS
         </button>
         {% endif %}
-        <button onclick="window.print()" 
-                class="bg-slate-800 text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg flex items-center gap-2 hover:bg-slate-700 transition">
+        <button onclick="window.print()" class="bg-slate-800 text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg flex items-center gap-2 hover:bg-slate-700 transition">
             <i class="fas fa-file-pdf"></i> PDF
         </button>
     </div>
@@ -49,8 +45,13 @@
         <aside class="aside-bg p-8 space-y-10">
             <div class="flex justify-center py-4">
                 <div class="profile-photo rounded-full overflow-hidden bg-slate-300 shadow-2xl">
-                    {% if perfil.foto %} <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
-                    {% else %} <div class="h-full flex items-center justify-center text-6xl font-bold">{{ perfil.nombres|slice:":1" }}</div> {% endif %}
+                    {% if perfil.foto %} 
+                        <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
+                    {% else %} 
+                        <div class="h-full flex items-center justify-center text-6xl font-bold bg-indigo-800 text-white">
+                            {{ perfil.nombres|slice:":1"|upper }}
+                        </div> 
+                    {% endif %}
                 </div>
             </div>
 
@@ -58,7 +59,7 @@
                 <h3 class="text-[11px] font-bold tracking-[0.3em] uppercase border-b border-white/30 pb-2 mb-4 italic">Contacto</h3>
                 <div class="space-y-3 text-[13px] opacity-90">
                     <p class="flex items-center gap-3"><i class="fas fa-envelope text-indigo-300 w-4"></i> {{ user_viewed.email }}</p>
-                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-indigo-300 w-4"></i> {{ perfil.direcciondomiciliaria }}</p>
+                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-indigo-300 w-4"></i> {{ perfil.direcciondomiciliaria|default:"No especificada" }}</p>
                     {% if perfil.instagram %}<p class="flex items-center gap-3"><i class="fab fa-instagram text-indigo-300 w-4"></i> @{{ perfil.instagram }}</p>{% endif %}
                 </div>
             </section>
@@ -71,6 +72,8 @@
                         <p class="font-bold uppercase text-white leading-tight">{{ estudio.institucion }}</p>
                         <p class="text-[11px] text-indigo-200 font-semibold">{{ estudio.fecha_graduacion|date:"Y" }}</p>
                     </div>
+                    {% empty %}
+                    <p class="text-[11px] opacity-50">Sin información educativa</p>
                     {% endfor %}
                 </div>
             </section>
@@ -82,6 +85,8 @@
                     <li class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/5">
                         <i class="fas fa-check-circle text-indigo-300 text-[10px]"></i> {{ hab.nombre }}
                     </li> 
+                    {% empty %}
+                    <li class="opacity-50 text-[11px]">Habilidades no registradas</li>
                     {% endfor %}
                 </ul>
             </section>
@@ -107,6 +112,8 @@
                         <span class="bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider hover:bg-indigo-600 transition shadow-sm cursor-default">
                             {{ lang.nombre|upper }}
                         </span>
+                        {% empty %}
+                        <span class="text-slate-300 italic text-xs">Sin tecnologías registradas</span>
                         {% endfor %}
                     </div>
                 </section>
@@ -114,7 +121,7 @@
                 <section class="mb-10">
                     <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Sobre mí</h2>
                     <p class="text-slate-600 text-[14px] leading-relaxed text-justify font-medium italic border-l-2 border-indigo-100 pl-4">
-                        "{{ perfil.descripcionperfil }}"
+                        "{{ perfil.descripcionperfil|default:"Sin descripción disponible." }}"
                     </p>
                 </section>
 
@@ -130,6 +137,8 @@
                             </div>
                             <p class="text-slate-500 text-[12px] leading-snug">{{ exp.descripcion }}</p>
                         </div>
+                        {% empty %}
+                        <p class="text-slate-300 italic text-sm">Buscando nuevos retos profesionales.</p>
                         {% endfor %}
                     </div>
                 </section>
@@ -149,10 +158,16 @@
             </div>
             <div class="p-8 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-6">
                 {% for cert in certificados %}
-                <div onclick="openPreview('{{ cert.imagen.url }}', '{{ cert.titulo }}')" class="group bg-slate-50 rounded-2xl p-3 border hover:border-indigo-400 transition cursor-zoom-in shadow-sm">
-                    <img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-xl mb-3">
+                <div {% if cert.imagen %}onclick="openPreview('{{ cert.imagen.url }}', '{{ cert.titulo }}')"{% endif %} class="group bg-slate-50 rounded-2xl p-3 border hover:border-indigo-400 transition cursor-zoom-in shadow-sm">
+                    {% if cert.imagen %}
+                        <img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-xl mb-3">
+                    {% else %}
+                        <div class="w-full h-32 bg-slate-200 rounded-xl mb-3 flex items-center justify-center text-slate-400">Sin imagen</div>
+                    {% endif %}
                     <h3 class="font-bold text-[12px] text-slate-800 leading-tight">{{ cert.titulo }}</h3>
                 </div>
+                {% empty %}
+                <div class="col-span-full text-center py-10 text-slate-400">No hay certificados registrados.</div>
                 {% endfor %}
             </div>
         </div>
