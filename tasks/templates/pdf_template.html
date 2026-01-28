@@ -3,80 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <title>CV_{{ perfil.nombres }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@300;400;600&display=swap');
+        
+        /* Ajustes específicos para impresión A4 */
         @page { size: A4; margin: 0; }
-        body { font-family: 'Helvetica', sans-serif; margin: 0; color: #1a202c; }
-        .page { padding: 40px; page-break-after: always; }
-        .header-cv { border-bottom: 4px solid #1e3a8a; margin-bottom: 30px; padding-bottom: 10px; }
-        h1 { font-size: 32px; text-transform: uppercase; color: #1e3a8a; margin: 0; }
-        h2 { font-size: 18px; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-top: 30px; }
-        .text-content { line-height: 1.6; font-size: 14px; text-align: justify; background: #f8fafc; padding: 20px; border-radius: 8px; }
-        .img-full { width: 100%; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .cert-container { margin-bottom: 40px; text-align: center; }
-        .cert-title { font-weight: bold; margin-bottom: 10px; font-size: 16px; color: #1e3a8a; }
-        .garage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .garage-item { border: 1px solid #e2e8f0; padding: 10px; border-radius: 5px; }
+        body { font-family: 'Inter', sans-serif; -webkit-print-color-adjust: exact; }
+        
+        .cv-page { 
+            width: 210mm; 
+            min-height: 297mm; 
+            display: flex; 
+            background: white;
+        }
+        .aside-bg { 
+            background: #1e3a8a !important; /* El azul de tu foto */
+            width: 35%; 
+            color: white; 
+            padding: 40px 30px;
+        }
+        .main-content { 
+            width: 65%; 
+            padding: 50px; 
+        }
+        .profile-photo { 
+            width: 150px; 
+            height: 150px; 
+            border: 5px solid rgba(255,255,255,0.3); 
+            border-radius: 50%;
+            object-cover: cover;
+        }
+        /* Forzar saltos de página para certificados */
+        .page-break { page-break-before: always; padding: 40px; }
     </style>
 </head>
 <body onload="window.print()">
 
-    <div class="page">
-        <div class="header-cv">
-            <h1>{{ perfil.nombres }} {{ perfil.apellidos }}</h1>
-            <p>Email: {{ user_viewed.email }} | Ubicación: {{ perfil.direcciondomiciliaria }}</p>
-        </div>
+    <div class="cv-page">
+        <aside class="aside-bg">
+            <div class="flex justify-center mb-10">
+                {% if perfil.foto %}
+                    <img src="{{ perfil.foto.url }}" class="profile-photo">
+                {% endif %}
+            </div>
 
-        {% if show_sobre_mi %}
-        <section>
-            <h2>Sobre mí</h2>
-            <div class="text-content italic">"{{ perfil.descripcionperfil }}"</div>
-        </section>
-        {% endif %}
+            <section class="mb-8">
+                <h3 class="text-[11px] font-bold tracking-[0.2em] uppercase border-b border-white/30 pb-2 mb-4">Contacto</h3>
+                <div class="space-y-3 text-[12px]">
+                    <p><i class="fas fa-envelope mr-2"></i> {{ user_viewed.email }}</p>
+                    <p><i class="fas fa-map-marker-alt mr-2"></i> {{ perfil.direcciondomiciliaria|default:"Manta" }}</p>
+                </div>
+            </section>
 
-        <section>
-            <h2>Resumen de Experiencia</h2>
-            {% for exp in experiencias %}
-            <p><strong>{{ exp.puesto }}</strong> en {{ exp.empresa }}</p>
-            {% endfor %}
-        </section>
+            <section>
+                <h3 class="text-[11px] font-bold tracking-[0.2em] uppercase border-b border-white/30 pb-2 mb-4">Formación</h3>
+                {% for estudio in estudios %}
+                <div class="mb-4 text-[12px]">
+                    <p class="font-bold uppercase leading-tight">{{ estudio.institucion }}</p>
+                    <p class="opacity-80">{{ estudio.fecha_graduacion|date:"Y" }}</p>
+                </div>
+                {% endfor %}
+            </section>
+        </aside>
+
+        <main class="main-content">
+            <header class="mb-10 border-l-4 border-indigo-600 pl-6">
+                <h1 class="text-[40px] font-extrabold text-slate-900 leading-none uppercase">
+                    {{ perfil.nombres }}<br>
+                    <span class="text-indigo-600">{{ perfil.apellidos }}</span>
+                </h1>
+            </header>
+
+            {% if show_sobre_mi %}
+            <section class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Sobre mí</h2>
+                <p class="text-slate-600 text-[13px] leading-relaxed italic border-l-2 border-slate-100 pl-4">
+                    "{{ perfil.descripcionperfil }}"
+                </p>
+            </section>
+            {% endif %}
+
+            <section>
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">Experiencia</h2>
+                <div class="space-y-6">
+                    {% for exp in experiencias %}
+                    <div class="relative pl-4 border-l border-slate-200">
+                        <h3 class="font-bold text-slate-800 text-[15px]">{{ exp.puesto }}</h3>
+                        <p class="text-indigo-600 text-[11px] font-bold uppercase">{{ exp.empresa }}</p>
+                        <p class="text-slate-500 text-[12px]">{{ exp.descripcion }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </main>
     </div>
 
     {% if show_cursos and certificados %}
-    <div class="page">
-        <h2>Cursos y Certificaciones Realizadas</h2>
-        {% for cert in certificados %}
-        <div class="cert-container">
-            <p class="cert-title">{{ cert.titulo }}</p>
-            <img src="{{ cert.imagen.url }}" class="img-full">
+    <div class="page-break">
+        <h2 class="text-2xl font-bold border-b-2 border-indigo-600 pb-2 mb-8 text-slate-800">Certificaciones y Cursos</h2>
+        <div class="space-y-10">
+            {% for cert in certificados %}
+            <div class="text-center">
+                <p class="font-bold text-lg mb-4 text-slate-700">{{ cert.titulo }}</p>
+                <img src="{{ cert.imagen.url }}" class="max-w-full rounded-lg shadow-md mx-auto">
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     {% endif %}
 
     {% if show_reconocimientos and reconocimientos %}
-    <div class="page">
-        <h2>Logros y Reconocimientos</h2>
+    <div class="page-break">
+        <h2 class="text-2xl font-bold border-b-2 border-emerald-600 pb-2 mb-8 text-slate-800">Reconocimientos</h2>
         {% for rec in reconocimientos %}
-        <div class="cert-container">
-            <p class="cert-title">{{ rec.titulo }}</p>
-            {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="img-full">{% endif %}
+        <div class="text-center mb-10">
+            <p class="font-bold text-lg mb-4">{{ rec.titulo }}</p>
+            {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="max-w-full rounded-lg shadow-md mx-auto">{% endif %}
         </div>
         {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if show_garage and productos %}
-    <div class="page">
-        <h2>Catálogo de Venta de Garage</h2>
-        <div class="garage-grid">
-            {% for prod in productos %}
-            <div class="garage-item">
-                {% if prod.imagen %}<img src="{{ prod.imagen.url }}" style="width:100%; border-radius: 4px;">{% endif %}
-                <p><strong>{{ prod.nombre }}</strong></p>
-                <p>Precio: ${{ prod.precio }}</p>
-            </div>
-            {% endfor %}
-        </div>
     </div>
     {% endif %}
 
