@@ -22,9 +22,7 @@ class ExperienciaLaboral(models.Model):
     puesto = models.CharField(max_length=200)
     empresa = models.CharField(max_length=200)
     descripcion = models.TextField()
-
-    def __str__(self):
-        return f"{self.puesto} en {self.empresa}"
+    def __str__(self): return f"{self.puesto} en {self.empresa}"
 
 class Habilidad(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
@@ -55,20 +53,12 @@ class Reconocimiento(models.Model):
     descripcion = models.TextField()
     fecha = models.DateField()
     institucion_otorga = models.CharField(max_length=200)
-    # CAMBIO: Se agrega el campo imagen para el zoom
     imagen = models.ImageField(upload_to='reconocimientos/', null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.titulo} - {self.perfil.nombres}"
+    def __str__(self): return f"{self.titulo} - {self.perfil.nombres}"
 
 # 3. VENTA DE GARAGE
 class ProductoGarage(models.Model):
-    ESTADO_OPCIONES = [
-        ('Nuevo', 'Nuevo'),
-        ('Medio Usado', 'Medio Usado'),
-        ('Usado', 'Usado (Buen Estado)'),
-    ]
-
+    ESTADO_OPCIONES = [('Nuevo', 'Nuevo'), ('Medio Usado', 'Medio Usado'), ('Usado', 'Usado (Buen Estado)')]
     nombre = models.CharField(max_length=200)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField()
@@ -76,9 +66,7 @@ class ProductoGarage(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADO_OPCIONES, default='Nuevo')
     disponible = models.BooleanField(default=True)
     fecha_publicado = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.nombre
+    def __str__(self): return self.nombre
 
 # 4. SISTEMA DE TAREAS
 class Task(models.Model):
@@ -89,3 +77,15 @@ class Task(models.Model):
     important = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self): return f"{self.title} - by {self.user.username}"
+
+# 5. CONTROL DE VISIBILIDAD (NUEVO)
+class ConfiguracionVisible(models.Model):
+    mostrar_garage = models.BooleanField(default=True)
+    mostrar_cursos = models.BooleanField(default=True)
+    mostrar_reconocimientos = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Configuración de Botones"
+        verbose_name_plural = "Configuración de Botones"
+
+    def __str__(self): return "Interruptores de Visibilidad"
