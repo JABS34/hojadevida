@@ -18,8 +18,11 @@
         .name-title { font-family: 'Montserrat', sans-serif; line-height: 1.1; }
         @media print { .no-print { display: none !important; } .cv-page { box-shadow: none; margin: 0; width: 100%; height: 100%; } }
         
-        .img-mini { cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
-        .img-mini:hover { transform: translateY(-5px); border-color: #4f46e5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        /* Estilo de miniaturas mejorado */
+        .img-mini { cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; position: relative; overflow: hidden; }
+        .img-mini:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .img-mini::after { content: '\f00e'; font-family: 'Font Awesome 5 Free'; font-weight: 900; position: absolute; inset: 0; background: rgba(79, 70, 229, 0.4); display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: 0.3s; }
+        .img-mini:hover::after { opacity: 1; }
     </style>
 </head>
 <body>
@@ -120,7 +123,7 @@
     <div id="modalCert" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
             <div class="p-5 border-b flex justify-between items-center bg-slate-50">
-                <h2 class="text-xl font-bold text-slate-800 italic">Mis Cursos y Certificados</h2>
+                <h2 class="text-xl font-bold text-slate-800 italic uppercase"><i class="fas fa-certificate mr-2 text-indigo-600"></i> Mis Cursos</h2>
                 <button onclick="closeModal('modalCert')" class="text-slate-400 hover:text-red-500 text-2xl transition">&times;</button>
             </div>
             <div class="overflow-y-auto p-6 bg-gray-50">
@@ -138,63 +141,84 @@
         </div>
     </div>
 
+    <div id="modalRec" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-5 border-b flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-bold text-slate-800 italic uppercase"><i class="fas fa-trophy mr-2 text-emerald-600"></i> Reconocimientos</h2>
+                <button onclick="closeModal('modalRec')" class="text-slate-400 hover:text-red-500 text-2xl transition">&times;</button>
+            </div>
+            <div class="overflow-y-auto p-6 bg-gray-50">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {% for rec in reconocimientos %}
+                    <div class="flex flex-col items-center">
+                        <div class="img-mini bg-white p-2 rounded-lg shadow-sm mb-2 hover:border-emerald-500 transition-all" onclick="zoomImagen('{{ rec.imagen.url }}', '{{ rec.titulo }}')">
+                            {% if rec.imagen %}
+                                <img src="{{ rec.imagen.url }}" class="w-full aspect-video object-cover rounded shadow-inner">
+                            {% else %}
+                                <div class="w-full aspect-video bg-emerald-50 flex items-center justify-center text-emerald-200"><i class="fas fa-award text-3xl"></i></div>
+                            {% endif %}
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-600 uppercase text-center px-1 truncate w-full italic">{{ rec.titulo }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="visorZoom" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 no-print">
         <div class="absolute top-6 right-6 flex gap-4">
             <a id="linkDescarga" href="#" download class="bg-red-600 text-white px-6 py-2.5 rounded-full font-bold flex items-center gap-2 shadow-2xl hover:bg-red-700 transition text-xs">
                 <i class="fas fa-file-download"></i> DESCARGAR
             </a>
-            <button onclick="closeModal('visorZoom')" class="text-white text-4xl hover:text-gray-400 transition">&times;</button>
+            <button onclick="closeModal('visorZoom')" class="bg-white/10 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/20 transition text-2xl">&times;</button>
         </div>
         
         <div class="max-w-full max-h-full flex flex-col items-center">
-            <p id="tituloZoom" class="text-white mb-6 italic font-bold tracking-widest uppercase text-sm"></p>
+            <p id="tituloZoom" class="text-white mb-6 italic font-bold tracking-widest uppercase text-sm border-b border-white/20 pb-2"></p>
             <img id="imgZoomed" src="" class="max-w-[90vw] max-h-[75vh] object-contain shadow-2xl border border-white/10 rounded-sm">
-        </div>
-    </div>
-
-    <div id="modalRec" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold italic border-b-2 border-emerald-500 pb-2">Reconocimientos</h2>
-                <button onclick="closeModal('modalRec')" class="text-2xl font-bold">&times;</button>
-            </div>
-            {% for rec in reconocimientos %}
-            <div class="mb-10 text-center">
-                <h3 class="font-bold text-lg mb-4">{{ rec.titulo }}</h3>
-                {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="w-full rounded shadow-lg">{% endif %}
-            </div>
-            {% endfor %}
         </div>
     </div>
 
     <div id="modalPDF" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-xl p-8 max-w-sm w-full shadow-2xl text-center">
-            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2 italic">Exportar PDF</h2>
+            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2 italic text-left">Opciones de Exportación</h2>
             <div class="space-y-4 text-left">
-                <label class="flex items-center gap-3 cursor-pointer">
+                <label class="flex items-center gap-3 cursor-pointer group">
                     <input type="checkbox" id="check_sobre_mi" checked class="w-5 h-5 accent-red-600">
-                    <span class="text-slate-700 font-medium italic">Incluir "Sobre mí"</span>
+                    <span class="text-slate-700 font-medium italic group-hover:text-red-600 transition">Incluir "Sobre mí"</span>
                 </label>
-                <label class="flex items-center gap-3 cursor-pointer">
+                <label class="flex items-center gap-3 cursor-pointer group">
                     <input type="checkbox" id="check_cursos" checked class="w-5 h-5 accent-red-600">
-                    <span class="text-slate-700 font-medium italic">Incluir Cursos</span>
+                    <span class="text-slate-700 font-medium italic group-hover:text-red-600 transition">Incluir Cursos</span>
                 </label>
             </div>
             <div class="mt-8 flex gap-3">
-                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition uppercase text-xs italic">Generar</button>
-                <button onclick="closeModal('modalPDF')" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-lg font-bold uppercase text-xs">Cerrar</button>
+                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition uppercase text-[10px] tracking-widest">Generar PDF</button>
+                <button onclick="closeModal('modalPDF')" class="flex-1 bg-slate-100 text-slate-500 py-3 rounded-lg font-bold uppercase text-[10px]">Cancelar</button>
             </div>
         </div>
     </div>
 
     <script>
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function openModal(id) { 
+            document.getElementById(id).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(id) { 
+            document.getElementById(id).classList.add('hidden');
+            if (id !== 'visorZoom') {
+                document.body.style.overflow = 'auto';
+            }
+        }
         
         function zoomImagen(url, titulo) {
             document.getElementById('imgZoomed').src = url;
             document.getElementById('tituloZoom').innerText = titulo;
             document.getElementById('linkDescarga').href = url;
+            // Personaliza el nombre del archivo al descargar
+            document.getElementById('linkDescarga').download = titulo.replace(/\s+/g, '_') + ".jpg";
             openModal('visorZoom');
         }
 
@@ -205,10 +229,20 @@
             window.open(url, '_blank');
         }
 
-        // Cerrar visor al hacer clic fuera de la imagen
+        // Cerrar visor al hacer clic en el fondo oscuro
         document.getElementById('visorZoom').onclick = function(e) {
             if (e.target === this) closeModal('visorZoom');
         };
+
+        // Soporte para cerrar con la tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") {
+                closeModal('visorZoom');
+                closeModal('modalCert');
+                closeModal('modalRec');
+                closeModal('modalPDF');
+            }
+        });
     </script>
 </body>
 </html>
