@@ -1,65 +1,78 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <title>CV_{{ perfil.nombres }}</title>
     <style>
         @page { size: A4; margin: 0; }
-        body { font-family: sans-serif; color: #333; margin: 0; padding: 20px; }
-        .section { page-break-before: always; padding: 40px; }
-        .section:first-child { page-break-before: avoid; }
-        h1 { color: #1e3a8a; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; }
-        .grid-images { display: flex; flex-direction: column; gap: 30px; }
-        .img-container { text-align: center; border: 1px solid #ddd; padding: 15px; border-radius: 10px; }
-        .img-container img { max-width: 100%; height: auto; border-radius: 5px; }
-        .info-box { background: #f8fafc; padding: 20px; border-left: 5px solid #1e3a8a; }
+        body { font-family: 'Helvetica', sans-serif; margin: 0; color: #1a202c; }
+        .page { padding: 40px; page-break-after: always; }
+        .header-cv { border-bottom: 4px solid #1e3a8a; margin-bottom: 30px; padding-bottom: 10px; }
+        h1 { font-size: 32px; text-transform: uppercase; color: #1e3a8a; margin: 0; }
+        h2 { font-size: 18px; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-top: 30px; }
+        .text-content { line-height: 1.6; font-size: 14px; text-align: justify; background: #f8fafc; padding: 20px; border-radius: 8px; }
+        .img-full { width: 100%; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .cert-container { margin-bottom: 40px; text-align: center; }
+        .cert-title { font-weight: bold; margin-bottom: 10px; font-size: 16px; color: #1e3a8a; }
+        .garage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .garage-item { border: 1px solid #e2e8f0; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body onload="window.print()">
 
-    {% if show_sobre_mi %}
-    <div class="section">
-        <h1>Sobre mí</h1>
-        <div class="info-box">
-            <p style="font-size: 18px; line-height: 1.6;">{{ perfil.descripcionperfil }}</p>
+    <div class="page">
+        <div class="header-cv">
+            <h1>{{ perfil.nombres }} {{ perfil.apellidos }}</h1>
+            <p>Email: {{ user_viewed.email }} | Ubicación: {{ perfil.direcciondomiciliaria }}</p>
         </div>
+
+        {% if show_sobre_mi %}
+        <section>
+            <h2>Sobre mí</h2>
+            <div class="text-content italic">"{{ perfil.descripcionperfil }}"</div>
+        </section>
+        {% endif %}
+
+        <section>
+            <h2>Resumen de Experiencia</h2>
+            {% for exp in experiencias %}
+            <p><strong>{{ exp.puesto }}</strong> en {{ exp.empresa }}</p>
+            {% endfor %}
+        </section>
     </div>
-    {% endif %}
 
     {% if show_cursos and certificados %}
-    <div class="section">
-        <h1>Certificados y Cursos Realizados</h1>
-        <div class="grid-images">
-            {% for cert in certificados %}
-            <div class="img-container">
-                <h3 style="margin-top:0;">{{ cert.titulo }}</h3>
-                <img src="{{ cert.imagen.url }}">
-            </div>
-            {% endfor %}
+    <div class="page">
+        <h2>Cursos y Certificaciones Realizadas</h2>
+        {% for cert in certificados %}
+        <div class="cert-container">
+            <p class="cert-title">{{ cert.titulo }}</p>
+            <img src="{{ cert.imagen.url }}" class="img-full">
         </div>
+        {% endfor %}
     </div>
     {% endif %}
 
     {% if show_reconocimientos and reconocimientos %}
-    <div class="section">
-        <h1>Logros y Reconocimientos</h1>
-        <div class="grid-images">
-            {% for rec in reconocimientos %}
-            <div class="img-container">
-                <h3>{{ rec.titulo }}</h3>
-                {% if rec.imagen %}<img src="{{ rec.imagen.url }}">{% endif %}
-            </div>
-            {% endfor %}
+    <div class="page">
+        <h2>Logros y Reconocimientos</h2>
+        {% for rec in reconocimientos %}
+        <div class="cert-container">
+            <p class="cert-title">{{ rec.titulo }}</p>
+            {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="img-full">{% endif %}
         </div>
+        {% endfor %}
     </div>
     {% endif %}
 
     {% if show_garage and productos %}
-    <div class="section">
-        <h1>Catálogo de Venta de Garage</h1>
-        <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 20px;">
+    <div class="page">
+        <h2>Catálogo de Venta de Garage</h2>
+        <div class="garage-grid">
             {% for prod in productos %}
-            <div style="border: 1px solid #eee; padding: 10px;">
-                {% if prod.imagen %}<img src="{{ prod.imagen.url }}" style="width:100%;">{% endif %}
-                <h4>{{ prod.nombre }}</h4>
+            <div class="garage-item">
+                {% if prod.imagen %}<img src="{{ prod.imagen.url }}" style="width:100%; border-radius: 4px;">{% endif %}
+                <p><strong>{{ prod.nombre }}</strong></p>
                 <p>Precio: ${{ prod.precio }}</p>
             </div>
             {% endfor %}
