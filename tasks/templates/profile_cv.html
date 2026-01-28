@@ -18,9 +18,8 @@
         .name-title { font-family: 'Montserrat', sans-serif; line-height: 1.1; }
         @media print { .no-print { display: none !important; } .cv-page { box-shadow: none; margin: 0; width: 100%; height: 100%; } }
         
-        /* Estilo para que las imágenes de los certificados se vean normales en el modal */
-        .img-zoom { cursor: zoom-in; transition: transform 0.3s ease; }
-        .img-zoom:hover { transform: scale(1.02); }
+        .img-mini { cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
+        .img-mini:hover { transform: translateY(-5px); border-color: #4f46e5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
 <body>
@@ -97,7 +96,9 @@
 
             <section class="mb-10">
                 <h2 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">Sobre mí</h2>
-                <p class="text-slate-600 text-[14px] leading-relaxed italic border-l-2 border-indigo-100 pl-4">"{{ perfil.descripcionperfil }}"</p>
+                <div class="text-slate-600 text-[14px] leading-relaxed italic border-l-2 border-indigo-100 pl-4 text-justify">
+                    "{{ perfil.descripcionperfil }}"
+                </div>
             </section>
 
             <section>
@@ -117,35 +118,37 @@
     </div>
 
     <div id="modalCert" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-4 border-b flex justify-between items-center bg-slate-100">
-                <h2 class="text-lg font-bold">Mis Cursos y Certificados</h2>
-                <button onclick="closeModal('modalCert')" class="bg-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-300">x</button>
+        <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-5 border-b flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-bold text-slate-800 italic">Mis Cursos y Certificados</h2>
+                <button onclick="closeModal('modalCert')" class="text-slate-400 hover:text-red-500 text-2xl transition">&times;</button>
             </div>
-            <div class="overflow-y-auto p-6 space-y-8">
-                {% for cert in certificados %}
-                <div>
-                    <p class="font-bold text-sm mb-2 italic">{{ cert.titulo }}</p>
-                    <img src="{{ cert.imagen.url }}" 
-                         onclick="zoomImagen('{{ cert.imagen.url }}', '{{ cert.titulo }}')"
-                         class="img-zoom w-full border rounded shadow-sm">
+            <div class="overflow-y-auto p-6 bg-gray-50">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {% for cert in certificados %}
+                    <div class="flex flex-col items-center">
+                        <div class="img-mini bg-white p-2 rounded-lg shadow-sm mb-2" onclick="zoomImagen('{{ cert.imagen.url }}', '{{ cert.titulo }}')">
+                            <img src="{{ cert.imagen.url }}" class="w-full aspect-video object-cover rounded shadow-inner">
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-600 uppercase text-center px-1 truncate w-full italic">{{ cert.titulo }}</p>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
         </div>
     </div>
 
     <div id="visorZoom" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 no-print">
-        <div class="absolute top-6 right-20">
-            <a id="linkDescarga" href="#" download class="bg-red-600 text-white px-6 py-3 rounded-full font-bold flex items-center gap-2 shadow-2xl hover:bg-red-700 transition">
+        <div class="absolute top-6 right-6 flex gap-4">
+            <a id="linkDescarga" href="#" download class="bg-red-600 text-white px-6 py-2.5 rounded-full font-bold flex items-center gap-2 shadow-2xl hover:bg-red-700 transition text-xs">
                 <i class="fas fa-file-download"></i> DESCARGAR
             </a>
+            <button onclick="closeModal('visorZoom')" class="text-white text-4xl hover:text-gray-400 transition">&times;</button>
         </div>
-        <button onclick="closeModal('visorZoom')" class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition">&times;</button>
         
         <div class="max-w-full max-h-full flex flex-col items-center">
-            <p id="tituloZoom" class="text-white mb-4 italic font-bold tracking-widest"></p>
-            <img id="imgZoomed" src="" class="max-w-[90vw] max-h-[80vh] object-contain shadow-2xl border border-white/20">
+            <p id="tituloZoom" class="text-white mb-6 italic font-bold tracking-widest uppercase text-sm"></p>
+            <img id="imgZoomed" src="" class="max-w-[90vw] max-h-[75vh] object-contain shadow-2xl border border-white/10 rounded-sm">
         </div>
     </div>
 
@@ -165,9 +168,9 @@
     </div>
 
     <div id="modalPDF" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-xl p-8 max-w-sm w-full shadow-2xl">
-            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2">Opciones PDF</h2>
-            <div class="space-y-4">
+        <div class="bg-white rounded-xl p-8 max-w-sm w-full shadow-2xl text-center">
+            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2 italic">Exportar PDF</h2>
+            <div class="space-y-4 text-left">
                 <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" id="check_sobre_mi" checked class="w-5 h-5 accent-red-600">
                     <span class="text-slate-700 font-medium italic">Incluir "Sobre mí"</span>
@@ -178,7 +181,7 @@
                 </label>
             </div>
             <div class="mt-8 flex gap-3">
-                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition uppercase text-xs italic">Generar PDF</button>
+                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition uppercase text-xs italic">Generar</button>
                 <button onclick="closeModal('modalPDF')" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-lg font-bold uppercase text-xs">Cerrar</button>
             </div>
         </div>
@@ -188,11 +191,10 @@
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         
-        // FUNCIÓN DE ZOOM Y DESCARGA
         function zoomImagen(url, titulo) {
             document.getElementById('imgZoomed').src = url;
             document.getElementById('tituloZoom').innerText = titulo;
-            document.getElementById('linkDescarga').href = url; // Link para descargar la imagen
+            document.getElementById('linkDescarga').href = url;
             openModal('visorZoom');
         }
 
@@ -202,6 +204,11 @@
             const url = "{% url 'export_pdf' user_viewed.username %}?sobre_mi=" + s_mi + "&cursos=" + curs;
             window.open(url, '_blank');
         }
+
+        // Cerrar visor al hacer clic fuera de la imagen
+        document.getElementById('visorZoom').onclick = function(e) {
+            if (e.target === this) closeModal('visorZoom');
+        };
     </script>
 </body>
 </html>
