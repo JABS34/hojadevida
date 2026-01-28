@@ -2,8 +2,14 @@ from django.contrib import admin
 from .models import (
     Task, DatosPersonales, ExperienciaLaboral, 
     Habilidad, Certificado, Educacion, Lenguaje, 
-    ProductoGarage, Reconocimiento
+    ProductoGarage, Reconocimiento, ConfiguracionVisible
 )
+
+@admin.register(ConfiguracionVisible)
+class ConfiguracionVisibleAdmin(admin.ModelAdmin):
+    # Esto evita que crees más de una configuración por error
+    def has_add_permission(self, request):
+        return not ConfiguracionVisible.objects.exists()
 
 @admin.register(DatosPersonales)
 class DatosPersonalesAdmin(admin.ModelAdmin):
@@ -19,12 +25,10 @@ class ProductoGarageAdmin(admin.ModelAdmin):
 
 @admin.register(Reconocimiento)
 class ReconocimientoAdmin(admin.ModelAdmin):
-    # Ahora mostramos los campos clave en la lista del admin
     list_display = ('titulo', 'institucion_otorga', 'fecha', 'perfil')
     list_filter = ('institucion_otorga', 'fecha')
     search_fields = ('titulo', 'descripcion')
 
-# Registros de modelos secundarios
 admin.site.register(Task)
 admin.site.register(Certificado)
 admin.site.register(ExperienciaLaboral)
