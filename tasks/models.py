@@ -16,7 +16,7 @@ class DatosPersonales(models.Model):
     def __str__(self):
         return f"{self.nombres} {self.apellidos}"
 
-# 2. SECCIONES DEL CV (Relacionadas con DatosPersonales)
+# 2. SECCIONES DEL CV
 class ExperienciaLaboral(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     puesto = models.CharField(max_length=200)
@@ -29,33 +29,25 @@ class ExperienciaLaboral(models.Model):
 class Habilidad(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.nombre
+    def __str__(self): return self.nombre
 
 class Certificado(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     titulo = models.CharField(max_length=200)
     institucion = models.CharField(max_length=200)
     imagen = models.ImageField(upload_to='certificados/')
-
-    def __str__(self):
-        return self.titulo
+    def __str__(self): return self.titulo
 
 class Educacion(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     institucion = models.CharField(max_length=200)
     fecha_graduacion = models.DateField()
-
-    def __str__(self):
-        return f"Graduado de {self.institucion}"
+    def __str__(self): return f"Graduado de {self.institucion}"
 
 class Lenguaje(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.nombre
+    def __str__(self): return self.nombre
 
 class Reconocimiento(models.Model):
     perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
@@ -63,16 +55,21 @@ class Reconocimiento(models.Model):
     descripcion = models.TextField()
     fecha = models.DateField()
     institucion_otorga = models.CharField(max_length=200)
+    def __str__(self): return f"{self.titulo} - {self.perfil.nombres}"
 
-    def __str__(self):
-        return f"{self.titulo} - {self.perfil.nombres}"
-
-# 3. VENTA DE GARAGE
+# 3. VENTA DE GARAGE (MODIFICADO)
 class ProductoGarage(models.Model):
+    ESTADO_OPCIONES = [
+        ('Nuevo', 'Nuevo'),
+        ('Medio Usado', 'Medio Usado'),
+        ('Usado', 'Usado (Buen Estado)'),
+    ]
+
     nombre = models.CharField(max_length=200)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField()
     imagen = models.ImageField(upload_to='garage/')
+    estado = models.CharField(max_length=20, choices=ESTADO_OPCIONES, default='Nuevo')
     disponible = models.BooleanField(default=True)
     fecha_publicado = models.DateTimeField(auto_now_add=True)
 
@@ -87,6 +84,4 @@ class Task(models.Model):
     datecompleted = models.DateTimeField(null=True, blank=True)
     important = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.title} - by {self.user.username}"
+    def __str__(self): return f"{self.title} - by {self.user.username}"
