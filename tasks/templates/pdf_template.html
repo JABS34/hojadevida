@@ -16,20 +16,20 @@
         .sidebar { width: 32%; background-color: #254b94 !important; color: white; padding: 30px 20px; }
         .main-content { width: 68%; padding: 40px; }
         
-        /* Layout Hoja 2 (Anexos) */
-        .appendix-page { width: 210mm; min-height: 297mm; padding: 20mm; background: white; page-break-before: always; }
-        
         .section-header-side { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; margin-bottom: 15px; margin-top: 25px; font-style: italic; }
         .section-header-main { font-size: 11px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; color: #94a3b8; margin-bottom: 20px; margin-top: 30px; font-style: italic; }
         
-        .hab-badge { border: 1px solid rgba(255,255,255,0.5); padding: 5px 12px; border-radius: 6px; font-size: 9px; font-weight: 600; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; margin-right: 5px; margin-bottom: 8px; background: rgba(255,255,255,0.1) !important; }
+        /* Badges de Habilidades (Sidebar) */
+        .hab-badge { border: 1px solid rgba(255,255,255,0.5); padding: 5px 12px; border-radius: 6px; font-size: 9px; font-weight: 600; text-transform: uppercase; display: inline-block; margin-right: 5px; margin-bottom: 8px; background: rgba(255,255,255,0.1) !important; }
         
+        /* Tarjetas de Lenguajes (Main Content) */
+        .lang-card { background-color: #f0f7ff !important; color: #3b82f6; border: 1px solid #e0efff; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; margin-right: 10px; margin-bottom: 10px; }
+
+        .appendix-page { width: 210mm; min-height: 297mm; padding: 20mm; background: white; page-break-before: always; }
         .cert-full-img { width: 100%; height: auto; border-radius: 8px; margin-top: 15px; border: 1px solid #e2e8f0; display: block; }
         .cert-item { margin-bottom: 40px; page-break-inside: avoid; }
 
-        @media print { 
-            .page-pdf, .appendix-page { margin: 0; box-shadow: none; border: none; }
-        }
+        @media print { .page-pdf, .appendix-page { margin: 0; box-shadow: none; border: none; } }
     </style>
 </head>
 <body onload="window.print()">
@@ -60,28 +60,30 @@
                     {% for hab in habilidades %}<span class="hab-badge">{{ hab.nombre }}</span>{% endfor %}
                 </div>
             {% endif %}
-
-            {% if show_lenguajes %}
-                <h3 class="section-header-side">Lenguajes</h3>
-                <div class="flex flex-wrap">
-                    {% for lang in lenguajes %}
-                        <span class="hab-badge">
-                            <i class="fas fa-code text-[8px]"></i> {{ lang.nombre }}
-                        </span>
-                    {% endfor %}
-                </div>
-            {% endif %}
         </aside>
 
         <main class="main-content">
             <header class="mb-10 border-l-8 border-[#254b94] pl-6">
                 <h1 class="text-4xl font-black text-slate-900 leading-none uppercase">{{ perfil.nombres }}<br><span class="text-[#254b94]">{{ perfil.apellidos }}</span></h1>
             </header>
+
+            {% if show_lenguajes %}
+            <section class="mb-4">
+                <h2 class="section-header-main">Lenguajes de Programación</h2>
+                <div class="flex flex-wrap">
+                    {% for lang in lenguajes %}
+                    <div class="lang-card">
+                        <i class="fas fa-code"></i> {{ lang.nombre }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
             
             {% if show_sobre_mi %}
                 <section class="mb-8">
                     <h2 class="section-header-main">Sobre Mí</h2>
-                    <p class="text-[13px] text-slate-600 italic">"{{ perfil.descripcionperfil }}"</p>
+                    <p class="text-[13px] text-slate-600 italic border-l-2 border-slate-100 pl-4">"{{ perfil.descripcionperfil }}"</p>
                 </section>
             {% endif %}
             
@@ -108,14 +110,6 @@
             <div class="cert-item">
                 <p class="text-[15px] font-bold text-slate-700 uppercase mb-2"><i class="fas fa-award text-[#254b94] mr-2"></i> {{ cert.titulo }}</p>
                 {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="cert-full-img shadow-md">{% endif %}
-            </div>
-            {% endfor %}
-        {% endif %}
-        {% if show_reconocimientos %}
-            {% for rec in reconocimientos %}
-            <div class="cert-item">
-                <p class="text-[15px] font-bold text-slate-700 uppercase mb-2"><i class="fas fa-trophy text-amber-500 mr-2"></i> {{ rec.titulo }}</p>
-                {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="cert-full-img shadow-md">{% endif %}
             </div>
             {% endfor %}
         {% endif %}
