@@ -40,10 +40,15 @@ def profile_cv(request, username):
     
     config, _ = ConfiguracionVisible.objects.get_or_create(pk=1)
     context = {
-        'perfil': datos, 'experiencias': ExperienciaLaboral.objects.filter(perfil=datos), 
-        'habilidades': Habilidad.objects.filter(perfil=datos), 'certificados': Certificado.objects.filter(perfil=datos),
-        'estudios': Educacion.objects.filter(perfil=datos), 'lenguajes': Lenguaje.objects.filter(perfil=datos),
-        'reconocimientos': Reconocimiento.objects.filter(perfil=datos), 'user_viewed': user_profile, 'config': config,
+        'perfil': datos, 
+        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos), 
+        'habilidades': Habilidad.objects.filter(perfil=datos), 
+        'certificados': Certificado.objects.filter(perfil=datos),
+        'estudios': Educacion.objects.filter(perfil=datos), 
+        'lenguajes': Lenguaje.objects.filter(perfil=datos),
+        'reconocimientos': Reconocimiento.objects.filter(perfil=datos), 
+        'user_viewed': user_profile, 
+        'config': config,
     }
     return render(request, 'profile_cv.html', context)
 
@@ -51,6 +56,7 @@ def export_pdf(request, username):
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
     
+    # Captura de parámetros de la URL enviados por el modal
     show_sm = request.GET.get('sobre_mi') == 'true'
     show_lg = request.GET.get('lenguajes') == 'true'
     show_hb = request.GET.get('habilidades') == 'true'
@@ -60,15 +66,24 @@ def export_pdf(request, username):
     show_gr = request.GET.get('garage') == 'true'
 
     context = {
-        'perfil': datos, 'user_viewed': user_profile,
-        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos) if show_ex else [],
-        'habilidades': Habilidad.objects.filter(perfil=datos) if show_hb else [],
-        'lenguajes': Lenguaje.objects.filter(perfil=datos) if show_lg else [],
-        'certificados': Certificado.objects.filter(perfil=datos) if show_cs else [],
-        'reconocimientos': Reconocimiento.objects.filter(perfil=datos) if show_rc else [],
-        'productos': ProductoGarage.objects.filter(disponible=True) if show_gr else [],
+        'perfil': datos, 
+        'user_viewed': user_profile,
         'estudios': Educacion.objects.filter(perfil=datos),
-        'show_sobre_mi': show_sm, 'show_cursos': show_cs, 'show_reconocimientos': show_rc, 'show_garage': show_gr,
+        # Datos siempre enviados, el template decide si mostrarlos con los IF
+        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos),
+        'habilidades': Habilidad.objects.filter(perfil=datos),
+        'lenguajes': Lenguaje.objects.filter(perfil=datos),
+        'certificados': Certificado.objects.filter(perfil=datos),
+        'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
+        'productos': ProductoGarage.objects.filter(disponible=True),
+        # Flags de visibilidad
+        'show_sobre_mi': show_sm,
+        'show_lenguajes': show_lg,
+        'show_habilidades': show_hb,
+        'show_experiencia': show_ex,
+        'show_cursos': show_cs,
+        'show_reconocimientos': show_rc,
+        'show_garage': show_gr,
     }
     return render(request, 'pdf_template.html', context)
 
@@ -98,8 +113,6 @@ def signin(request):
 def signout(request):
     logout(request)
     return redirect('home')
-
-# --- LÓGICA DE TAREAS ---
 
 @login_required
 def tasks(request):
@@ -138,7 +151,6 @@ def complete_task(request, task_id):
     if request.method == 'POST':
         task.datecompleted = timezone.now()
         task.save()
-        return redirect('tasks')
     return redirect('tasks')
 
 @login_required
@@ -146,5 +158,4 @@ def delete_task(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
     if request.method == 'POST':
         task.delete()
-        return redirect('tasks')
     return redirect('tasks')
