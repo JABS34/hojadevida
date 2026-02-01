@@ -19,17 +19,15 @@
         .section-header-side { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; margin-bottom: 15px; margin-top: 25px; font-style: italic; }
         .section-header-main { font-size: 11px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; color: #94a3b8; margin-bottom: 20px; margin-top: 30px; font-style: italic; }
         
-        /* Badges de Habilidades (Sidebar) */
         .hab-badge { border: 1px solid rgba(255,255,255,0.5); padding: 5px 12px; border-radius: 6px; font-size: 9px; font-weight: 600; text-transform: uppercase; display: inline-block; margin-right: 5px; margin-bottom: 8px; background: rgba(255,255,255,0.1) !important; }
-        
-        /* Tarjetas de Lenguajes (Main Content) */
         .lang-card { background-color: #f0f7ff !important; color: #3b82f6; border: 1px solid #e0efff; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; margin-right: 10px; margin-bottom: 10px; }
 
-        .appendix-page { width: 210mm; min-height: 297mm; padding: 20mm; background: white; page-break-before: always; }
-        .cert-full-img { width: 100%; height: auto; border-radius: 8px; margin-top: 15px; border: 1px solid #e2e8f0; display: block; }
-        .cert-item { margin-bottom: 40px; page-break-inside: avoid; }
+        /* Estilo para Certificados y Reconocimientos en Hoja Completa */
+        .full-page-appendix { width: 210mm; min-height: 297mm; padding: 20mm; background: white; page-break-before: always; display: flex; flex-direction: column; justify-content: center; }
+        .cert-img-large { width: 100%; height: auto; max-height: 210mm; object-fit: contain; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .appendix-title { font-size: 24px; font-weight: 800; color: #254b94; border-bottom: 4px solid #254b94; padding-bottom: 10px; margin-bottom: 30px; text-transform: uppercase; font-style: italic; }
 
-        @media print { .page-pdf, .appendix-page { margin: 0; box-shadow: none; border: none; } }
+        @media print { .page-pdf, .full-page-appendix { margin: 0; box-shadow: none; border: none; } }
     </style>
 </head>
 <body onload="window.print()">
@@ -38,14 +36,12 @@
             <div class="text-center mb-10">
                 {% if perfil.foto %}<img src="{{ perfil.foto.url }}" class="w-32 h-32 rounded-full mx-auto border-4 border-white/20 object-cover">{% endif %}
             </div>
-            
             <h3 class="section-header-side">Contacto</h3>
             <div class="space-y-3 text-[11px] opacity-90 mb-8">
                 <p><i class="fas fa-envelope w-5"></i> {{ user_viewed.email }}</p>
                 <p><i class="fas fa-map-marker-alt w-5"></i> {{ perfil.direcciondomiciliaria|default:"Manta" }}</p>
                 {% if perfil.instagram %}<p><i class="fab fa-instagram w-5"></i> @{{ perfil.instagram }}</p>{% endif %}
             </div>
-
             <h3 class="section-header-side">Formación</h3>
             {% for edu in estudios %}
                 <div class="mb-4">
@@ -53,7 +49,6 @@
                     <p class="text-[10px] text-blue-200">{{ edu.fecha_graduacion|date:"Y" }}</p>
                 </div>
             {% endfor %}
-
             {% if show_habilidades %}
                 <h3 class="section-header-side">Habilidades</h3>
                 <div class="flex flex-wrap">
@@ -71,11 +66,7 @@
             <section class="mb-4">
                 <h2 class="section-header-main">Lenguajes de Programación</h2>
                 <div class="flex flex-wrap">
-                    {% for lang in lenguajes %}
-                    <div class="lang-card">
-                        <i class="fas fa-code"></i> {{ lang.nombre }}
-                    </div>
-                    {% endfor %}
+                    {% for lang in lenguajes %}<div class="lang-card"><i class="fas fa-code"></i> {{ lang.nombre }}</div>{% endfor %}
                 </div>
             </section>
             {% endif %}
@@ -102,18 +93,28 @@
         </main>
     </div>
 
-    {% if show_cursos or show_reconocimientos %}
-    <div class="appendix-page">
-        <h2 class="text-2xl font-black text-slate-800 border-b-4 border-[#254b94] pb-2 mb-10 uppercase italic">Anexos</h2>
-        {% if show_cursos %}
-            {% for cert in certificados %}
-            <div class="cert-item">
-                <p class="text-[15px] font-bold text-slate-700 uppercase mb-2"><i class="fas fa-award text-[#254b94] mr-2"></i> {{ cert.titulo }}</p>
-                {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="cert-full-img shadow-md">{% endif %}
-            </div>
-            {% endfor %}
-        {% endif %}
-    </div>
+    {% if show_cursos %}
+        {% for cert in certificados %}
+        <div class="full-page-appendix">
+            <h2 class="appendix-title">Certificación</h2>
+            <p class="text-xl font-bold text-slate-700 uppercase mb-4">{{ cert.titulo }}</p>
+            {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="cert-img-large">{% endif %}
+        </div>
+        {% endfor %}
     {% endif %}
+
+    {% if show_reconocimientos %}
+        {% for rec in reconocimientos %}
+        <div class="full-page-appendix">
+            <h2 class="appendix-title">Reconocimiento Oficial</h2>
+            <div class="flex items-center gap-4 mb-4">
+                <i class="fas fa-trophy text-4xl text-amber-500"></i>
+                <p class="text-xl font-bold text-slate-700 uppercase">{{ rec.titulo }}</p>
+            </div>
+            {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="cert-img-large">{% endif %}
+        </div>
+        {% endfor %}
+    {% endif %}
+
 </body>
 </html>
