@@ -17,8 +17,6 @@
         .main-content { width: 65%; padding: 50px; }
         .name-title { font-family: 'Montserrat', sans-serif; line-height: 1.1; }
         @media print { .no-print { display: none !important; } .cv-page { box-shadow: none; margin: 0; width: 100%; height: 100%; } }
-        
-        /* Estilo de miniaturas para modales */
         .img-mini { cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; position: relative; overflow: hidden; }
         .img-mini:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
     </style>
@@ -158,11 +156,8 @@
                     {% for rec in reconocimientos %}
                     <div class="flex flex-col items-center">
                         <div class="img-mini bg-white p-2 rounded-lg shadow-sm mb-2 hover:border-emerald-500 transition-all" onclick="zoomImagen('{{ rec.imagen.url }}', '{{ rec.titulo }}')">
-                            {% if rec.imagen %}
-                                <img src="{{ rec.imagen.url }}" class="w-full aspect-video object-cover rounded shadow-inner">
-                            {% else %}
-                                <div class="w-full aspect-video bg-emerald-50 flex items-center justify-center text-emerald-200"><i class="fas fa-award text-3xl"></i></div>
-                            {% endif %}
+                            {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="w-full aspect-video object-cover rounded shadow-inner">
+                            {% else %}<div class="w-full aspect-video bg-emerald-50 flex items-center justify-center text-emerald-200"><i class="fas fa-award text-3xl"></i></div>{% endif %}
                         </div>
                         <p class="text-[10px] font-bold text-slate-600 uppercase text-center px-1 truncate w-full italic">{{ rec.titulo }}</p>
                     </div>
@@ -186,46 +181,45 @@
     </div>
 
     <div id="modalPDF" class="fixed inset-0 bg-black/80 hidden z-[70] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-xl p-8 max-w-sm w-full shadow-2xl text-center">
-            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2 italic text-left">Exportar PDF</h2>
-            <div class="space-y-4 text-left">
-                <label class="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" id="check_sobre_mi" checked class="w-5 h-5 accent-red-600">
-                    <span class="text-slate-700 font-medium italic group-hover:text-red-600 transition">Incluir "Sobre mí"</span>
-                </label>
-                <label class="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" id="check_cursos" checked class="w-5 h-5 accent-red-600">
-                    <span class="text-slate-700 font-medium italic group-hover:text-red-600 transition">Incluir Cursos</span>
-                </label>
+        <div class="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl">
+            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2 italic text-left">Opciones de Exportación</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="check_sobre_mi" checked class="w-5 h-5 accent-red-600"><span class="text-slate-700 text-sm italic">Sobre mí</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="check_lenguajes" checked class="w-5 h-5 accent-red-600"><span class="text-slate-700 text-sm italic">Lenguajes</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="check_habilidades" checked class="w-5 h-5 accent-red-600"><span class="text-slate-700 text-sm italic">Habilidades</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="check_experiencia" checked class="w-5 h-5 accent-red-600"><span class="text-slate-700 text-sm italic">Experiencia</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="check_reconocimientos" checked class="w-5 h-5 accent-red-600"><span class="text-slate-700 text-sm italic">Reconocimientos</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="check_cursos" checked class="w-5 h-5 accent-red-600"><span class="text-slate-700 text-sm italic">Cursos</span></label>
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="check_garage" checked class="w-5 h-5 accent-red-600"><span class="text-slate-700 text-sm italic">Garage</span></label>
             </div>
             <div class="mt-8 flex gap-3">
-                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition uppercase text-[10px] tracking-widest">Generar</button>
+                <button onclick="generarPDF()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition uppercase text-[10px] tracking-widest shadow-lg">Generar PDF</button>
                 <button onclick="closeModal('modalPDF')" class="flex-1 bg-slate-100 text-slate-500 py-3 rounded-lg font-bold uppercase text-[10px]">Cancelar</button>
             </div>
         </div>
     </div>
 
     <script>
-        function openModal(id) { 
-            document.getElementById(id).classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeModal(id) { 
-            document.getElementById(id).classList.add('hidden');
-            if (id !== 'visorZoom') document.body.style.overflow = 'auto';
-        }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); if (id !== 'visorZoom') document.body.style.overflow = 'auto'; }
         function zoomImagen(url, titulo) {
             document.getElementById('imgZoomed').src = url;
             document.getElementById('tituloZoom').innerText = titulo;
             document.getElementById('linkDescarga').href = url;
-            document.getElementById('linkDescarga').download = titulo.replace(/\s+/g, '_') + ".jpg";
             openModal('visorZoom');
         }
         function generarPDF() {
-            const s_mi = document.getElementById('check_sobre_mi').checked;
-            const curs = document.getElementById('check_cursos').checked;
-            const url = "{% url 'export_pdf' user_viewed.username %}?sobre_mi=" + s_mi + "&cursos=" + curs;
-            window.open(url, '_blank');
+            const params = {
+                sobre_mi: document.getElementById('check_sobre_mi').checked,
+                lenguajes: document.getElementById('check_lenguajes').checked,
+                habilidades: document.getElementById('check_habilidades').checked,
+                experiencia: document.getElementById('check_experiencia').checked,
+                cursos: document.getElementById('check_cursos').checked,
+                reconocimientos: document.getElementById('check_reconocimientos').checked,
+                garage: document.getElementById('check_garage').checked
+            };
+            const queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
+            window.open("{% url 'export_pdf' user_viewed.username %}?" + queryString, '_blank');
         }
         document.getElementById('visorZoom').onclick = function(e) { if (e.target === this) closeModal('visorZoom'); };
     </script>
