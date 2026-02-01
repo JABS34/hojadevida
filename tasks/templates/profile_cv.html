@@ -46,12 +46,6 @@
         <button onclick="openModal('modalPDF')" class="btn-premium bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
             <i class="fas fa-file-pdf"></i> CONFIGURAR PDF
         </button>
-
-        {% if user.is_authenticated and user.username == user_viewed.username %}
-        <a href="{% url 'dashboard' %}" class="btn-premium bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
-            <i class="fas fa-edit"></i> EDITAR
-        </a>
-        {% endif %}
     </div>
 
     <div class="cv-page animate__animated animate__zoomIn">
@@ -176,30 +170,49 @@
     <div id="modalCert" class="fixed inset-0 bg-slate-900/90 hidden z-[70] flex items-center justify-center p-4 no-print backdrop-blur-sm">
         <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                <h2 class="text-xl font-bold text-slate-800 italic uppercase"><i class="fas fa-certificate mr-2 text-indigo-600"></i> Mis Cursos</h2>
+                <h2 class="text-xl font-bold text-slate-800 italic uppercase">Mis Cursos</h2>
                 <button onclick="closeModal('modalCert')" class="text-slate-400 hover:text-red-500 text-3xl transition">&times;</button>
             </div>
             <div class="overflow-y-auto p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
                 {% for cert in certificados %}
-                <div class="flex flex-col items-center group">
-                    <div class="img-mini bg-white p-2 rounded-2xl shadow-md mb-2" onclick="zoomImagen('{{ cert.imagen.url }}', '{{ cert.titulo }}')">
-                        <img src="{{ cert.imagen.url }}" class="w-full aspect-video object-cover rounded-xl">
-                    </div>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase text-center truncate w-full italic">{{ cert.titulo }}</p>
+                <div class="img-mini bg-white p-2 rounded-2xl shadow-md mb-2" onclick="zoomImagen('{{ cert.imagen.url }}', '{{ cert.titulo }}')">
+                    <img src="{{ cert.imagen.url }}" class="w-full aspect-video object-cover rounded-xl">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase text-center mt-2">{{ cert.titulo }}</p>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 
-    <div id="modalRec" class="fixed inset-0 bg-slate-900/90 hidden z-[70] flex items-center justify-center p-4 no-print backdrop-blur-sm">...</div>
-    <div id="visorZoom" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 no-print">...</div>
+    <div id="modalRec" class="fixed inset-0 bg-slate-900/90 hidden z-[70] flex items-center justify-center p-4 no-print backdrop-blur-sm">
+        <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-bold text-slate-800 italic uppercase">Reconocimientos</h2>
+                <button onclick="closeModal('modalRec')" class="text-slate-400 hover:text-red-500 text-3xl transition">&times;</button>
+            </div>
+            <div class="overflow-y-auto p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+                {% for rec in reconocimientos %}
+                <div class="img-mini bg-white p-2 rounded-2xl shadow-md mb-2" onclick="zoomImagen('{{ rec.imagen.url }}', '{{ rec.titulo }}')">
+                    <img src="{{ rec.imagen.url }}" class="w-full aspect-video object-cover rounded-xl">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase text-center mt-2">{{ rec.titulo }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="visorZoom" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 no-print">
+        <div class="absolute top-6 right-6 flex gap-4">
+            <a id="linkDescarga" href="#" download class="bg-red-600 text-white px-6 py-2.5 rounded-full font-bold text-xs">DESCARGAR</a>
+            <button onclick="closeModal('visorZoom')" class="text-white text-3xl">&times;</button>
+        </div>
+        <img id="imgZoomed" src="" class="max-w-[90vw] max-h-[75vh] object-contain rounded-lg">
+    </div>
 
     <script>
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); if (id !== 'visorZoom') document.body.style.overflow = 'auto'; }
 
-        // Función para que al quitar el check del modal, desaparezca de la hoja de vida real
         function toggleRealTime(sectionId, checkbox) {
             const section = document.getElementById(sectionId);
             if (section) {
@@ -209,7 +222,6 @@
 
         function zoomImagen(url, titulo) {
             document.getElementById('imgZoomed').src = url;
-            document.getElementById('tituloZoom').innerText = titulo;
             openModal('visorZoom');
         }
 
