@@ -36,6 +36,7 @@
             <div class="space-y-3 text-[11px] opacity-90 mb-8">
                 <p><i class="fas fa-envelope w-5"></i> {{ user_viewed.email }}</p>
                 <p><i class="fas fa-map-marker-alt w-5"></i> {{ perfil.direcciondomiciliaria|default:"Manta" }}</p>
+                <p><i class="fab fa-whatsapp w-5"></i> +593 96 745 0960</p>
             </div>
             <h3 class="text-[10px] uppercase font-bold border-b border-white/20 pb-1 mb-4 italic">Formación</h3>
             {% for edu in estudios %}
@@ -114,10 +115,18 @@
         <h2 class="appendix-title">Catálogo Garage Store</h2>
         <div class="grid grid-cols-2 gap-6">
             {% for producto in productos_garage %}
-            <div class="border p-4 rounded-lg">
+            <div class="border p-4 rounded-lg bg-slate-50">
                 {% if producto.imagen %}<img src="{{ producto.imagen.url }}" class="w-full h-40 object-cover rounded mb-2">{% endif %}
-                <p class="font-bold text-[#254b94]">{{ producto.nombre }}</p>
-                <p class="text-green-600 font-bold">${{ producto.precio }}</p>
+                <p class="font-bold text-[#254b94] uppercase text-[12px]">{{ producto.nombre }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                    <p class="text-green-600 font-bold text-[14px]">${{ producto.precio }}</p>
+                    {% if producto.estado|lower == "disponible" %}
+                    <span class="text-[10px] text-slate-500 font-semibold">
+                        | <i class="fab fa-whatsapp text-green-500"></i> 593967450960
+                    </span>
+                    {% endif %}
+                </div>
+                <p class="text-[9px] text-slate-400 mt-1 uppercase">{{ producto.estado }}</p>
             </div>
             {% endfor %}
         </div>
