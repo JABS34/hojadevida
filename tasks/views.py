@@ -12,7 +12,7 @@ from .models import (
     Reconocimiento, ConfiguracionVisible
 )
 
-# RUTA DE INICIO (Solución al error AttributeError)
+# RUTA DE INICIO
 def home(request):
     admin_user = User.objects.filter(is_superuser=True).first()
     return render(request, "welcome.html", {"admin_user": admin_user})
@@ -57,7 +57,6 @@ def export_pdf(request, username):
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
     
-    # Captura de parámetros de visibilidad
     context = {
         'perfil': datos, 
         'user_viewed': user_profile,
@@ -67,7 +66,7 @@ def export_pdf(request, username):
         'lenguajes': Lenguaje.objects.filter(perfil=datos),
         'certificados': Certificado.objects.filter(perfil=datos),
         'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
-        # Flags
+        # Flags de visibilidad
         'show_sobre_mi': request.GET.get('sobre_mi') == 'true',
         'show_lenguajes': request.GET.get('lenguajes') == 'true',
         'show_habilidades': request.GET.get('habilidades') == 'true',
