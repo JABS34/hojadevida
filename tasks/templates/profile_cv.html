@@ -39,24 +39,32 @@
         <button onclick="openModal('modalPDF')" class="btn-premium bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
             <i class="fas fa-file-pdf"></i> CONFIGURAR PDF
         </button>
+        {% if user.is_authenticated and user.username == user_viewed.username %}
+        <a href="{% url 'dashboard' %}" class="btn-premium bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
+            <i class="fas fa-edit"></i> EDITAR
+        </a>
+        {% endif %}
     </div>
 
     <div class="cv-page animate__animated animate__zoomIn">
         <aside class="aside-bg p-8 space-y-10">
             <div class="flex justify-center py-4">
                 <div class="profile-photo rounded-3xl overflow-hidden bg-slate-800 shadow-2xl">
-                    {% if perfil.foto %} <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
-                    {% else %} <div class="h-full flex items-center justify-center text-6xl font-bold bg-indigo-900 text-white">{{ perfil.nombres|slice:":1"|upper }}</div> {% endif %}
+                    {% if perfil.foto %} 
+                        <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
+                    {% else %} 
+                        <div class="h-full flex items-center justify-center text-6xl font-bold bg-indigo-900 text-white uppercase">{{ perfil.nombres|slice:":1" }}</div> 
+                    {% endif %}
                 </div>
             </div>
 
             <section>
                 <h3 class="text-[10px] font-bold tracking-[0.3em] uppercase border-b border-white/20 pb-2 mb-4 italic text-blue-400">Contacto</h3>
                 <div class="space-y-3 text-[13px] opacity-90">
-                    <p class="flex items-center gap-3"><i class="fas fa-envelope text-blue-400"></i> {{ user_viewed.email }}</p>
-                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-blue-400"></i> {{ perfil.direcciondomiciliaria|default:"Manta" }}</p>
+                    <p class="flex items-center gap-3"><i class="fas fa-envelope text-blue-400 w-4"></i> {{ user_viewed.email }}</p>
+                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-blue-400 w-4"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
                     {% if perfil.instagram %}
-                    <p class="flex items-center gap-3"><i class="fab fa-instagram text-blue-400"></i> @{{ perfil.instagram }}</p>
+                    <p class="flex items-center gap-3"><i class="fab fa-instagram text-blue-400 w-4"></i> @{{ perfil.instagram }}</p>
                     {% endif %}
                 </div>
             </section>
@@ -66,9 +74,12 @@
                 <div class="space-y-4">
                     {% for estudio in estudios %}
                     <div>
-                        <p class="text-[13px] font-bold uppercase text-white leading-tight">{{ estudio.institucion }}</p>
-                        <p class="text-[11px] text-blue-300 font-semibold">{{ estudio.fecha_graduacion|date:"Y" }}</p>
+                        <p class="text-[13px] font-bold uppercase text-white leading-tight">{{ estudio.titulo }}</p>
+                        <p class="text-[11px] text-blue-300 font-semibold">{{ estudio.institucion }}</p>
+                        <p class="text-[10px] text-slate-400 italic">{{ estudio.fecha_graduacion|date:"Y" }}</p>
                     </div>
+                    {% empty %}
+                    <p class="text-[11px] text-slate-400 italic">No hay estudios registrados</p>
                     {% endfor %}
                 </div>
             </section>
@@ -88,11 +99,13 @@
         <main class="main-content">
             <header class="mb-10 relative">
                 <div class="h-1.5 w-16 bg-blue-600 mb-4 rounded-full"></div>
-                <h1 class="text-[45px] font-extrabold text-slate-900 uppercase leading-none tracking-tighter">{{ perfil.nombres }}<br><span class="text-blue-600">{{ perfil.apellidos }}</span></h1>
+                <h1 class="text-[45px] font-extrabold text-slate-900 uppercase leading-none tracking-tighter">
+                    {{ perfil.nombres }}<br><span class="text-blue-600">{{ perfil.apellidos }}</span>
+                </h1>
             </header>
 
             <section class="mb-10">
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Lenguajes de Programación</h2>
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Tecnologías</h2>
                 <div class="flex flex-wrap gap-2">
                     {% for lang in lenguajes %}
                     <span class="text-[12px] font-bold bg-blue-50 text-blue-700 px-4 py-2 rounded-xl border border-blue-100 flex items-center gap-2">
@@ -103,22 +116,24 @@
             </section>
 
             <section class="mb-10">
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Sobre mí</h2>
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Perfil Profesional</h2>
                 <div class="text-slate-600 text-[14px] leading-relaxed italic border-l-4 border-blue-100 pl-4 text-justify bg-slate-50 p-4 rounded-r-xl">
-                    "{{ perfil.descripcionperfil }}"
+                    "{{ perfil.descripcionperfil|default:'Sin descripción disponible.' }}"
                 </div>
             </section>
 
             <section>
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia</h2>
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
                 <div class="space-y-8">
                     {% for exp in experiencias %}
                     <div class="relative pl-6 border-l-2 border-slate-100">
-                        <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-600 border-4 border-white"></div>
+                        <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-600 border-4 border-white shadow-sm"></div>
                         <h3 class="font-extrabold text-slate-800 text-[16px]">{{ exp.puesto }}</h3>
                         <p class="text-blue-600 text-[11px] font-bold uppercase tracking-wider">{{ exp.empresa }}</p>
                         <p class="text-slate-500 text-[12px] mt-2">{{ exp.descripcion }}</p>
                     </div>
+                    {% empty %}
+                    <p class="text-slate-400 italic text-sm">Sin experiencia laboral registrada.</p>
                     {% endfor %}
                 </div>
             </section>
@@ -126,7 +141,7 @@
     </div>
 
     <div id="modalCert" class="fixed inset-0 bg-slate-900/90 hidden z-[70] flex items-center justify-center p-4 no-print backdrop-blur-sm">
-        <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate__animated animate__fadeInUp">
+        <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
                 <h2 class="text-xl font-bold text-slate-800 italic uppercase"><i class="fas fa-certificate mr-2 text-indigo-600"></i> Mis Cursos</h2>
                 <button onclick="closeModal('modalCert')" class="text-slate-400 hover:text-red-500 text-3xl transition">&times;</button>
@@ -139,13 +154,15 @@
                     </div>
                     <p class="text-[10px] font-bold text-slate-500 uppercase text-center truncate w-full italic">{{ cert.titulo }}</p>
                 </div>
+                {% empty %}
+                <p class="col-span-full text-center text-slate-400 py-10 italic">No hay certificados registrados.</p>
                 {% endfor %}
             </div>
         </div>
     </div>
 
     <div id="modalRec" class="fixed inset-0 bg-slate-900/90 hidden z-[70] flex items-center justify-center p-4 no-print backdrop-blur-sm">
-        <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate__animated animate__fadeInUp">
+        <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
                 <h2 class="text-xl font-bold text-slate-800 italic uppercase"><i class="fas fa-trophy mr-2 text-emerald-600"></i> Reconocimientos</h2>
                 <button onclick="closeModal('modalRec')" class="text-slate-400 hover:text-red-500 text-3xl transition">&times;</button>
@@ -154,8 +171,11 @@
                 {% for rec in reconocimientos %}
                 <div class="flex flex-col items-center group">
                     <div class="img-mini bg-white p-2 rounded-2xl shadow-md mb-2" onclick="zoomImagen('{{ rec.imagen.url }}', '{{ rec.titulo }}')">
-                        {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="w-full aspect-video object-cover rounded-xl">
-                        {% else %}<div class="w-full aspect-video bg-emerald-50 rounded-xl flex items-center justify-center"><i class="fas fa-award text-3xl text-emerald-200"></i></div>{% endif %}
+                        {% if rec.imagen %}
+                            <img src="{{ rec.imagen.url }}" class="w-full aspect-video object-cover rounded-xl">
+                        {% else %}
+                            <div class="w-full aspect-video bg-emerald-50 rounded-xl flex items-center justify-center"><i class="fas fa-award text-3xl text-emerald-200"></i></div>
+                        {% endif %}
                     </div>
                     <p class="text-[10px] font-bold text-slate-500 uppercase text-center truncate w-full italic">{{ rec.titulo }}</p>
                 </div>
@@ -171,14 +191,14 @@
             </a>
             <button onclick="closeModal('visorZoom')" class="bg-white/10 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/20 transition text-2xl">&times;</button>
         </div>
-        <div class="max-w-full max-h-full flex flex-col items-center animate__animated animate__zoomIn">
+        <div class="max-w-full max-h-full flex flex-col items-center">
             <p id="tituloZoom" class="text-white mb-6 italic font-bold tracking-widest uppercase text-sm border-b border-white/20 pb-2"></p>
             <img id="imgZoomed" src="" class="max-w-[90vw] max-h-[75vh] object-contain rounded-lg">
         </div>
     </div>
 
     <div id="modalPDF" class="fixed inset-0 bg-slate-900/90 hidden z-[70] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-[2rem] p-10 max-w-md w-full shadow-2xl animate__animated animate__backInDown">
+        <div class="bg-white rounded-[2rem] p-10 max-w-md w-full shadow-2xl">
             <h2 class="text-2xl font-extrabold mb-8 text-slate-800 border-b pb-4 italic">Exportar PDF</h2>
             <div class="grid grid-cols-1 gap-4">
                 <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" id="check_sobre_mi" checked class="w-5 h-5 accent-blue-600"><span class="text-slate-700 font-bold text-sm">Sobre mí</span></label>
@@ -197,8 +217,14 @@
     </div>
 
     <script>
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); if (id !== 'visorZoom') document.body.style.overflow = 'auto'; }
+        function openModal(id) { 
+            document.getElementById(id).classList.remove('hidden'); 
+            document.body.style.overflow = 'hidden'; 
+        }
+        function closeModal(id) { 
+            document.getElementById(id).classList.add('hidden'); 
+            if (id !== 'visorZoom') document.body.style.overflow = 'auto'; 
+        }
         function zoomImagen(url, titulo) {
             document.getElementById('imgZoomed').src = url;
             document.getElementById('tituloZoom').innerText = titulo;
@@ -218,7 +244,10 @@
             const queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
             window.open("{% url 'export_pdf' user_viewed.username %}?" + queryString, '_blank');
         }
-        document.getElementById('visorZoom').onclick = function(e) { if (e.target === this) closeModal('visorZoom'); };
+        // Cerrar visor al hacer clic fuera de la imagen
+        document.getElementById('visorZoom').onclick = function(e) { 
+            if (e.target === this) closeModal('visorZoom'); 
+        };
     </script>
 </body>
 </html>
