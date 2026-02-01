@@ -51,7 +51,6 @@ def export_pdf(request, username):
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
     
-    # Captura de parámetros booleanos desde el request
     show_sm = request.GET.get('sobre_mi') == 'true'
     show_lg = request.GET.get('lenguajes') == 'true'
     show_hb = request.GET.get('habilidades') == 'true'
@@ -100,11 +99,16 @@ def signout(request):
     logout(request)
     return redirect('home')
 
-# --- TAREAS ---
 @login_required
 def tasks(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
     return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas Pendientes'})
+
+# ESTA ES LA FUNCIÓN QUE FALTABA
+@login_required
+def tasks_completed(request):
+    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=False).order_by('-datecompleted')
+    return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas completadas'})
 
 @login_required
 def create_task(request):
