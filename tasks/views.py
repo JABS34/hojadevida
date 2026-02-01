@@ -12,33 +12,21 @@ from .models import (
     Reconocimiento, ConfiguracionVisible
 )
 
+# --- VISTAS PÚBLICAS ---
+
 def home(request):
     admin_user = User.objects.filter(is_superuser=True).first()
     return render(request, "welcome.html", {"admin_user": admin_user})
 
-@login_required
-def dashboard(request):
-    try:
-        perfil, created = DatosPersonales.objects.get_or_create(
-            user=request.user,
-            defaults={
-                'nombres': request.user.first_name or request.user.username,
-                'apellidos': request.user.last_name or 'Completar',
-                'fechanacimiento': '1990-01-01',
-                'numerocedula': f"TEMP-{request.user.id}"
-            }
-        )
-    except Exception:
-        perfil = None
-    return render(request, 'dashboard.html', {'perfil': perfil})
-
 def profile_cv(request, username):
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
+    
     if not datos:
         return render(request, 'profile_cv.html', {'error': 'Perfil no configurado.', 'user_viewed': user_profile})
     
     config, _ = ConfiguracionVisible.objects.get_or_create(pk=1)
+    
     context = {
         'perfil': datos, 
         'experiencias': ExperienciaLaboral.objects.filter(perfil=datos), 
@@ -52,11 +40,76 @@ def profile_cv(request, username):
     }
     return render(request, 'profile_cv.html', context)
 
+def garage_store(request):
+    productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
+    return render(request, 'garage.html', {'productos': productos})
+
+# --- VISTAS DE USUARIO (DASHBOARD) ---
+
+@login_required
+def dashboard(request):
+    # Obtener o crear el perfil del usuario actual
+    perfil, created = DatosPersonales.objects.get_or_create(
+        user=request.user,
+        defaults={
+            'nombres': request.user.first_name or request.user.username,
+            'apellidos': request.user.last_name or 'Completar',
+            'fechanacimiento': '1990-01-01',
+            'numerocedula': f"TEMP-{request.user.id}"
+        }
+    )
+
+    if request.method == 'POST':
+        # 1. Actualizar Datos Básicos y Redes
+        perfil.nombres = request.POST.get('nombres')
+        perfil.apellidos = request.POST.get('apellidos')
+        perfil.instagram = request.POST.get('instagram')
+        perfil.descripcionperfil = request.POST.get('descripcionperfil')
+        
+        if 'foto' in request.FILES:
+            perfil.foto = request.FILES['foto']
+        perfil.save()
+
+        # 2. Guardar Lenguajes de Programación
+        seleccionados = request.POST.getlist('lenguajes')
+        if seleccionados:
+            # Borramos los anteriores para evitar duplicados y guardamos los nuevos
+            Lenguaje.objects.filter(perfil=perfil).delete()
+            for lang in seleccionados:
+                Lenguaje.objects.create(perfil=perfil, nombre=lang)
+
+        # 3. Agregar Nuevo Título (Si se llenó el campo)
+        edu_titulo = request.POST.get('edu_titulo')
+        edu_inst = request.POST.get('edu_inst')
+        if edu_titulo and edu_inst:
+            Educacion.objects.create(
+                perfil=perfil,
+                titulo=edu_titulo,
+                institucion=edu_inst,
+                fecha_graduacion=request.POST.get('edu_fecha') or timezone.now().date()
+            )
+
+        # 4. Agregar Nueva Habilidad
+        hab_nom = request.POST.get('hab_nombre')
+        if hab_nom:
+            Habilidad.objects.create(perfil=perfil, nombre=hab_nom)
+
+        return redirect('dashboard')
+
+    # Opciones para el template
+    lenguajes_disponibles = ['Python', 'JavaScript', 'Java', 'C#', 'PHP', 'Ruby', 'SQL', 'Swift', 'Go', 'Kotlin']
+    
+    return render(request, 'dashboard.html', {
+        'perfil': perfil,
+        'lenguajes_disponibles': lenguajes_disponibles
+    })
+
+# --- EXPORTACIÓN ---
+
 def export_pdf(request, username):
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
     
-    # IMPORTANTE: Aquí traemos todos los datos necesarios
     context = {
         'perfil': datos, 
         'user_viewed': user_profile,
@@ -66,40 +119,44 @@ def export_pdf(request, username):
         'lenguajes': Lenguaje.objects.filter(perfil=datos),
         'certificados': Certificado.objects.filter(perfil=datos),
         'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
-        'productos_garage': ProductoGarage.objects.filter(disponible=True), # Garage
-        # Flags de visibilidad
+        'productos_garage': ProductoGarage.objects.filter(disponible=True),
+        # Flags de visibilidad desde URL params
         'show_sobre_mi': request.GET.get('sobre_mi') == 'true',
         'show_lenguajes': request.GET.get('lenguajes') == 'true',
         'show_habilidades': request.GET.get('habilidades') == 'true',
         'show_experiencia': request.GET.get('experiencia') == 'true',
         'show_cursos': request.GET.get('cursos') == 'true',
         'show_reconocimientos': request.GET.get('reconocimientos') == 'true',
-        'show_garage': request.GET.get('garage') == 'true', # Nueva flag
+        'show_garage': request.GET.get('garage') == 'true',
     }
     return render(request, 'pdf_template.html', context)
 
-def garage_store(request):
-    productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
-    return render(request, 'garage.html', {'productos': productos})
+# --- AUTENTICACIÓN ---
 
-# (Resto de funciones de autenticación y tareas se mantienen igual...)
 def signup(request):
-    if request.method == 'GET': return render(request, 'signup.html', {'form': UserCreationForm()})
+    if request.method == 'GET': 
+        return render(request, 'signup.html', {'form': UserCreationForm()})
     form = UserCreationForm(request.POST)
     if form.is_valid():
-        user = form.save(); login(request, user)
+        user = form.save()
+        login(request, user)
         return redirect('dashboard')
     return render(request, 'signup.html', {'form': form, 'error': 'Datos inválidos'})
 
 def signin(request):
-    if request.method == 'GET': return render(request, 'signin.html', {'form': AuthenticationForm()})
+    if request.method == 'GET': 
+        return render(request, 'signin.html', {'form': AuthenticationForm()})
     user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
     if user:
-        login(request, user); return redirect('dashboard')
+        login(request, user)
+        return redirect('dashboard')
     return render(request, 'signin.html', {'form': AuthenticationForm(), 'error': 'Credenciales incorrectas'})
 
 def signout(request):
-    logout(request); return redirect('home')
+    logout(request)
+    return redirect('home')
+
+# --- GESTIÓN DE TAREAS ---
 
 @login_required
 def tasks(request):
@@ -113,31 +170,38 @@ def tasks_completed(request):
 
 @login_required
 def create_task(request):
-    if request.method == 'GET': return render(request, 'create_task.html', {'form': TaskForm()})
+    if request.method == 'GET': 
+        return render(request, 'create_task.html', {'form': TaskForm()})
     form = TaskForm(request.POST)
     if form.is_valid():
-        new_task = form.save(commit=False); new_task.user = request.user; new_task.save()
+        new_task = form.save(commit=False)
+        new_task.user = request.user
+        new_task.save()
         return redirect('tasks')
     return render(request, 'create_task.html', {'form': form, 'error': 'Error'})
 
 @login_required
 def task_detail(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
-    if request.method == 'GET': return render(request, 'task_detail.html', {'task': task, 'form': TaskForm(instance=task)})
+    if request.method == 'GET': 
+        return render(request, 'task_detail.html', {'task': task, 'form': TaskForm(instance=task)})
     form = TaskForm(request.POST, instance=task)
     if form.is_valid():
-        form.save(); return redirect('tasks')
+        form.save()
+        return redirect('tasks')
     return render(request, 'task_detail.html', {'task': task, 'form': form})
 
 @login_required
 def complete_task(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
     if request.method == 'POST':
-        task.datecompleted = timezone.now(); task.save()
+        task.datecompleted = timezone.now()
+        task.save()
     return redirect('tasks')
 
 @login_required
 def delete_task(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
-    if request.method == 'POST': task.delete()
+    if request.method == 'POST': 
+        task.delete()
     return redirect('tasks')
