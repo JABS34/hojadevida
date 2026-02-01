@@ -19,8 +19,10 @@
         /* Layout Hoja 2 (Anexos) */
         .appendix-page { width: 210mm; min-height: 297mm; padding: 20mm; background: white; page-break-before: always; }
         
+        .section-header-side { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; margin-bottom: 15px; margin-top: 25px; font-style: italic; }
         .section-header-main { font-size: 11px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; color: #94a3b8; margin-bottom: 20px; margin-top: 30px; font-style: italic; }
-        .hab-badge { border: 1px solid rgba(255,255,255,0.5); padding: 5px 12px; border-radius: 6px; font-size: 9px; font-weight: 600; text-transform: uppercase; display: inline-block; margin-right: 5px; margin-bottom: 8px; background: rgba(255,255,255,0.1) !important; }
+        
+        .hab-badge { border: 1px solid rgba(255,255,255,0.5); padding: 5px 12px; border-radius: 6px; font-size: 9px; font-weight: 600; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; margin-right: 5px; margin-bottom: 8px; background: rgba(255,255,255,0.1) !important; }
         
         .cert-full-img { width: 100%; height: auto; border-radius: 8px; margin-top: 15px; border: 1px solid #e2e8f0; display: block; }
         .cert-item { margin-bottom: 40px; page-break-inside: avoid; }
@@ -36,21 +38,38 @@
             <div class="text-center mb-10">
                 {% if perfil.foto %}<img src="{{ perfil.foto.url }}" class="w-32 h-32 rounded-full mx-auto border-4 border-white/20 object-cover">{% endif %}
             </div>
-            <h3 class="text-[10px] uppercase font-bold border-b border-white/20 pb-1 mb-4 italic">Contacto</h3>
-            <div class="space-y-3 text-[11px] opacity-90 mb-10">
+            
+            <h3 class="section-header-side">Contacto</h3>
+            <div class="space-y-3 text-[11px] opacity-90 mb-8">
                 <p><i class="fas fa-envelope w-5"></i> {{ user_viewed.email }}</p>
                 <p><i class="fas fa-map-marker-alt w-5"></i> {{ perfil.direcciondomiciliaria|default:"Manta" }}</p>
+                {% if perfil.instagram %}<p><i class="fab fa-instagram w-5"></i> @{{ perfil.instagram }}</p>{% endif %}
             </div>
-            <h3 class="text-[10px] uppercase font-bold border-b border-white/20 pb-1 mb-4 italic">Formación</h3>
+
+            <h3 class="section-header-side">Formación</h3>
             {% for edu in estudios %}
                 <div class="mb-4">
                     <p class="text-[12px] font-bold">{{ edu.institucion }}</p>
                     <p class="text-[10px] text-blue-200">{{ edu.fecha_graduacion|date:"Y" }}</p>
                 </div>
             {% endfor %}
+
             {% if show_habilidades %}
-                <h3 class="text-[10px] uppercase font-bold border-b border-white/20 pb-1 mb-4 italic">Habilidades</h3>
-                <div class="flex flex-wrap">{% for hab in habilidades %}<span class="hab-badge">{{ hab.nombre }}</span>{% endfor %}</div>
+                <h3 class="section-header-side">Habilidades</h3>
+                <div class="flex flex-wrap">
+                    {% for hab in habilidades %}<span class="hab-badge">{{ hab.nombre }}</span>{% endfor %}
+                </div>
+            {% endif %}
+
+            {% if show_lenguajes %}
+                <h3 class="section-header-side">Lenguajes</h3>
+                <div class="flex flex-wrap">
+                    {% for lang in lenguajes %}
+                        <span class="hab-badge">
+                            <i class="fas fa-code text-[8px]"></i> {{ lang.nombre }}
+                        </span>
+                    {% endfor %}
+                </div>
             {% endif %}
         </aside>
 
@@ -58,11 +77,17 @@
             <header class="mb-10 border-l-8 border-[#254b94] pl-6">
                 <h1 class="text-4xl font-black text-slate-900 leading-none uppercase">{{ perfil.nombres }}<br><span class="text-[#254b94]">{{ perfil.apellidos }}</span></h1>
             </header>
+            
             {% if show_sobre_mi %}
-                <section class="mb-8"><h2 class="section-header-main">Sobre Mí</h2><p class="text-[13px] text-slate-600 italic">"{{ perfil.descripcionperfil }}"</p></section>
+                <section class="mb-8">
+                    <h2 class="section-header-main">Sobre Mí</h2>
+                    <p class="text-[13px] text-slate-600 italic">"{{ perfil.descripcionperfil }}"</p>
+                </section>
             {% endif %}
+            
             {% if show_experiencia %}
-                <section><h2 class="section-header-main">Experiencia</h2>
+                <section>
+                    <h2 class="section-header-main">Experiencia</h2>
                     {% for exp in experiencias %}
                     <div class="mb-6">
                         <h3 class="text-[14px] font-bold text-slate-800">{{ exp.puesto }}</h3>
