@@ -10,7 +10,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('perfil/<str:username>/', views.profile_cv, name='profile_cv'),
-    path('perfil/<str:username>/pdf/', views.export_pdf, name='export_pdf'), # Nueva ruta
+    path('perfil/<str:username>/pdf/', views.export_pdf, name='export_pdf'),
     path('garage/', views.garage_store, name='garage_store'),
     
     path('signup/', views.signup, name='signup'),
