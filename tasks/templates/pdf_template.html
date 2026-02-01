@@ -2,129 +2,124 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>CV_{{ perfil.nombres }}</title>
+    <title>Exportación CV - {{ perfil.nombres }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@300;400;600&display=swap');
-        
-        /* Ajustes específicos para impresión A4 */
-        @page { size: A4; margin: 0; }
-        body { font-family: 'Inter', sans-serif; -webkit-print-color-adjust: exact; }
-        
-        .cv-page { 
-            width: 210mm; 
-            min-height: 297mm; 
-            display: flex; 
-            background: white;
-        }
-        .aside-bg { 
-            background: #1e3a8a !important; /* El azul de tu foto */
-            width: 35%; 
-            color: white; 
-            padding: 40px 30px;
-        }
-        .main-content { 
-            width: 65%; 
-            padding: 50px; 
-        }
-        .profile-photo { 
-            width: 150px; 
-            height: 150px; 
-            border: 5px solid rgba(255,255,255,0.3); 
-            border-radius: 50%;
-            object-cover: cover;
-        }
-        /* Forzar saltos de página para certificados */
-        .page-break { page-break-before: always; padding: 40px; }
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background: white; color: #1e293b; }
+        .page-pdf { width: 210mm; margin: 0 auto; display: flex; min-height: 297mm; }
+        .sidebar { width: 35%; background-color: #1e3a8a; color: white; padding: 40px 25px; }
+        .main { width: 65%; padding: 50px; }
+        h1 { font-family: 'Montserrat', sans-serif; text-transform: uppercase; line-height: 1; }
+        .section-title { font-size: 12px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #64748b; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 2px; }
+        @media print { .no-print { display: none; } body { margin: 0; } }
     </style>
 </head>
 <body onload="window.print()">
-
-    <div class="cv-page">
-        <aside class="aside-bg">
-            <div class="flex justify-center mb-10">
+    <div class="page-pdf">
+        <div class="sidebar">
+            <div class="mb-10 text-center">
                 {% if perfil.foto %}
-                    <img src="{{ perfil.foto.url }}" class="profile-photo">
+                    <img src="{{ perfil.foto.url }}" class="w-32 h-32 rounded-full mx-auto border-4 border-white/20 object-cover">
                 {% endif %}
             </div>
 
-            <section class="mb-8">
-                <h3 class="text-[11px] font-bold tracking-[0.2em] uppercase border-b border-white/30 pb-2 mb-4">Contacto</h3>
-                <div class="space-y-3 text-[12px]">
-                    <p><i class="fas fa-envelope mr-2"></i> {{ user_viewed.email }}</p>
-                    <p><i class="fas fa-map-marker-alt mr-2"></i> {{ perfil.direcciondomiciliaria|default:"Manta" }}</p>
-                </div>
-            </section>
+            <div class="mb-8">
+                <h3 class="text-[10px] uppercase tracking-widest font-bold mb-4 border-b border-white/20 pb-2">Contacto</h3>
+                <p class="text-[12px] mb-2">{{ user_viewed.email }}</p>
+                <p class="text-[12px] mb-2">{{ perfil.direcciondomiciliaria|default:"Manta, Ecuador" }}</p>
+            </div>
 
-            <section>
-                <h3 class="text-[11px] font-bold tracking-[0.2em] uppercase border-b border-white/30 pb-2 mb-4">Formación</h3>
-                {% for estudio in estudios %}
-                <div class="mb-4 text-[12px]">
-                    <p class="font-bold uppercase leading-tight">{{ estudio.institucion }}</p>
-                    <p class="opacity-80">{{ estudio.fecha_graduacion|date:"Y" }}</p>
+            {% if show_habilidades %}
+            <div class="mb-8">
+                <h3 class="text-[10px] uppercase tracking-widest font-bold mb-4 border-b border-white/20 pb-2">Habilidades</h3>
+                <div class="flex flex-wrap gap-1">
+                    {% for hab in habilidades %}
+                        <span class="bg-white/10 text-[10px] px-2 py-1 rounded border border-white/10">{{ hab.nombre }}</span>
+                    {% endfor %}
                 </div>
+            </div>
+            {% endif %}
+
+            <div class="mb-8">
+                <h3 class="text-[10px] uppercase tracking-widest font-bold mb-4 border-b border-white/20 pb-2">Educación</h3>
+                {% for edu in estudios %}
+                    <div class="mb-3">
+                        <p class="text-[12px] font-bold">{{ edu.institucion }}</p>
+                        <p class="text-[10px] opacity-70">{{ edu.fecha_graduacion|date:"Y" }}</p>
+                    </div>
                 {% endfor %}
-            </section>
-        </aside>
+            </div>
+        </div>
 
-        <main class="main-content">
-            <header class="mb-10 border-l-4 border-indigo-600 pl-6">
-                <h1 class="text-[40px] font-extrabold text-slate-900 leading-none uppercase">
-                    {{ perfil.nombres }}<br>
-                    <span class="text-indigo-600">{{ perfil.apellidos }}</span>
-                </h1>
+        <div class="main">
+            <header class="mb-10">
+                <h1 class="text-4xl font-black">{{ perfil.nombres }} <span class="text-blue-700">{{ perfil.apellidos }}</span></h1>
             </header>
+
+            {% if show_lenguajes %}
+            <section class="mb-10">
+                <h2 class="section-title">Lenguajes de Programación</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for lang in lenguajes %}
+                        <span class="bg-blue-50 text-blue-700 border border-blue-100 badge italic">
+                           &lt;/&gt; {{ lang.nombre }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
 
             {% if show_sobre_mi %}
             <section class="mb-10">
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Sobre mí</h2>
-                <p class="text-slate-600 text-[13px] leading-relaxed italic border-l-2 border-slate-100 pl-4">
+                <h2 class="section-title">Perfil Profesional</h2>
+                <p class="text-[13px] text-justify text-slate-600 leading-relaxed italic">
                     "{{ perfil.descripcionperfil }}"
                 </p>
             </section>
             {% endif %}
 
-            <section>
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">Experiencia</h2>
+            {% if show_experiencia %}
+            <section class="mb-10">
+                <h2 class="section-title">Experiencia Laboral</h2>
                 <div class="space-y-6">
                     {% for exp in experiencias %}
-                    <div class="relative pl-4 border-l border-slate-200">
-                        <h3 class="font-bold text-slate-800 text-[15px]">{{ exp.puesto }}</h3>
-                        <p class="text-indigo-600 text-[11px] font-bold uppercase">{{ exp.empresa }}</p>
-                        <p class="text-slate-500 text-[12px]">{{ exp.descripcion }}</p>
+                    <div>
+                        <h3 class="text-[14px] font-bold text-slate-800">{{ exp.puesto }}</h3>
+                        <p class="text-[12px] text-blue-600 font-bold uppercase mb-1">{{ exp.empresa }}</p>
+                        <p class="text-[12px] text-slate-500">{{ exp.descripcion }}</p>
                     </div>
                     {% endfor %}
                 </div>
             </section>
-        </main>
-    </div>
+            {% endif %}
 
-    {% if show_cursos and certificados %}
-    <div class="page-break">
-        <h2 class="text-2xl font-bold border-b-2 border-indigo-600 pb-2 mb-8 text-slate-800">Certificaciones y Cursos</h2>
-        <div class="space-y-10">
-            {% for cert in certificados %}
-            <div class="text-center">
-                <p class="font-bold text-lg mb-4 text-slate-700">{{ cert.titulo }}</p>
-                <img src="{{ cert.imagen.url }}" class="max-w-full rounded-lg shadow-md mx-auto">
-            </div>
-            {% endfor %}
+            {% if show_cursos %}
+            <section class="mb-10">
+                <h2 class="section-title">Certificaciones y Cursos</h2>
+                <ul class="list-disc pl-5 text-[12px] text-slate-600 space-y-1">
+                    {% for cert in certificados %}
+                        <li>{{ cert.titulo }}</li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+
+            {% if show_garage %}
+            <section>
+                <h2 class="section-title">Garage / Portafolio de Productos</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    {% for prod in productos %}
+                    <div class="border p-2 rounded">
+                        <p class="text-[10px] font-bold uppercase">{{ prod.nombre }}</p>
+                        <p class="text-[9px] text-blue-600">${{ prod.precio }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
-
-    {% if show_reconocimientos and reconocimientos %}
-    <div class="page-break">
-        <h2 class="text-2xl font-bold border-b-2 border-emerald-600 pb-2 mb-8 text-slate-800">Reconocimientos</h2>
-        {% for rec in reconocimientos %}
-        <div class="text-center mb-10">
-            <p class="font-bold text-lg mb-4">{{ rec.titulo }}</p>
-            {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="max-w-full rounded-lg shadow-md mx-auto">{% endif %}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
 </body>
 </html>
