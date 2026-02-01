@@ -12,7 +12,6 @@ from .models import (
     Reconocimiento, ConfiguracionVisible
 )
 
-# RUTA DE INICIO
 def home(request):
     admin_user = User.objects.filter(is_superuser=True).first()
     return render(request, "welcome.html", {"admin_user": admin_user})
@@ -66,7 +65,6 @@ def export_pdf(request, username):
         'lenguajes': Lenguaje.objects.filter(perfil=datos),
         'certificados': Certificado.objects.filter(perfil=datos),
         'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
-        # Flags de visibilidad
         'show_sobre_mi': request.GET.get('sobre_mi') == 'true',
         'show_lenguajes': request.GET.get('lenguajes') == 'true',
         'show_habilidades': request.GET.get('habilidades') == 'true',
@@ -80,7 +78,6 @@ def garage_store(request):
     productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
     return render(request, 'garage.html', {'productos': productos})
 
-# AUTHENTICATION
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {'form': UserCreationForm()})
@@ -104,7 +101,6 @@ def signout(request):
     logout(request)
     return redirect('home')
 
-# TASKS LOGIC
 @login_required
 def tasks(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
