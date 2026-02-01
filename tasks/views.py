@@ -99,12 +99,13 @@ def signout(request):
     logout(request)
     return redirect('home')
 
+# --- LÓGICA DE TAREAS ---
+
 @login_required
 def tasks(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
     return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas Pendientes'})
 
-# ESTA ES LA FUNCIÓN QUE FALTABA
 @login_required
 def tasks_completed(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=False).order_by('-datecompleted')
@@ -132,7 +133,18 @@ def task_detail(request, task_id):
     return render(request, 'task_detail.html', {'task': task, 'form': form})
 
 @login_required
+def complete_task(request, task_id):
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
+    if request.method == 'POST':
+        task.datecompleted = timezone.now()
+        task.save()
+        return redirect('tasks')
+    return redirect('tasks')
+
+@login_required
 def delete_task(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
-    if request.method == 'POST': task.delete()
+    if request.method == 'POST':
+        task.delete()
+        return redirect('tasks')
     return redirect('tasks')
