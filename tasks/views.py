@@ -35,50 +35,41 @@ def dashboard(request):
 def profile_cv(request, username):
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
-    
     if not datos:
-        return render(request, 'profile_cv.html', {
-            'error': 'Este perfil profesional aún no ha sido configurado.',
-            'user_viewed': user_profile
-        })
+        return render(request, 'profile_cv.html', {'error': 'Perfil no configurado.', 'user_viewed': user_profile})
     
-    config, created = ConfiguracionVisible.objects.get_or_create(pk=1)
-    
+    config, _ = ConfiguracionVisible.objects.get_or_create(pk=1)
     context = {
-        'perfil': datos, 
-        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos), 
-        'habilidades': Habilidad.objects.filter(perfil=datos), 
-        'certificados': Certificado.objects.filter(perfil=datos),
-        'estudios': Educacion.objects.filter(perfil=datos),
-        'lenguajes': Lenguaje.objects.filter(perfil=datos),
-        'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
-        'user_viewed': user_profile,
-        'config': config,
+        'perfil': datos, 'experiencias': ExperienciaLaboral.objects.filter(perfil=datos), 
+        'habilidades': Habilidad.objects.filter(perfil=datos), 'certificados': Certificado.objects.filter(perfil=datos),
+        'estudios': Educacion.objects.filter(perfil=datos), 'lenguajes': Lenguaje.objects.filter(perfil=datos),
+        'reconocimientos': Reconocimiento.objects.filter(perfil=datos), 'user_viewed': user_profile, 'config': config,
     }
     return render(request, 'profile_cv.html', context)
 
-# --- NUEVA FUNCIÓN PARA EL PDF ---
 def export_pdf(request, username):
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
     
-    show_sobre_mi = request.GET.get('sobre_mi') == 'true'
-    show_cursos = request.GET.get('cursos') == 'true'
-    show_reconocimientos = request.GET.get('reconocimientos') == 'true'
-    show_garage = request.GET.get('garage') == 'true'
+    # Captura de parámetros booleanos desde el request
+    show_sm = request.GET.get('sobre_mi') == 'true'
+    show_lg = request.GET.get('lenguajes') == 'true'
+    show_hb = request.GET.get('habilidades') == 'true'
+    show_ex = request.GET.get('experiencia') == 'true'
+    show_cs = request.GET.get('cursos') == 'true'
+    show_rc = request.GET.get('reconocimientos') == 'true'
+    show_gr = request.GET.get('garage') == 'true'
 
     context = {
-        'perfil': datos,
-        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos),
-        'habilidades': Habilidad.objects.filter(perfil=datos),
-        'certificados': Certificado.objects.filter(perfil=datos) if show_cursos else [],
-        'reconocimientos': Reconocimiento.objects.filter(perfil=datos) if show_reconocimientos else [],
-        'productos': ProductoGarage.objects.filter(disponible=True) if show_garage else [],
-        'show_sobre_mi': show_sobre_mi,
-        'show_cursos': show_cursos,
-        'show_reconocimientos': show_reconocimientos,
-        'show_garage': show_garage,
-        'user_viewed': user_profile,
+        'perfil': datos, 'user_viewed': user_profile,
+        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos) if show_ex else [],
+        'habilidades': Habilidad.objects.filter(perfil=datos) if show_hb else [],
+        'lenguajes': Lenguaje.objects.filter(perfil=datos) if show_lg else [],
+        'certificados': Certificado.objects.filter(perfil=datos) if show_cs else [],
+        'reconocimientos': Reconocimiento.objects.filter(perfil=datos) if show_rc else [],
+        'productos': ProductoGarage.objects.filter(disponible=True) if show_gr else [],
+        'estudios': Educacion.objects.filter(perfil=datos),
+        'show_sobre_mi': show_sm, 'show_cursos': show_cs, 'show_reconocimientos': show_rc, 'show_garage': show_gr,
     }
     return render(request, 'pdf_template.html', context)
 
@@ -86,83 +77,58 @@ def garage_store(request):
     productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
     return render(request, 'garage.html', {'productos': productos})
 
-# --- AUTENTICACIÓN (Recuperado) ---
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {'form': UserCreationForm()})
-    else:
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            try:
-                user = form.save()
-                login(request, user)
-                return redirect('dashboard')
-            except IntegrityError:
-                return render(request, 'signup.html', {'form': form, 'error': 'El usuario ya existe'})
-        return render(request, 'signup.html', {'form': form, 'error': 'Datos inválidos'})
+    form = UserCreationForm(request.POST)
+    if form.is_valid():
+        user = form.save()
+        login(request, user)
+        return redirect('dashboard')
+    return render(request, 'signup.html', {'form': form, 'error': 'Datos inválidos'})
 
 def signin(request):
     if request.method == 'GET':
         return render(request, 'signin.html', {'form': AuthenticationForm()})
-    else:
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
-        if user is None:
-            return render(request, 'signin.html', {'form': AuthenticationForm(), 'error': 'Usuario o contraseña incorrectos'})
+    user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+    if user:
         login(request, user)
         return redirect('dashboard')
+    return render(request, 'signin.html', {'form': AuthenticationForm(), 'error': 'Credenciales incorrectas'})
 
 def signout(request):
     logout(request)
     return redirect('home')
 
-# --- TAREAS (Recuperado) ---
+# --- TAREAS ---
 @login_required
 def tasks(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
     return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas Pendientes'})
 
 @login_required
-def tasks_completed(request):
-    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=False).order_by('-datecompleted')
-    return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas completadas'})
-
-@login_required
 def create_task(request):
-    if request.method == 'GET':
-        return render(request, 'create_task.html', {'form': TaskForm()})
-    else:
-        form = TaskForm(request.POST)
-        if form.is_valid():
-            new_task = form.save(commit=False)
-            new_task.user = request.user
-            new_task.save()
-            return redirect('tasks')
-        return render(request, 'create_task.html', {'form': form, 'error': 'Datos incorrectos'})
+    if request.method == 'GET': return render(request, 'create_task.html', {'form': TaskForm()})
+    form = TaskForm(request.POST)
+    if form.is_valid():
+        new_task = form.save(commit=False)
+        new_task.user = request.user
+        new_task.save()
+        return redirect('tasks')
+    return render(request, 'create_task.html', {'form': form, 'error': 'Error'})
 
 @login_required
 def task_detail(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
-    if request.method == 'GET':
-        form = TaskForm(instance=task)
-        return render(request, 'task_detail.html', {'task': task, 'form': form})
-    else:
-        form = TaskForm(request.POST, instance=task)
-        if form.is_valid():
-            form.save()
-            return redirect('tasks')
-        return render(request, 'task_detail.html', {'task': task, 'form': form, 'error': 'Error al actualizar'})
-
-@login_required
-def complete_task(request, task_id):
-    task = get_object_or_404(Task, pk=task_id, user=request.user)
-    if request.method == 'POST':
-        task.datecompleted = timezone.now()
-        task.save()
-    return redirect('tasks')
+    if request.method == 'GET': return render(request, 'task_detail.html', {'task': task, 'form': TaskForm(instance=task)})
+    form = TaskForm(request.POST, instance=task)
+    if form.is_valid():
+        form.save()
+        return redirect('tasks')
+    return render(request, 'task_detail.html', {'task': task, 'form': form})
 
 @login_required
 def delete_task(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
-    if request.method == 'POST':
-        task.delete()
+    if request.method == 'POST': task.delete()
     return redirect('tasks')
