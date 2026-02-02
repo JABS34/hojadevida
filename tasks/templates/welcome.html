@@ -147,16 +147,16 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- LÓGICA DE REDIRECCIÓN CORREGIDA ---
+        // --- DIRECCIÓN FORZADA A JABS ---
         function goToProfile() {
+            // Animación de salida
             document.getElementById('ui-wrapper').classList.add('fade-out-all');
             document.getElementById('canvas-3d').classList.add('fade-out-all');
             
-            // Usamos el nombre del admin_user enviado desde views.py
-            const username = "{{ admin_user.username|default:'admin' }}"; 
-
             setTimeout(() => {
-                window.location.href = `/perfil/${username}/`;
+                // He puesto /profile/ porque es el estándar de lo que hemos armado, 
+                // si tu URL es /perfil/jabs/ cámbialo aquí abajo:
+                window.location.href = "/profile/jabs/"; 
             }, 800);
         }
     </script>
