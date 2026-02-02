@@ -45,9 +45,12 @@
                     </div>
                     <p class="text-slate-400 text-sm mb-6 line-clamp-2">{{ producto.descripcion }}</p>
                     
-                    <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl transition uppercase tracking-wider">
+                    <a href="https://wa.me/593XXXXXXXXX?text=Hola!%20Me%20interesa%20comprar%20este%20producto:%20{{ producto.nombre }}" 
+                       target="_blank" 
+                       class="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-500 text-white font-black py-4 rounded-xl transition uppercase tracking-wider">
+                        <i class="fab fa-whatsapp text-xl"></i>
                         Comprar ahora
-                    </button>
+                    </a>
                 </div>
             </div>
             {% empty %}
