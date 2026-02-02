@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SEGURIDAD
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
 
-# DEBUG: False en producción (Render) automáticamente
+# DEBUG: False en producción (Render)
 DEBUG = 'RENDER' not in os.environ
 
 # Dominios permitidos
@@ -60,8 +60,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# CONFIGURACIÓN DE BASE DE DATOS ETERNA
-# Usa la DATABASE_URL de Render para que nada se borre
+# CONFIGURACIÓN DE BASE DE DATOS ETERNA (PostgreSQL)
+# Se conectará a la DATABASE_URL que tienes en Render
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
@@ -87,7 +87,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media (Fotos de perfil)
+# Media
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
