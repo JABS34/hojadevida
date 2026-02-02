@@ -42,12 +42,14 @@ def profile_cv(request, username):
     return render(request, 'profile_cv.html', context)
 
 def garage_store(request, username):
-    """Muestra la tienda de Garage de un usuario específico."""
+    """
+    Muestra la tienda de Garage.
+    CORRECCIÓN: Se eliminó el filtro 'perfil' porque el modelo no lo tiene.
+    """
     user_target = get_object_or_404(User, username=username)
-    perfil_target = get_object_or_404(DatosPersonales, user=user_target)
     
+    # Mostramos todos los productos disponibles globalmente
     productos = ProductoGarage.objects.filter(
-        perfil=perfil_target, 
         disponible=True
     ).order_by('-fecha_publicado')
     
@@ -113,11 +115,10 @@ def dashboard(request):
                 imagen=request.FILES.get('rec_imagen')
             )
 
-        # Agregar Producto al Garage
+        # CORRECCIÓN AQUÍ: Se eliminó 'perfil=perfil' porque el modelo no tiene ese campo
         prod_n = request.POST.get('prod_nombre')
         if prod_n: 
             ProductoGarage.objects.create(
-                perfil=perfil, 
                 nombre=prod_n, 
                 precio=request.POST.get('prod_precio') or 0, 
                 estado=request.POST.get('prod_estado'), 
@@ -145,7 +146,8 @@ def export_pdf(request, username):
         'lenguajes': Lenguaje.objects.filter(perfil=datos),
         'certificados': Certificado.objects.filter(perfil=datos),
         'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
-        'productos_garage': ProductoGarage.objects.filter(perfil=datos, disponible=True),
+        # CORRECCIÓN: Se eliminó el filtro por perfil aquí también
+        'productos_garage': ProductoGarage.objects.filter(disponible=True),
         
         'show_sobre_mi': request.GET.get('sobre_mi') == 'true',
         'show_lenguajes': request.GET.get('lenguajes') == 'true',
