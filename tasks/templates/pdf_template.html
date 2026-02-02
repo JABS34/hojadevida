@@ -6,62 +6,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Configuración de página para impresión */
         @page { size: A4; margin: 0; }
-        
-        body { 
-            font-family: sans-serif; 
-            background: white; 
-            margin: 0; 
-            padding: 0; 
-            -webkit-print-color-adjust: exact; 
-            print-color-adjust: exact;
-        }
-
-        /* Contenedor principal del CV */
-        .page-pdf { 
-            width: 210mm; 
-            height: 297mm; 
-            display: flex; 
-            page-break-after: always; 
-            overflow: hidden;
-        }
-
-        /* Sidebar Azul */
-        .sidebar { 
-            width: 32%; 
-            background-color: #254b94 !important; 
-            color: white; 
-            padding: 40px 20px; 
-        }
-
-        /* Contenido Blanco */
-        .main-content { 
-            width: 68%; 
-            padding: 50px; 
-        }
-
-        /* Hojas de anexos (Cursos y Reconocimientos) */
-        .appendix { 
-            width: 210mm; 
-            min-height: 297mm; 
-            padding: 25mm; 
-            page-break-before: always; 
-            background: white;
-        }
-
-        /* Etiquetas de habilidades */
-        .badge { 
-            background: rgba(255,255,255,0.1); 
-            border: 1px solid rgba(255,255,255,0.3); 
-            padding: 4px 8px; 
-            border-radius: 4px; 
-            font-size: 10px; 
-            margin: 0 4px 6px 0; 
-            display: inline-block; 
-        }
-
-        /* Forzar visibilidad de imágenes en impresión */
+        body { font-family: sans-serif; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page-pdf { width: 210mm; height: 297mm; display: flex; overflow: hidden; page-break-after: always; }
+        .sidebar { width: 32%; background-color: #254b94 !important; color: white; padding: 40px 20px; }
+        .main-content { width: 68%; padding: 50px; }
+        .appendix { width: 210mm; min-height: 297mm; padding: 25mm; page-break-before: always; background: white; }
+        .badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); padding: 4px 8px; border-radius: 4px; font-size: 10px; margin: 0 4px 6px 0; display: inline-block; }
         img { max-width: 100%; display: block; }
     </style>
 </head>
@@ -78,7 +29,7 @@
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Contacto</h3>
             <div class="text-[11px] space-y-2 mb-10">
                 <p><i class="fas fa-envelope mr-1"></i> {{ user_viewed.email }}</p>
-                <p><i class="fas fa-map-marker-alt mr-1"></i> {{ perfil.direcciondomiciliaria }}</p>
+                <p><i class="fas fa-map-marker-alt mr-1"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
             </div>
 
             {% if show_formacion %}
@@ -113,7 +64,7 @@
             <section class="mb-8">
                 <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 italic">Perfil</h2>
                 <div class="text-[13px] text-slate-600 italic leading-relaxed border-l-4 border-slate-100 pl-4">
-                    "{{ perfil.descripcionperfil }}"
+                    "{{ perfil.descripcionperfil|default:'Sin descripción.' }}"
                 </div>
             </section>
             {% endif %}
@@ -138,9 +89,7 @@
         <div class="appendix">
             <h2 class="text-2xl font-bold text-[#254b94] border-b-4 border-[#254b94] pb-2 uppercase mb-4">Certificación</h2>
             <p class="text-xl font-bold italic mb-6">{{ cert.titulo }}</p>
-            {% if cert.imagen %}
-                <img src="{{ cert.imagen.url }}" class="w-full shadow-2xl rounded-lg border border-slate-200">
-            {% endif %}
+            {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full shadow-2xl rounded-lg border border-slate-200">{% endif %}
         </div>
         {% endfor %}
     {% endif %}
@@ -150,20 +99,14 @@
         <div class="appendix">
             <h2 class="text-2xl font-bold text-emerald-600 border-b-4 border-emerald-600 pb-2 uppercase mb-4">Reconocimiento</h2>
             <p class="text-xl font-bold italic mb-6">{{ rec.titulo }}</p>
-            {% if rec.imagen %}
-                <img src="{{ rec.imagen.url }}" class="w-full shadow-2xl rounded-lg border border-slate-200">
-            {% endif %}
+            {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="w-full shadow-2xl rounded-lg border border-slate-200">{% endif %}
         </div>
         {% endfor %}
     {% endif %}
 
     <script>
-        // Este script asegura que la ventana de impresión se abra 
-        // solo después de que las imágenes (URL) se hayan cargado.
         window.addEventListener('load', function() {
-            setTimeout(function() {
-                window.print();
-            }, 500); // 500ms de espera para estabilidad
+            setTimeout(function() { window.print(); }, 800);
         });
     </script>
 </body>
