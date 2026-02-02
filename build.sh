@@ -8,10 +8,14 @@ pip install -r requirements.txt
 # Recolectar archivos estáticos
 python manage.py collectstatic --no-input
 
-# Generar y aplicar migraciones para evitar el error 500
+# Crear carpetas en el DISCO PERSISTENTE de Render
+if [ "$RENDER" ]; then
+  mkdir -p /data/media
+fi
+
+# Generar y aplicar migraciones
 python manage.py makemigrations
 python manage.py migrate
 
-# Carpeta de fotos
-mkdir -p media
-chmod -R 755 media
+# Asegurar permisos
+chmod -R 755 media || true
