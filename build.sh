@@ -6,4 +6,3 @@ python manage.py collectstatic --no-input
 python manage.py migrate
 
 mkdir -p media
-chmod -R 755 media
