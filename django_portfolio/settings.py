@@ -1,16 +1,20 @@
 import os
 from pathlib import Path
-import dj_database_url
 
+# Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# SEGURIDAD
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
 DEBUG = 'RENDER' not in os.environ
 
+# Permitir el dominio de Render
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_hostname:
     ALLOWED_HOSTS.append(render_external_hostname)
 
+# Aplicaciones instaladas
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -21,9 +25,10 @@ INSTALLED_APPS = [
     "tasks", 
 ]
 
+# Middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", 
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -52,12 +57,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# CONFIGURACIÓN PARA QUE NO SE BORRE NADA
+# VOLVEMOS A SQLITE ORIGINAL (Como estaba al inicio)
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
