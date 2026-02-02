@@ -7,8 +7,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SEGURIDAD
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
-
-# DEBUG: False en producción (Render) automáticamente
 DEBUG = 'RENDER' not in os.environ
 
 # Permitir el dominio de Render
@@ -28,7 +26,7 @@ INSTALLED_APPS = [
     "tasks", 
 ]
 
-# Middleware con Whitenoise para archivos estáticos
+# Middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware", 
@@ -60,11 +58,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# CONFIGURACIÓN DE BASE DE DATOS SQLITE (Como estaba antes)
+# --- CONFIGURACIÓN DE PERSISTENCIA (IMPORTANTE) ---
+# Usamos el Mount Path del Disco de Render (/data)
+if 'RENDER' in os.environ:
+    DB_PATH = "/data/db.sqlite3"
+    MEDIA_ROOT_PATH = "/data/media"
+else:
+    DB_PATH = BASE_DIR / 'db.sqlite3'
+    MEDIA_ROOT_PATH = os.path.join(BASE_DIR, 'media')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DB_PATH,
     }
 }
 
@@ -88,7 +94,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media (Imágenes subidas)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = MEDIA_ROOT_PATH
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "/signin"
