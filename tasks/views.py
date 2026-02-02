@@ -14,14 +14,16 @@ from .models import (
 
 # --- VISTAS PÚBLICAS ---
 
-# Modificado para aceptar username opcional y evitar errores de ruta
 def home(request, username=None):
+    """Página de bienvenida general."""
     admin_user = User.objects.filter(is_superuser=True).first()
     return render(request, "welcome.html", {"admin_user": admin_user})
 
 def profile_cv(request, username):
+    """Muestra la Hoja de Vida de un usuario específico."""
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
+    
     if not datos:
         return render(request, 'profile_cv.html', {'error': 'Perfil no configurado.', 'user_viewed': user_profile})
     
@@ -39,12 +41,28 @@ def profile_cv(request, username):
     }
     return render(request, 'profile_cv.html', context)
 
-# CORRECCIÓN AQUÍ: Ahora acepta 'username' para que la URL no falle
-def garage_store(request, username=None):
-    productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
-    # Opcional: Si quieres mostrar solo los productos del usuario de la URL, 
-    # podrías filtrar por el usuario aquí. Por ahora, muestra todos.
-    return render(request, 'garage.html', {'productos': productos, 'username': username})
+def garage_store(request, username):
+    """
+    Muestra la tienda de Garage de un usuario específico.
+    Filtra los productos para mostrar solo los que pertenecen al perfil del usuario en la URL.
+    """
+    # 1. Buscamos al usuario de la URL (ej: 'jabs')
+    user_target = get_object_or_404(User, username=username)
+    
+    # 2. Obtenemos su perfil de DatosPersonales (que es el que tiene la relación con los productos)
+    perfil_target = get_object_or_404(DatosPersonales, user=user_target)
+    
+    # 3. Filtramos los productos que pertenecen a ese perfil específico
+    productos = ProductoGarage.objects.filter(
+        perfil=perfil_target, 
+        disponible=True
+    ).order_by('-fecha_publicado')
+    
+    return render(request, 'garage.html', {
+        'productos': productos, 
+        'username': username,
+        'user_viewed': user_target
+    })
 
 # --- DASHBOARD (GESTIÓN DE PERFIL) ---
 
@@ -103,10 +121,11 @@ def dashboard(request):
                 imagen=request.FILES.get('rec_imagen')
             )
 
-        # Agregar Producto al Garage
+        # Agregar Producto al Garage vinculado al perfil logueado
         prod_n = request.POST.get('prod_nombre')
         if prod_n: 
             ProductoGarage.objects.create(
+                perfil=perfil,  # Aseguramos el vínculo
                 nombre=prod_n, 
                 precio=request.POST.get('prod_precio') or 0, 
                 estado=request.POST.get('prod_estado'), 
@@ -134,7 +153,7 @@ def export_pdf(request, username):
         'lenguajes': Lenguaje.objects.filter(perfil=datos),
         'certificados': Certificado.objects.filter(perfil=datos),
         'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
-        'productos_garage': ProductoGarage.objects.filter(disponible=True),
+        'productos_garage': ProductoGarage.objects.filter(perfil=datos, disponible=True),
         
         'show_sobre_mi': request.GET.get('sobre_mi') == 'true',
         'show_lenguajes': request.GET.get('lenguajes') == 'true',
@@ -146,7 +165,7 @@ def export_pdf(request, username):
     }
     return render(request, 'pdf_template.html', context)
 
-# --- GESTIÓN DE TAREAS ---
+# --- GESTIÓN DE TAREAS Y AUTH (Sin cambios) ---
 
 @login_required
 def tasks(request):
@@ -188,8 +207,6 @@ def delete_task(request, task_id):
     if request.method == 'POST': 
         task.delete()
     return redirect('tasks')
-
-# --- AUTENTICACIÓN ---
 
 def signup(request):
     form = UserCreationForm(request.POST or None)
