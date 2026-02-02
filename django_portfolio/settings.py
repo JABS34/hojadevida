@@ -2,7 +2,10 @@ import os
 from pathlib import Path
 import dj_database_url
 
+# Ruta base
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# SEGURIDAD
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
 DEBUG = 'RENDER' not in os.environ
 
@@ -11,6 +14,7 @@ render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_hostname:
     ALLOWED_HOSTS.append(render_external_hostname)
 
+# APLICACIONES
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -52,7 +56,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# BASE DE DATOS PARA RENDER
+# --- BASE DE DATOS ETERNA (POSTGRESQL) ---
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
