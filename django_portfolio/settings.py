@@ -58,20 +58,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# --- CONFIGURACIÓN DE PERSISTENCIA (IMPORTANTE) ---
-# Usamos el Mount Path del Disco de Render (/data)
-if 'RENDER' in os.environ:
-    DB_PATH = "/data/db.sqlite3"
-    MEDIA_ROOT_PATH = "/data/media"
-else:
-    DB_PATH = BASE_DIR / 'db.sqlite3'
-    MEDIA_ROOT_PATH = os.path.join(BASE_DIR, 'media')
-
+# --- CONFIGURACIÓN DE BASE DE DATOS (POSTGRESQL) ---
+# Esto lee automáticamente la DATABASE_URL que tienes en Render
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DB_PATH,
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
+        conn_max_age=600
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -92,9 +85,9 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media (Imágenes subidas)
+# Media (Usando la carpeta que ya tienes en tu proyecto)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = MEDIA_ROOT_PATH
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "/signin"
