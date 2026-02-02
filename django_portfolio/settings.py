@@ -49,7 +49,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# --- USAR POSTGRESQL PARA QUE NO DE ERROR DE TABLAS ---
+# CONFIGURACIÓN POSTGRESQL
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
