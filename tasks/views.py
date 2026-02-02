@@ -7,10 +7,11 @@ from django.utils import timezone
 from .forms import TaskForm
 from .models import (
     Task, DatosPersonales, ExperienciaLaboral, Habilidad, 
-    Certificado, Educacion, Lenguaje, Reconocimiento
+    Certificado, Educacion, Lenguaje, ProductoGarage, 
+    Reconocimiento
 )
 
-# --- VISTAS DE TAREAS (ESTO ES LO QUE FALTABA) ---
+# --- VISTAS DE TAREAS ---
 
 @login_required
 def tasks(request):
@@ -63,7 +64,7 @@ def delete_task(request, task_id):
         return redirect('tasks')
     return redirect('tasks')
 
-# --- VISTA DE PDF (CORREGIDA) ---
+# --- VISTA DEL PDF ---
 
 def export_pdf(request, username):
     user_profile = get_object_or_404(User, username=username)
@@ -89,7 +90,17 @@ def export_pdf(request, username):
     }
     return render(request, 'pdf_template.html', context)
 
-# --- OTRAS VISTAS (DASHBOARD, AUTH, ETC) ---
+# --- VISTA DEL GARAGE (LA QUE DIO EL ERROR) ---
+
+def garage_store(request, username):
+    user_profile = get_object_or_404(User, username=username)
+    productos = ProductoGarage.objects.filter(disponible=True)
+    return render(request, 'garage_store.html', {
+        'productos': productos,
+        'user_viewed': user_profile
+    })
+
+# --- PERFIL Y DASHBOARD ---
 
 def profile_cv(request, username):
     user_profile = get_object_or_404(User, username=username)
@@ -113,10 +124,13 @@ def dashboard(request):
         perfil.nombres = request.POST.get('nombres')
         perfil.apellidos = request.POST.get('apellidos')
         perfil.descripcionperfil = request.POST.get('descripcionperfil')
+        perfil.direcciondomiciliaria = request.POST.get('direcciondomiciliaria')
         if 'foto' in request.FILES: perfil.foto = request.FILES['foto']
         perfil.save()
         return redirect('dashboard')
     return render(request, 'dashboard.html', {'perfil': perfil})
+
+# --- AUTENTICACIÓN ---
 
 def signup(request):
     if request.method == 'POST':
