@@ -2,101 +2,52 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Venta de Garage | Artículos Tecnológicos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Garage Sale | {{ username }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8fafc; padding-top: 30px; padding-bottom: 50px; }
-        .card { border: none; border-radius: 20px; transition: all 0.3s ease; overflow: hidden; }
-        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        .price-tag { 
-            background: #1e293b; color: #fbbf24; padding: 5px 15px; border-radius: 50px; 
-            font-weight: 800; border: 2px solid #fbbf24; font-size: 1.1rem;
-        }
-        .status-badge {
-            position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.9);
-            padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: bold;
-            color: #1e3a8a; border: 1px solid #e2e8f0;
-        }
-        /* Color oficial de WhatsApp */
-        .btn-whatsapp { 
-            background: #25d366; 
-            border: none; 
-            border-radius: 12px; 
-            color: white; 
-            font-weight: bold; 
-            transition: all 0.3s ease;
-        }
-        .btn-whatsapp:hover { 
-            background: #1ebe57; 
-            color: white; 
-            transform: scale(1.02);
-        }
-        .btn-back { border-radius: 50px; font-weight: bold; padding: 10px 25px; }
-    </style>
 </head>
-<body>
+<body class="bg-slate-100 font-sans">
+    <nav class="bg-white shadow-md p-4 mb-8">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-black text-blue-900 italic uppercase tracking-tighter">Mi Garage Store</h1>
+            <a href="{% url 'profile_cv' username %}" class="text-blue-600 font-bold hover:underline">
+                <i class="fas fa-arrow-left"></i> Volver al CV
+            </a>
+        </div>
+    </nav>
 
-<main class="container">
-    <div class="mb-4">
-        <a href="/perfil/jabs6393/" class="btn btn-outline-dark btn-back shadow-sm">
-            <i class="fas fa-arrow-left me-2"></i> VOLVER A MI CV
-        </a>
-    </div>
-
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold text-uppercase" style="color: #1e3a8a;">
-            <i class="fas fa-shopping-basket"></i> Mi Tienda Garage
-        </h1>
-        <p class="lead text-secondary">Calidad tecnológica a precios de oportunidad.</p>
-        <div style="width: 60px; height: 5px; background: #3b82f6; margin: 0 auto; border-radius: 10px;"></div>
-    </div>
-
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {% for producto in productos %}
-        <div class="col">
-            <div class="card h-100 shadow-sm bg-white">
-                <div class="position-relative d-flex align-items-center justify-content-center p-3" style="height: 260px; background: #fff;">
-                    
-                    <div class="status-badge shadow-sm">
-                        <i class="fas fa-tag me-1"></i> {{ producto.estado|upper }}
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for producto in productos %}
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200 hover:shadow-2xl transition">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" class="w-full h-48 object-cover">
+                {% else %}
+                    <div class="w-full h-48 bg-slate-200 flex items-center justify-center text-slate-400">
+                        <i class="fas fa-box-open text-4xl"></i>
                     </div>
-
-                    {% if producto.imagen %}
-                        <img src="{{ producto.imagen.url }}" class="img-fluid" alt="{{ producto.nombre }}" style="max-height: 100%; object-fit: contain;">
-                    {% endif %}
-                    
-                    <div class="position-absolute bottom-0 end-0 m-3 shadow price-tag">
-                        ${{ producto.precio }}
+                {% endif %}
+                
+                <div class="p-5">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-slate-800 uppercase text-sm">{{ producto.nombre }}</h3>
+                        <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-md">
+                            ${{ producto.precio }}
+                        </span>
                     </div>
-                </div>
-
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title fw-bold text-dark mb-1">{{ producto.nombre }}</h5>
-                    <p class="card-text text-muted small flex-grow-1 mb-3">
-                        {{ producto.descripcion }}
-                    </p>
-
-                    <a href="https://wa.me/593967450960?text=Hola!%20Me%20interesa%20comprar%20el%20art%C3%ADculo:%20{{ producto.nombre|urlencode }}%20que%20tienes%20en%20tu%20garage%20por%20${{ producto.precio }}." 
-                       target="_blank"
-                       class="btn btn-whatsapp w-100 py-2 shadow-sm">
-                        <i class="fab fa-whatsapp me-2"></i> LO QUIERO COMPRAR
-                    </a>
+                    <p class="text-xs text-slate-500 mb-4">Estado: <span class="font-semibold">{{ producto.estado }}</span></p>
+                    <button class="w-full bg-blue-600 text-white py-2 rounded-xl font-bold text-xs hover:bg-blue-700 transition">
+                        CONTACTAR VENDEDOR
+                    </button>
                 </div>
             </div>
+            {% empty %}
+            <div class="col-span-full text-center py-20">
+                <i class="fas fa-store-slash text-5xl text-slate-300 mb-4"></i>
+                <p class="text-slate-500 font-medium">No hay productos disponibles en este momento.</p>
+            </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="col-12 text-center py-5">
-            <p class="text-muted">No hay artículos disponibles actualmente.</p>
-        </div>
-        {% endfor %}
     </div>
-</main>
-
-<footer class="text-center py-5 text-muted small">
-    &copy; 2026 | JONATHAN ALEXANDER - SHOWCASE
-</footer>
-
 </body>
 </html>
