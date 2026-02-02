@@ -13,37 +13,27 @@
         .cv-page { width: 210mm; min-height: 297mm; margin: 20px auto; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.1); display: flex; overflow: hidden; border-radius: 8px; }
         .aside-bg { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); width: 35%; color: white; }
         .profile-photo { width: 170px; height: 170px; border: 6px solid rgba(255,255,255,0.1); transition: all 0.4s ease; }
-        .profile-photo:hover { transform: scale(1.05); border-color: #3b82f6; }
         .main-content { width: 65%; padding: 50px; }
-        .btn-premium { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-premium:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .img-mini { cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
-        .img-mini:hover { transform: translateY(-5px); border-color: #3b82f6; }
+        .btn-premium { transition: all 0.3s ease; cursor: pointer; }
+        .btn-premium:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-blur: 5px; }
+        .modal.active { display: flex; }
         @media print { .no-print { display: none !important; } .cv-page { box-shadow: none; margin: 0; width: 100%; } }
     </style>
 </head>
 <body class="animate__animated animate__fadeIn">
 
     <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex flex-wrap justify-end gap-3 px-4 no-print">
-        {% if config.mostrar_garage %}
-        <a href="{% url 'garage_store' %}" class="btn-premium bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
+        <a href="{% url 'garage_store' user_viewed.username %}" class="btn-premium bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
             <i class="fas fa-shopping-cart"></i> GARAGE
         </a>
-        {% endif %}
-
-        {% if config.mostrar_cursos %}
-        <button onclick="openModal('modalCert')" class="btn-premium bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
+        <button onclick="toggleModal('modalCert')" class="btn-premium bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
             <i class="fas fa-certificate"></i> CURSOS
         </button>
-        {% endif %}
-
-        {% if config.mostrar_reconocimientos %}
-        <button onclick="openModal('modalRec')" class="btn-premium bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
+        <button onclick="toggleModal('modalRec')" class="btn-premium bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
             <i class="fas fa-trophy"></i> RECONOCIMIENTOS
         </button>
-        {% endif %}
-
-        <button onclick="openModal('modalPDF')" class="btn-premium bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
+        <button onclick="toggleModal('modalPDF')" class="btn-premium bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
             <i class="fas fa-file-pdf"></i> CONFIGURAR PDF
         </button>
     </div>
@@ -53,7 +43,8 @@
             <div class="flex justify-center py-4">
                 <div class="profile-photo rounded-3xl overflow-hidden bg-slate-800 shadow-2xl">
                     {% if perfil.foto %} 
-                        <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
+                        <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="hidden h-full items-center justify-center text-6xl font-bold bg-indigo-900 text-white">{{ perfil.nombres|slice:":1" }}</div>
                     {% else %} 
                         <div class="h-full flex items-center justify-center text-6xl font-bold bg-indigo-900 text-white uppercase">{{ perfil.nombres|slice:":1" }}</div> 
                     {% endif %}
@@ -65,13 +56,10 @@
                 <div class="space-y-3 text-[13px] opacity-90">
                     <p class="flex items-center gap-3"><i class="fas fa-envelope text-blue-400 w-4"></i> {{ user_viewed.email }}</p>
                     <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-blue-400 w-4"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
-                    {% if perfil.instagram %}
-                    <p class="flex items-center gap-3"><i class="fab fa-instagram text-blue-400 w-4"></i> @{{ perfil.instagram }}</p>
-                    {% endif %}
                 </div>
             </section>
 
-            <section id="section_formacion">
+            <section>
                 <h3 class="text-[10px] font-bold tracking-[0.3em] uppercase border-b border-white/20 pb-2 mb-4 italic text-blue-400">Formación</h3>
                 <div class="space-y-4">
                     {% for estudio in estudios %}
@@ -84,7 +72,7 @@
                 </div>
             </section>
 
-            <section id="section_habilidades">
+            <section>
                 <h3 class="text-[10px] font-bold tracking-[0.3em] uppercase border-b border-white/20 pb-2 mb-4 italic text-blue-400">Habilidades</h3>
                 <div class="flex flex-wrap gap-2">
                     {% for hab in habilidades %}
@@ -95,32 +83,21 @@
         </aside>
 
         <main class="main-content">
-            <header class="mb-10 relative">
+            <header class="mb-10">
                 <div class="h-1.5 w-16 bg-blue-600 mb-4 rounded-full"></div>
                 <h1 class="text-[45px] font-extrabold text-slate-900 uppercase leading-none tracking-tighter">
                     {{ perfil.nombres }}<br><span class="text-blue-600">{{ perfil.apellidos }}</span>
                 </h1>
             </header>
 
-            <section id="section_lenguajes" class="mb-10">
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Tecnologías</h2>
-                <div class="flex flex-wrap gap-2">
-                    {% for lang in lenguajes %}
-                    <span class="text-[12px] font-bold bg-blue-50 text-blue-700 px-4 py-2 rounded-xl border border-blue-100 flex items-center gap-2">
-                        <i class="fas fa-code text-[10px]"></i> {{ lang.nombre }}
-                    </span>
-                    {% endfor %}
-                </div>
-            </section>
-
-            <section id="section_sobre_mi" class="mb-10">
+            <section class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Perfil Profesional</h2>
                 <div class="text-slate-600 text-[14px] leading-relaxed italic border-l-4 border-blue-100 pl-4 text-justify bg-slate-50 p-4 rounded-r-xl">
                     "{{ perfil.descripcionperfil|default:'Sin descripción disponible.' }}"
                 </div>
             </section>
 
-            <section id="section_experiencia">
+            <section>
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
                 <div class="space-y-8">
                     {% for exp in experiencias %}
@@ -136,107 +113,74 @@
         </main>
     </div>
 
-    <div id="modalPDF" class="fixed inset-0 bg-slate-900/90 hidden z-[70] flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-[2rem] p-10 max-w-md w-full shadow-2xl">
-            <h2 class="text-2xl font-extrabold mb-8 text-slate-800 border-b pb-4 italic">Exportar PDF</h2>
-            <div class="grid grid-cols-1 gap-4">
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50 transition">
-                    <input type="checkbox" id="check_sobre_mi" checked onchange="toggleRealTime('section_sobre_mi', this)" class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Sobre mí</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50 transition">
-                    <input type="checkbox" id="check_lenguajes" checked onchange="toggleRealTime('section_lenguajes', this)" class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Lenguajes</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50 transition">
-                    <input type="checkbox" id="check_habilidades" checked onchange="toggleRealTime('section_habilidades', this)" class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Habilidades</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50 transition">
-                    <input type="checkbox" id="check_experiencia" checked onchange="toggleRealTime('section_experiencia', this)" class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Experiencia</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" id="check_reconocimientos" checked class="w-5 h-5 accent-blue-600"><span class="text-slate-700 font-bold text-sm">Reconocimientos</span></label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" id="check_cursos" checked class="w-5 h-5 accent-blue-600"><span class="text-slate-700 font-bold text-sm">Cursos</span></label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" id="check_garage" checked class="w-5 h-5 accent-blue-600"><span class="text-slate-700 font-bold text-sm">Garage</span></label>
+    <div id="modalCert" class="modal">
+        <div class="bg-white rounded-2xl max-w-4xl w-full p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 class="text-xl font-bold text-slate-800 italic uppercase">Cursos y Certificados</h2>
+                <button onclick="toggleModal('modalCert')" class="text-3xl text-slate-400 hover:text-red-500">&times;</button>
             </div>
-            <div class="mt-8 flex gap-3">
-                <button onclick="generarPDF()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg">GENERAR</button>
-                <button onclick="closeModal('modalPDF')" class="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl font-bold">SALIR</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="modalCert" class="fixed inset-0 bg-slate-900/90 hidden z-[70] flex items-center justify-center p-4 no-print backdrop-blur-sm">
-        <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
-            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                <h2 class="text-xl font-bold text-slate-800 italic uppercase">Mis Cursos</h2>
-                <button onclick="closeModal('modalCert')" class="text-slate-400 hover:text-red-500 text-3xl transition">&times;</button>
-            </div>
-            <div class="overflow-y-auto p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto max-h-[60vh]">
                 {% for cert in certificados %}
-                <div class="img-mini bg-white p-2 rounded-2xl shadow-md mb-2" onclick="zoomImagen('{{ cert.imagen.url }}', '{{ cert.titulo }}')">
-                    <img src="{{ cert.imagen.url }}" class="w-full aspect-video object-cover rounded-xl">
-                    <p class="text-[10px] font-bold text-slate-500 uppercase text-center mt-2">{{ cert.titulo }}</p>
-                </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-lg mb-2 shadow-sm">{% endif %}
+                        <p class="text-[11px] font-bold text-slate-700 text-center uppercase">{{ cert.titulo }}</p>
+                    </div>
+                {% empty %}
+                    <p class="col-span-full text-center text-slate-400 italic py-10">No has cargado certificados aún.</p>
                 {% endfor %}
             </div>
         </div>
     </div>
 
-    <div id="modalRec" class="fixed inset-0 bg-slate-900/90 hidden z-[70] flex items-center justify-center p-4 no-print backdrop-blur-sm">
-        <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
-            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+    <div id="modalRec" class="modal">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <h2 class="text-xl font-bold text-slate-800 italic uppercase">Reconocimientos</h2>
-                <button onclick="closeModal('modalRec')" class="text-slate-400 hover:text-red-500 text-3xl transition">&times;</button>
+                <button onclick="toggleModal('modalRec')" class="text-3xl text-slate-400 hover:text-red-500">&times;</button>
             </div>
-            <div class="overflow-y-auto p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="space-y-4">
                 {% for rec in reconocimientos %}
-                <div class="img-mini bg-white p-2 rounded-2xl shadow-md mb-2" onclick="zoomImagen('{{ rec.imagen.url }}', '{{ rec.titulo }}')">
-                    <img src="{{ rec.imagen.url }}" class="w-full aspect-video object-cover rounded-xl">
-                    <p class="text-[10px] font-bold text-slate-500 uppercase text-center mt-2">{{ rec.titulo }}</p>
-                </div>
+                    <div class="flex items-center gap-4 bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                        <i class="fas fa-trophy text-emerald-600 text-2xl"></i>
+                        <p class="font-bold text-slate-700 uppercase text-sm">{{ rec.titulo }}</p>
+                    </div>
+                {% empty %}
+                    <p class="text-center text-slate-400 italic py-10">No hay reconocimientos registrados.</p>
                 {% endfor %}
             </div>
         </div>
     </div>
 
-    <div id="visorZoom" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 no-print">
-        <div class="absolute top-6 right-6 flex gap-4">
-            <a id="linkDescarga" href="#" download class="bg-red-600 text-white px-6 py-2.5 rounded-full font-bold text-xs">DESCARGAR</a>
-            <button onclick="closeModal('visorZoom')" class="text-white text-3xl">&times;</button>
+    <div id="modalPDF" class="modal">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-8 shadow-2xl text-center">
+            <i class="fas fa-file-pdf text-red-600 text-5xl mb-4"></i>
+            <h2 class="text-xl font-bold text-slate-800 mb-2">Exportar Hoja de Vida</h2>
+            <p class="text-slate-500 text-sm mb-8">Se generará un documento PDF optimizado con toda tu información actual.</p>
+            <div class="flex flex-col gap-3">
+                <a href="{% url 'export_pdf' user_viewed.username %}" target="_blank" class="bg-red-600 text-white py-4 rounded-xl font-bold hover:bg-red-700 transition">DESCARGAR AHORA</a>
+                <button onclick="toggleModal('modalPDF')" class="bg-slate-100 text-slate-500 py-3 rounded-xl font-bold hover:bg-slate-200">CERRAR</button>
+            </div>
         </div>
-        <img id="imgZoomed" src="" class="max-w-[90vw] max-h-[75vh] object-contain rounded-lg">
     </div>
 
     <script>
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); if (id !== 'visorZoom') document.body.style.overflow = 'auto'; }
-
-        function toggleRealTime(sectionId, checkbox) {
-            const section = document.getElementById(sectionId);
-            if (section) {
-                section.style.display = checkbox.checked ? 'block' : 'none';
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if (modal.classList.contains('active')) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            } else {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
             }
         }
-
-        function zoomImagen(url, titulo) {
-            document.getElementById('imgZoomed').src = url;
-            openModal('visorZoom');
-        }
-
-        function generarPDF() {
-            const params = {
-                sobre_mi: document.getElementById('check_sobre_mi').checked,
-                lenguajes: document.getElementById('check_lenguajes').checked,
-                habilidades: document.getElementById('check_habilidades').checked,
-                experiencia: document.getElementById('check_experiencia').checked,
-                cursos: document.getElementById('check_cursos').checked,
-                reconocimientos: document.getElementById('check_reconocimientos').checked,
-                garage: document.getElementById('check_garage').checked
-            };
-            const queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-            window.open("{% url 'export_pdf' user_viewed.username %}?" + queryString, '_blank');
+        
+        // Cerrar modal al hacer clic fuera del contenido blanco
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
         }
     </script>
 </body>
