@@ -2,16 +2,20 @@
 # exit on error
 set -o errexit
 
-# Instalar librerías
+# Instalar dependencias
 pip install -r requirements.txt
 
-# Preparar archivos estáticos
+# Recolectar archivos estáticos
 python manage.py collectstatic --no-input
 
-# Crear y aplicar tablas en la base de datos PostgreSQL
+# Crear carpetas en el DISCO PERSISTENTE de Render
+if [ "$RENDER" ]; then
+  mkdir -p /data/media
+fi
+
+# Generar y aplicar migraciones
 python manage.py makemigrations
 python manage.py migrate
 
-# Carpeta para fotos
-mkdir -p media
-chmod -R 755 media
+# Asegurar permisos
+chmod -R 755 media || true
