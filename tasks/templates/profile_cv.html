@@ -7,64 +7,50 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
         .cv-page { width: 210mm; min-height: 297mm; margin: 20px auto; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.1); display: flex; overflow: hidden; border-radius: 8px; }
-        .aside-bg { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); width: 35%; color: white; }
-        .profile-photo { width: 170px; height: 170px; border: 6px solid rgba(255,255,255,0.1); transition: all 0.4s ease; }
+        .aside-bg { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); width: 35%; color: white; padding: 40px 30px; }
         .main-content { width: 65%; padding: 50px; }
-        .btn-premium { transition: all 0.3s ease; cursor: pointer; }
-        .btn-premium:hover { transform: translateY(-3px); filter: brightness(1.1); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.active { display: flex; }
-        @media print { .no-print { display: none !important; } .cv-page { box-shadow: none; margin: 0; width: 100%; } }
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
-<body class="animate__animated animate__fadeIn">
+<body>
 
-    <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex flex-wrap justify-end gap-3 px-4 no-print">
-        <a href="{% url 'garage_store' user_viewed.username %}" class="btn-premium bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
-            <i class="fas fa-shopping-cart"></i> GARAGE
-        </a>
-        <button onclick="toggleModal('modalCert')" class="btn-premium bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
-            <i class="fas fa-certificate"></i> CURSOS
-        </button>
-        <button onclick="toggleModal('modalRec')" class="btn-premium bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
-            <i class="fas fa-trophy"></i> RECONOCIMIENTOS
-        </button>
-        <button onclick="toggleModal('modalPDF')" class="btn-premium bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
-            <i class="fas fa-file-pdf"></i> CONFIGURAR PDF
-        </button>
+    <div class="max-w-[210mm] mx-auto mt-8 flex justify-end gap-3 px-4 no-print">
+        <a href="{% url 'garage_store' user_viewed.username %}" class="bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg">GARAGE</a>
+        <button onclick="toggleModal('modalCert')" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg">CURSOS</button>
+        <button onclick="toggleModal('modalRec')" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg">RECONOCIMIENTOS</button>
+        <button onclick="toggleModal('modalPDF')" class="bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg">CONFIGURAR PDF</button>
     </div>
 
-    <div class="cv-page animate__animated animate__zoomIn">
-        <aside class="aside-bg p-8 space-y-10">
-            <div class="flex justify-center py-4">
-                <div class="profile-photo rounded-3xl overflow-hidden bg-slate-800 shadow-2xl">
-                    {% if perfil.foto %} 
-                        <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
-                    {% else %} 
-                        <div class="h-full flex items-center justify-center text-6xl font-bold bg-indigo-900 text-white">{{ perfil.nombres|slice:":1" }}</div> 
-                    {% endif %}
-                </div>
+    <div class="cv-page">
+        <aside class="aside-bg">
+            <div class="mb-10 text-center">
+                {% if perfil.foto %} 
+                    <img src="{{ perfil.foto.url }}" class="w-40 h-40 rounded-3xl mx-auto border-4 border-white/10 object-cover shadow-2xl">
+                {% else %} 
+                    <div class="w-40 h-40 rounded-3xl mx-auto bg-indigo-900 flex items-center justify-center text-5xl font-bold uppercase">{{ perfil.nombres|slice:":1" }}</div> 
+                {% endif %}
             </div>
 
-            <section id="section_contacto_view">
-                <h3 class="text-[10px] font-bold tracking-[0.3em] uppercase border-b border-white/20 pb-2 mb-4 italic text-blue-400">Contacto</h3>
-                <div class="space-y-3 text-[13px] opacity-90">
-                    <p class="flex items-center gap-3"><i class="fas fa-envelope text-blue-400 w-4"></i> {{ user_viewed.email }}</p>
-                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-blue-400 w-4"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
+            <section class="mb-10">
+                <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Contacto</h3>
+                <div class="space-y-3 text-[13px]">
+                    <p><i class="fas fa-envelope mr-2"></i> {{ user_viewed.email }}</p>
+                    <p><i class="fas fa-map-marker-alt mr-2"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
                 </div>
             </section>
 
-            <section id="section_formacion_view">
-                <h3 class="text-[10px] font-bold tracking-[0.3em] uppercase border-b border-white/20 pb-2 mb-4 italic text-blue-400">Formación</h3>
+            <section>
+                <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Formación</h3>
                 <div class="space-y-4">
                     {% for estudio in estudios %}
                     <div>
-                        <p class="text-[13px] font-bold uppercase text-white leading-tight">{{ estudio.titulo }}</p>
-                        <p class="text-[11px] text-blue-300 font-semibold">{{ estudio.institucion }}</p>
+                        <p class="text-[13px] font-bold uppercase">{{ estudio.titulo }}</p>
+                        <p class="text-[11px] text-blue-300">{{ estudio.institucion }}</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -73,49 +59,46 @@
 
         <main class="main-content">
             <header class="mb-10">
-                <div class="h-1.5 w-16 bg-blue-600 mb-4 rounded-full"></div>
-                <h1 class="text-[45px] font-extrabold text-slate-900 uppercase leading-none tracking-tighter">
-                    {{ perfil.nombres }}<br><span class="text-blue-600">{{ perfil.apellidos }}</span>
-                </h1>
+                <h1 class="text-[45px] font-extrabold text-slate-900 uppercase leading-none">{{ perfil.nombres }}<br><span class="text-blue-600">{{ perfil.apellidos }}</span></h1>
             </header>
 
-            <section id="section_lenguajes_view" class="mb-10">
+            <section class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Tecnologías</h2>
                 <div class="flex flex-wrap gap-2">
                     {% for lang in lenguajes %}
-                    <span class="text-[12px] font-bold bg-blue-50 text-blue-700 px-4 py-2 rounded-xl border border-blue-100 flex items-center gap-2">
-                        <i class="fas fa-code text-[10px]"></i> {{ lang.nombre }}
+                    <span class="text-[12px] font-bold bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100 flex items-center gap-2">
+                        <i class="fas fa-code"></i> {{ lang.nombre }}
                     </span>
                     {% endfor %}
                 </div>
             </section>
 
-            <section id="section_sobre_mi_view" class="mb-10">
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Perfil Profesional</h2>
-                <div class="text-slate-600 text-[14px] leading-relaxed italic border-l-4 border-blue-100 pl-4 text-justify bg-slate-50 p-4 rounded-r-xl">
-                    "{{ perfil.descripcionperfil|default:'Sin descripción disponible.' }}"
+            <section class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Sobre Mí</h2>
+                <div class="text-slate-600 text-[14px] leading-relaxed italic border-l-4 border-blue-100 pl-4 bg-slate-50 p-4 rounded-xl">
+                    "{{ perfil.descripcionperfil|default:'Sin descripción.' }}"
                 </div>
             </section>
 
-            <section id="section_experiencia_view" class="mb-10">
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
+            <section class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia</h2>
                 <div class="space-y-8">
                     {% for exp in experiencias %}
                     <div class="relative pl-6 border-l-2 border-slate-100">
-                        <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-600 border-4 border-white shadow-sm"></div>
-                        <h3 class="font-extrabold text-slate-800 text-[16px]">{{ exp.puesto }}</h3>
-                        <p class="text-blue-600 text-[11px] font-bold uppercase tracking-wider">{{ exp.empresa }}</p>
+                        <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-600 border-4 border-white"></div>
+                        <h3 class="font-extrabold text-slate-800">{{ exp.puesto }}</h3>
+                        <p class="text-blue-600 text-[11px] font-bold uppercase">{{ exp.empresa }}</p>
                         <p class="text-slate-500 text-[12px] mt-2">{{ exp.descripcion }}</p>
                     </div>
                     {% endfor %}
                 </div>
             </section>
 
-            <section id="section_habilidades_view">
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Habilidades y Competencias</h2>
+            <section>
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Habilidades</h2>
                 <div class="flex flex-wrap gap-2">
                     {% for hab in habilidades %}
-                    <span class="text-[11px] font-bold uppercase bg-slate-900 text-white px-4 py-1.5 rounded-lg shadow-sm">
+                    <span class="text-[11px] font-bold uppercase bg-slate-900 text-white px-4 py-1.5 rounded-lg">
                         {{ hab.nombre }}
                     </span>
                     {% endfor %}
@@ -125,56 +108,58 @@
     </div>
 
     <div id="modalPDF" class="modal">
-        <div class="bg-white rounded-[2rem] p-10 max-w-md w-full shadow-2xl">
-            <h2 class="text-2xl font-extrabold mb-8 text-slate-800 border-b pb-4 italic">Exportar PDF</h2>
-            <div class="grid grid-cols-1 gap-2 max-h-[50vh] overflow-y-auto pr-2">
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_sobre_mi" checked class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Sobre mí</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_lenguajes" checked class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Tecnologías (Lenguajes)</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_habilidades" checked class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Habilidades</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_experiencia" checked class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Experiencia</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_formacion" checked class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Formación</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_cursos" checked class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Incluir Cursos</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_reconocimientos" checked class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Incluir Reconocimientos</span>
-                </label>
-                <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_garage" checked class="w-5 h-5 accent-blue-600">
-                    <span class="text-slate-700 font-bold text-sm">Incluir Garage</span>
-                </label>
+        <div class="bg-white rounded-3xl p-10 max-w-md w-full">
+            <h2 class="text-2xl font-black mb-6 italic border-b pb-2">Configurar PDF</h2>
+            <div class="space-y-2">
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_sobre_mi" checked> Perfil</label>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_lenguajes" checked> Tecnologías</label>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_habilidades" checked> Habilidades</label>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_experiencia" checked> Experiencia</label>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_formacion" checked> Formación</label>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_cursos" checked> Cursos</label>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_reconocimientos" checked> Reconocimientos</label>
             </div>
-            <div class="mt-8 flex gap-3">
-                <button onclick="generarPDF()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700">GENERAR</button>
-                <button onclick="toggleModal('modalPDF')" class="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl font-bold">SALIR</button>
+            <div class="mt-6 flex gap-3">
+                <button onclick="generarPDF()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold">GENERAR</button>
+                <button onclick="toggleModal('modalPDF')" class="flex-1 bg-slate-200 text-slate-600 py-3 rounded-xl font-bold">CERRAR</button>
             </div>
         </div>
     </div>
 
+    <div id="modalCert" class="modal">
+        <div class="bg-white rounded-3xl p-8 max-w-2xl w-full">
+            <h2 class="text-xl font-bold mb-4">Mis Cursos</h2>
+            <div class="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                {% for cert in certificados %}
+                <div class="border p-2 rounded-xl text-center">
+                    {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-lg mb-2">{% endif %}
+                    <p class="text-xs font-bold uppercase">{{ cert.titulo }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <button onclick="toggleModal('modalCert')" class="mt-6 w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="modalRec" class="modal">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full">
+            <h2 class="text-xl font-bold mb-4 text-emerald-600">Reconocimientos</h2>
+            <div class="space-y-3">
+                {% for rec in reconocimientos %}
+                <div class="flex items-center gap-4 bg-emerald-50 p-4 rounded-2xl">
+                    <i class="fas fa-trophy text-amber-500 text-xl"></i>
+                    <p class="font-bold text-sm uppercase">{{ rec.titulo }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <button onclick="toggleModal('modalRec')" class="mt-6 w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
+        </div>
+    </div>
+
     <script>
-        function toggleModal(id) {
-            document.getElementById(id).classList.toggle('active');
-        }
+        function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
 
         function generarPDF() {
-            // Recolectamos el estado de cada checkbox
             const params = {
                 sobre_mi: document.getElementById('check_sobre_mi').checked,
                 lenguajes: document.getElementById('check_lenguajes').checked,
@@ -182,14 +167,9 @@
                 experiencia: document.getElementById('check_experiencia').checked,
                 formacion: document.getElementById('check_formacion').checked,
                 cursos: document.getElementById('check_cursos').checked,
-                reconocimientos: document.getElementById('check_reconocimientos').checked,
-                garage: document.getElementById('check_garage').checked
+                reconocimientos: document.getElementById('check_reconocimientos').checked
             };
-            
-            // Creamos el query string: ?sobre_mi=true&lenguajes=false...
             const queryString = Object.keys(params).map(k => k + '=' + params[k]).join('&');
-            
-            // Redirigimos a la vista de PDF
             window.open("{% url 'export_pdf' user_viewed.username %}?" + queryString, '_blank');
         }
     </script>

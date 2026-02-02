@@ -57,7 +57,6 @@ def export_pdf(request, username):
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
     
-    # Comprobamos si el parámetro es 'true' (string) porque viene de la URL
     context = {
         'perfil': datos, 
         'user_viewed': user_profile,
@@ -69,7 +68,7 @@ def export_pdf(request, username):
         'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
         'productos_garage': ProductoGarage.objects.filter(disponible=True),
         
-        # Lógica de visibilidad corregida para strings de URL
+        # Sincronización con JavaScript
         'show_sobre_mi': request.GET.get('sobre_mi') == 'true',
         'show_lenguajes': request.GET.get('lenguajes') == 'true',
         'show_habilidades': request.GET.get('habilidades') == 'true',
@@ -97,13 +96,11 @@ def dashboard(request):
         if 'foto' in request.FILES: perfil.foto = request.FILES['foto']
         perfil.save()
 
-        # Gestión de Lenguajes
         seleccionados = request.POST.getlist('lenguajes')
         if seleccionados:
             Lenguaje.objects.filter(perfil=perfil).delete()
             for lang in seleccionados: Lenguaje.objects.create(perfil=perfil, nombre=lang)
 
-        # Adiciones
         if request.POST.get('edu_titulo'):
             Educacion.objects.create(perfil=perfil, titulo=request.POST.get('edu_titulo'), institucion=request.POST.get('edu_inst'), fecha_graduacion=request.POST.get('edu_fecha') or timezone.now().date())
         
