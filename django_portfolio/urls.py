@@ -4,7 +4,6 @@ from tasks import views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
-from django.contrib.auth.models import User
 
 urlpatterns = [
     # RUTAS ADMINISTRATIVAS
@@ -20,16 +19,19 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('tasks/', views.tasks, name='tasks'),
 
-    # CORRECCIÓN AQUÍ: Antes decía views.home, ahora dice views.garage_store
+    # RUTA GARAGE
     path('perfil/<str:username>/garage/', views.garage_store, name='garage_store'), 
 
     # RUTAS DE PERFIL Y PDF
     path('perfil/<str:username>/', views.profile_cv, name='profile_cv'),
     path('perfil/<str:username>/pdf/', views.export_pdf, name='export_pdf'),
-    
-    # SERVIR ARCHIVOS MEDIA EN PRODUCCIÓN (RENDER)
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
+# Servir archivos estáticos y media durante desarrollo o con DEBUG activado
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # Garantiza que las imágenes se sirvan en Render aunque DEBUG sea False
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    ]
