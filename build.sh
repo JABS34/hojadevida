@@ -9,9 +9,8 @@ pip install -r requirements.txt
 python manage.py collectstatic --no-input
 
 # Aplicar migraciones a PostgreSQL
-# No usamos makemigrations en el servidor, solo migrate
 python manage.py migrate
 
-# Asegurar que la carpeta media local tenga permisos de escritura
+# Asegurar que la carpeta media local tenga permisos
 mkdir -p media
 chmod -R 755 media
