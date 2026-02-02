@@ -14,46 +14,27 @@
                 <div class="space-y-2">
                     <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Foto de Perfil</label>
                     <input type="file" name="foto" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 transition border border-slate-100 p-2 rounded-2xl">
-                    {% if perfil.foto %}
-                        <p class="text-[10px] text-emerald-600 font-bold ml-1 italic"><i class="fas fa-check-circle"></i> Tienes una foto cargada</p>
-                    {% endif %}
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Instagram (Usuario)</label>
-                    <input type="text" name="instagram" value="{{ perfil.instagram|default:'' }}" placeholder="ej: jabs6393" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-2xl focus:ring-4 focus:ring-blue-100 transition outline-none font-semibold">
+                    <input type="text" name="instagram" value="{{ perfil.instagram|default:'' }}" placeholder="ej: jabs6393" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-2xl outline-none font-semibold">
                 </div>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8">
                 <div class="space-y-2">
                     <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Nombres</label>
-                    <input type="text" name="nombres" value="{{ perfil.nombres }}" required class="w-full bg-slate-50 border border-slate-200 p-3 rounded-2xl focus:ring-4 focus:ring-blue-100 transition outline-none font-semibold">
+                    <input type="text" name="nombres" value="{{ perfil.nombres }}" required class="w-full bg-slate-50 border border-slate-200 p-3 rounded-2xl outline-none font-semibold">
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Apellidos</label>
-                    <input type="text" name="apellidos" value="{{ perfil.apellidos }}" required class="w-full bg-slate-50 border border-slate-200 p-3 rounded-2xl focus:ring-4 focus:ring-blue-100 transition outline-none font-semibold">
+                    <input type="text" name="apellidos" value="{{ perfil.apellidos }}" required class="w-full bg-slate-50 border border-slate-200 p-3 rounded-2xl outline-none font-semibold">
                 </div>
             </div>
 
             <div class="space-y-2">
                 <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Descripción Profesional</label>
-                <textarea name="descripcionperfil" rows="4" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-4 focus:ring-blue-100 transition outline-none italic">{{ perfil.descripcionperfil }}</textarea>
-            </div>
-
-            <div class="bg-blue-50/50 p-8 rounded-[2rem] border border-blue-100">
-                <h3 class="font-black text-blue-700 mb-6 uppercase text-[10px] tracking-widest flex items-center gap-2">
-                    <i class="fas fa-terminal"></i> Mis Lenguajes
-                </h3>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    {% for lang in lenguajes_disponibles %}
-                    <label class="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-blue-500 transition shadow-sm">
-                        <input type="checkbox" name="lenguajes" value="{{ lang }}" 
-                            class="w-4 h-4 accent-blue-600"
-                            {% for p_lang in perfil.lenguaje_set.all %}{% if p_lang.nombre == lang %}checked{% endif %}{% endfor %}>
-                        <span class="text-[10px] font-bold text-slate-600">{{ lang }}</span>
-                    </label>
-                    {% endfor %}
-                </div>
+                <textarea name="descripcionperfil" rows="4" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl outline-none italic">{{ perfil.descripcionperfil }}</textarea>
             </div>
 
             <div class="bg-slate-50 p-8 rounded-[2rem] border border-slate-200">
@@ -61,18 +42,10 @@
                     <i class="fas fa-briefcase"></i> Agregar Experiencia Laboral
                 </h3>
                 <div class="grid md:grid-cols-2 gap-4 mb-4">
-                    <input type="text" name="exp_puesto" placeholder="Puesto (ej: Desarrollador Backend)" class="p-3 border rounded-xl text-sm font-semibold">
+                    <input type="text" name="exp_puesto" placeholder="Puesto" class="p-3 border rounded-xl text-sm font-semibold">
                     <input type="text" name="exp_empresa" placeholder="Empresa" class="p-3 border rounded-xl text-sm font-semibold">
                 </div>
-                <textarea name="exp_desc" placeholder="Descripción de responsabilidades..." rows="2" class="w-full p-3 border rounded-xl text-sm font-semibold mb-4"></textarea>
-                
-                {% if perfil.experiencialaboral_set.exists %}
-                <div class="flex flex-wrap gap-2">
-                    {% for exp in perfil.experiencialaboral_set.all %}
-                        <span class="text-[9px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-lg font-bold">{{ exp.puesto }} en {{ exp.empresa }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
+                <textarea name="exp_desc" placeholder="Descripción..." rows="2" class="w-full p-3 border rounded-xl text-sm font-semibold"></textarea>
             </div>
 
             <div class="bg-slate-50 p-8 rounded-[2rem] border border-slate-200">
@@ -80,8 +53,8 @@
                     <i class="fas fa-award"></i> Agregar Reconocimiento
                 </h3>
                 <div class="grid md:grid-cols-2 gap-4 mb-4">
-                    <input type="text" name="rec_titulo" placeholder="Título del Reconocimiento" class="p-3 border rounded-xl text-sm font-semibold">
-                    <input type="text" name="rec_inst" placeholder="Institución que otorga" class="p-3 border rounded-xl text-sm font-semibold">
+                    <input type="text" name="rec_titulo" placeholder="Título" class="p-3 border rounded-xl text-sm font-semibold">
+                    <input type="text" name="rec_inst" placeholder="Institución" class="p-3 border rounded-xl text-sm font-semibold">
                     <input type="date" name="rec_fecha" class="p-3 border rounded-xl text-sm font-semibold">
                     <input type="file" name="rec_imagen" class="p-2 border rounded-xl text-xs">
                 </div>
@@ -93,8 +66,8 @@
                     <i class="fas fa-store"></i> Publicar en Garage Store
                 </h3>
                 <div class="grid md:grid-cols-2 gap-4 mb-4">
-                    <input type="text" name="prod_nombre" placeholder="Nombre del Producto" class="p-3 border rounded-xl text-sm font-semibold">
-                    <input type="number" step="0.01" name="prod_precio" placeholder="Precio (0.00)" class="p-3 border rounded-xl text-sm font-semibold">
+                    <input type="text" name="prod_nombre" placeholder="Producto" class="p-3 border rounded-xl text-sm font-semibold">
+                    <input type="number" step="0.01" name="prod_precio" placeholder="Precio" class="p-3 border rounded-xl text-sm font-semibold">
                     <select name="prod_estado" class="p-3 border rounded-xl text-sm font-semibold bg-white">
                         <option value="Nuevo">Nuevo</option>
                         <option value="Medio Usado">Medio Usado</option>
@@ -103,24 +76,6 @@
                     <input type="file" name="prod_imagen" class="p-2 border rounded-xl text-xs bg-white">
                 </div>
                 <textarea name="prod_desc" placeholder="Descripción del producto..." rows="2" class="w-full p-3 border rounded-xl text-sm font-semibold"></textarea>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="bg-slate-50 p-8 rounded-[2rem] border border-slate-200">
-                    <h3 class="font-black text-indigo-600 mb-6 uppercase text-[10px] tracking-widest flex items-center gap-2">
-                        <i class="fas fa-university"></i> Nuevo Título
-                    </h3>
-                    <input type="text" name="edu_titulo" placeholder="Título" class="w-full p-3 border rounded-xl text-sm font-semibold mb-2">
-                    <input type="text" name="edu_inst" placeholder="Institución" class="w-full p-3 border rounded-xl text-sm font-semibold mb-2">
-                    <input type="date" name="edu_fecha" class="w-full p-3 border rounded-xl text-sm font-semibold">
-                </div>
-
-                <div class="bg-slate-50 p-8 rounded-[2rem] border border-slate-200">
-                    <h3 class="font-black text-indigo-600 mb-6 uppercase text-[10px] tracking-widest flex items-center gap-2">
-                        <i class="fas fa-lightbulb"></i> Nueva Habilidad
-                    </h3>
-                    <input type="text" name="hab_nombre" placeholder="Ej: Liderazgo" class="w-full p-3 border rounded-xl text-sm font-semibold">
-                </div>
             </div>
 
             <button type="submit" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-blue-600 transition shadow-2xl flex items-center justify-center gap-3 tracking-widest">
