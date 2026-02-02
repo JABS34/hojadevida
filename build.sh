@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
-# exit on error
 set -o errexit
 
+# Instalar dependencias
 pip install -r requirements.txt
 
+# Recolectar archivos estáticos
 python manage.py collectstatic --no-input
 
-# Crear los archivos de migración que faltan para la tabla 'tasks_configuracionvisible'
-python manage.py makemigrations tasks --noinput
+# --- PASOS CRÍTICOS PARA LA BASE DE DATOS ---
+# 1. Forzar la creación de archivos de migración para tu app 'tasks'
+python manage.py makemigrations auth
+python manage.py makemigrations tasks
 
-# Aplicar los cambios a la base de datos de Render
+# 2. Aplicar las migraciones (crear las tablas de verdad en Postgres)
 python manage.py migrate --noinput
 
-# Crear el superusuario automáticamente (usa las variables de entorno de Render)
-# Asegúrate de tener DJANGO_SUPERUSER_USERNAME y DJANGO_SUPERUSER_PASSWORD en Render
+# 3. Crear el superusuario (usando estas variables fijas para no fallar)
+# Si prefieres, cámbialas aquí mismo directamente
+export DJANGO_SUPERUSER_USERNAME=jabs6393
+export DJANGO_SUPERUSER_PASSWORD=jabs12345
+
 python manage.py createsuperuser --noinput || true
