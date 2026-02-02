@@ -59,7 +59,6 @@ def dashboard(request):
     )
 
     if request.method == 'POST':
-        # 1. Datos Básicos
         perfil.nombres = request.POST.get('nombres')
         perfil.apellidos = request.POST.get('apellidos')
         perfil.instagram = request.POST.get('instagram')
@@ -68,29 +67,26 @@ def dashboard(request):
             perfil.foto = request.FILES['foto']
         perfil.save()
 
-        # 2. Lenguajes (Sobreescribe la selección actual)
         seleccionados = request.POST.getlist('lenguajes')
         if seleccionados:
             Lenguaje.objects.filter(perfil=perfil).delete()
             for lang in seleccionados:
                 Lenguaje.objects.create(perfil=perfil, nombre=lang)
 
-        # 3. Educación (Agrega nuevo)
         edu_titulo = request.POST.get('edu_titulo')
         edu_inst = request.POST.get('edu_inst')
         if edu_titulo and edu_inst:
             Educacion.objects.create(
                 perfil=perfil,
+                titulo=edu_titulo,
                 institucion=edu_inst,
                 fecha_graduacion=request.POST.get('edu_fecha') or timezone.now().date()
             )
 
-        # 4. Habilidades (Agrega nuevo)
         hab_nom = request.POST.get('hab_nombre')
         if hab_nom:
             Habilidad.objects.create(perfil=perfil, nombre=hab_nom)
 
-        # 5. Experiencia Laboral (Agrega nuevo)
         exp_puesto = request.POST.get('exp_puesto')
         exp_empresa = request.POST.get('exp_empresa')
         if exp_puesto and exp_empresa:
@@ -101,7 +97,6 @@ def dashboard(request):
                 descripcion=request.POST.get('exp_desc', '')
             )
 
-        # 6. Reconocimientos (Agrega nuevo)
         rec_titulo = request.POST.get('rec_titulo')
         if rec_titulo:
             Reconocimiento.objects.create(
@@ -113,7 +108,6 @@ def dashboard(request):
                 imagen=request.FILES.get('rec_imagen')
             )
 
-        # 7. Garage Store (Agrega nuevo)
         prod_nom = request.POST.get('prod_nombre')
         if prod_nom:
             ProductoGarage.objects.create(
@@ -128,11 +122,77 @@ def dashboard(request):
         return redirect('dashboard')
 
     lenguajes_disponibles = ['Python', 'JavaScript', 'Java', 'C#', 'PHP', 'Ruby', 'SQL', 'Swift', 'Go', 'Kotlin']
-    
     return render(request, 'dashboard.html', {
         'perfil': perfil,
         'lenguajes_disponibles': lenguajes_disponibles
     })
 
-# --- EL RESTO DE TUS VISTAS SIGUEN IGUAL (export_pdf, signup, etc.) ---
-# ...
+# --- EXPORTACIÓN PDF ---
+
+def export_pdf(request, username):
+    user_profile = get_object_or_404(User, username=username)
+    datos = DatosPersonales.objects.filter(user=user_profile).first()
+    context = {
+        'perfil': datos, 
+        'user_viewed': user_profile,
+        'estudios': Educacion.objects.filter(perfil=datos),
+        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos),
+        'habilidades': Habilidad.objects.filter(perfil=datos),
+        'lenguajes': Lenguaje.objects.filter(perfil=datos),
+        'certificados': Certificado.objects.filter(perfil=datos),
+        'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
+        'productos_garage': ProductoGarage.objects.filter(disponible=True),
+    }
+    return render(request, 'pdf_template.html', context)
+
+# --- AUTENTICACIÓN ---
+
+def signup(request):
+    if request.method == 'GET': 
+        return render(request, 'signup.html', {'form': UserCreationForm()})
+    form = UserCreationForm(request.POST)
+    if form.is_valid():
+        user = form.save()
+        login(request, user)
+        return redirect('dashboard')
+    return render(request, 'signup.html', {'form': form, 'error': 'Datos inválidos'})
+
+def signin(request):
+    if request.method == 'GET': 
+        return render(request, 'signin.html', {'form': AuthenticationForm()})
+    form = AuthenticationForm(data=request.POST)
+    if form.is_valid():
+        user = form.get_user()
+        login(request, user)
+        return redirect('dashboard')
+    return render(request, 'signin.html', {'form': AuthenticationForm(), 'error': 'Credenciales incorrectas'})
+
+def signout(request):
+    logout(request)
+    return redirect('home')
+
+# --- GESTIÓN DE TAREAS ---
+
+@login_required
+def tasks(request):
+    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
+    return render(request, 'tasks.html', {'tasks': tasks, 'tipopagina': 'Tareas Pendientes'})
+
+@login_required
+def create_task(request):
+    if request.method == 'GET': 
+        return render(request, 'create_task.html', {'form': TaskForm()})
+    form = TaskForm(request.POST)
+    if form.is_valid():
+        new_task = form.save(commit=False)
+        new_task.user = request.user
+        new_task.save()
+        return redirect('tasks')
+    return render(request, 'create_task.html', {'form': form, 'error': 'Error al crear tarea'})
+
+@login_required
+def delete_task(request, task_id):
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
+    if request.method == 'POST': 
+        task.delete()
+    return redirect('tasks')
