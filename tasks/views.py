@@ -19,14 +19,12 @@ def home(request):
     return render(request, "welcome.html", {"admin_user": admin_user})
 
 def profile_cv(request, username):
-    """Muestra la Hoja de Vida con todos los datos vinculados."""
     user_profile = get_object_or_404(User, username=username)
     datos = DatosPersonales.objects.filter(user=user_profile).first()
     
     if not datos:
         return render(request, 'profile_cv.html', {'error': 'Perfil no configurado.', 'user_viewed': user_profile})
     
-    # Intentamos obtener la configuración, si no existe usamos una por defecto
     try:
         config = ConfiguracionVisible.objects.first()
     except:
@@ -46,7 +44,6 @@ def profile_cv(request, username):
     return render(request, 'profile_cv.html', context)
 
 def garage_store(request, username):
-    """Tienda de productos sin error de campo 'perfil'."""
     user_target = get_object_or_404(User, username=username)
     productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
     
@@ -56,7 +53,35 @@ def garage_store(request, username):
         'user_viewed': user_target
     })
 
-# --- DASHBOARD Y OTROS (Se mantienen igual para no romper lógica) ---
+def export_pdf(request, username):
+    user_profile = get_object_or_404(User, username=username)
+    datos = DatosPersonales.objects.filter(user=user_profile).first()
+    
+    # Comprobamos si el parámetro es 'true' (string) porque viene de la URL
+    context = {
+        'perfil': datos, 
+        'user_viewed': user_profile,
+        'estudios': Educacion.objects.filter(perfil=datos),
+        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos),
+        'habilidades': Habilidad.objects.filter(perfil=datos),
+        'lenguajes': Lenguaje.objects.filter(perfil=datos),
+        'certificados': Certificado.objects.filter(perfil=datos),
+        'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
+        'productos_garage': ProductoGarage.objects.filter(disponible=True),
+        
+        # Lógica de visibilidad corregida para strings de URL
+        'show_sobre_mi': request.GET.get('sobre_mi') == 'true',
+        'show_lenguajes': request.GET.get('lenguajes') == 'true',
+        'show_habilidades': request.GET.get('habilidades') == 'true',
+        'show_experiencia': request.GET.get('experiencia') == 'true',
+        'show_formacion': request.GET.get('formacion') == 'true',
+        'show_cursos': request.GET.get('cursos') == 'true',
+        'show_reconocimientos': request.GET.get('reconocimientos') == 'true',
+        'show_garage': request.GET.get('garage') == 'true',
+    }
+    return render(request, 'pdf_template.html', context)
+
+# --- DASHBOARD, TAREAS Y AUTH ---
 
 @login_required
 def dashboard(request):
@@ -78,7 +103,7 @@ def dashboard(request):
             Lenguaje.objects.filter(perfil=perfil).delete()
             for lang in seleccionados: Lenguaje.objects.create(perfil=perfil, nombre=lang)
 
-        # Adiciones rápidas
+        # Adiciones
         if request.POST.get('edu_titulo'):
             Educacion.objects.create(perfil=perfil, titulo=request.POST.get('edu_titulo'), institucion=request.POST.get('edu_inst'), fecha_graduacion=request.POST.get('edu_fecha') or timezone.now().date())
         
@@ -93,7 +118,6 @@ def dashboard(request):
     lenguajes_disponibles = ['Python', 'JavaScript', 'Java', 'C#', 'PHP', 'SQL', 'Swift', 'Go', 'Kotlin']
     return render(request, 'dashboard.html', {'perfil': perfil, 'lenguajes_disponibles': lenguajes_disponibles})
 
-# (Aquí irían tus funciones de tareas y auth que ya tienes correctamente)
 @login_required
 def tasks(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
@@ -109,9 +133,7 @@ def create_task(request):
     if request.method == 'GET': return render(request, 'create_task.html', {'form': TaskForm()})
     form = TaskForm(request.POST)
     if form.is_valid():
-        task = form.save(commit=False)
-        task.user = request.user
-        task.save()
+        task = form.save(commit=False); task.user = request.user; task.save()
         return redirect('tasks')
     return render(request, 'create_task.html', {'form': form})
 
@@ -123,8 +145,7 @@ def task_detail(request, task_id):
 @login_required
 def complete_task(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
-    task.datecompleted = timezone.now()
-    task.save()
+    task.datecompleted = timezone.now(); task.save()
     return redirect('tasks')
 
 @login_required
@@ -149,18 +170,3 @@ def signin(request):
 
 def signout(request):
     logout(request); return redirect('home')
-
-def export_pdf(request, username):
-    user_profile = get_object_or_404(User, username=username)
-    datos = DatosPersonales.objects.filter(user=user_profile).first()
-    context = {
-        'perfil': datos, 'user_viewed': user_profile,
-        'estudios': Educacion.objects.filter(perfil=datos),
-        'experiencias': ExperienciaLaboral.objects.filter(perfil=datos),
-        'habilidades': Habilidad.objects.filter(perfil=datos),
-        'lenguajes': Lenguaje.objects.filter(perfil=datos),
-        'certificados': Certificado.objects.filter(perfil=datos),
-        'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
-        'productos_garage': ProductoGarage.objects.filter(disponible=True),
-    }
-    return render(request, 'pdf_template.html', context)

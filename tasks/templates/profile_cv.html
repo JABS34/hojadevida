@@ -58,15 +58,6 @@
                 </div>
             </section>
 
-            <section id="section_habilidades_view">
-                <h3 class="text-[10px] font-bold tracking-[0.3em] uppercase border-b border-white/20 pb-2 mb-4 italic text-blue-400">Habilidades</h3>
-                <div class="flex flex-wrap gap-2">
-                    {% for hab in habilidades %}
-                    <span class="text-[10px] font-bold uppercase bg-white/5 border border-white/10 px-3 py-1 rounded-lg">{{ hab.nombre }}</span>
-                    {% endfor %}
-                </div>
-            </section>
-
             <section id="section_formacion_view">
                 <h3 class="text-[10px] font-bold tracking-[0.3em] uppercase border-b border-white/20 pb-2 mb-4 italic text-blue-400">Formación</h3>
                 <div class="space-y-4">
@@ -106,7 +97,7 @@
                 </div>
             </section>
 
-            <section id="section_experiencia_view">
+            <section id="section_experiencia_view" class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
                 <div class="space-y-8">
                     {% for exp in experiencias %}
@@ -119,6 +110,17 @@
                     {% endfor %}
                 </div>
             </section>
+
+            <section id="section_habilidades_view">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Habilidades y Competencias</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for hab in habilidades %}
+                    <span class="text-[11px] font-bold uppercase bg-slate-900 text-white px-4 py-1.5 rounded-lg shadow-sm">
+                        {{ hab.nombre }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </section>
         </main>
     </div>
 
@@ -127,23 +129,23 @@
             <h2 class="text-2xl font-extrabold mb-8 text-slate-800 border-b pb-4 italic">Exportar PDF</h2>
             <div class="grid grid-cols-1 gap-2 max-h-[50vh] overflow-y-auto pr-2">
                 <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_sobre_mi" checked onchange="toggleSection('section_sobre_mi_view', this)" class="w-5 h-5 accent-blue-600">
+                    <input type="checkbox" id="check_sobre_mi" checked class="w-5 h-5 accent-blue-600">
                     <span class="text-slate-700 font-bold text-sm">Sobre mí</span>
                 </label>
                 <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_lenguajes" checked onchange="toggleSection('section_lenguajes_view', this)" class="w-5 h-5 accent-blue-600">
+                    <input type="checkbox" id="check_lenguajes" checked class="w-5 h-5 accent-blue-600">
                     <span class="text-slate-700 font-bold text-sm">Tecnologías (Lenguajes)</span>
                 </label>
                 <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_habilidades" checked onchange="toggleSection('section_habilidades_view', this)" class="w-5 h-5 accent-blue-600">
+                    <input type="checkbox" id="check_habilidades" checked class="w-5 h-5 accent-blue-600">
                     <span class="text-slate-700 font-bold text-sm">Habilidades</span>
                 </label>
                 <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_experiencia" checked onchange="toggleSection('section_experiencia_view', this)" class="w-5 h-5 accent-blue-600">
+                    <input type="checkbox" id="check_experiencia" checked class="w-5 h-5 accent-blue-600">
                     <span class="text-slate-700 font-bold text-sm">Experiencia</span>
                 </label>
                 <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
-                    <input type="checkbox" id="check_formacion" checked onchange="toggleSection('section_formacion_view', this)" class="w-5 h-5 accent-blue-600">
+                    <input type="checkbox" id="check_formacion" checked class="w-5 h-5 accent-blue-600">
                     <span class="text-slate-700 font-bold text-sm">Formación</span>
                 </label>
                 <label class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-blue-50">
@@ -166,52 +168,13 @@
         </div>
     </div>
 
-    <div id="modalCert" class="modal">
-        <div class="bg-white rounded-3xl w-full max-w-4xl p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-6 border-b pb-4">
-                <h2 class="text-xl font-bold text-slate-800 uppercase italic">Mis Cursos</h2>
-                <button onclick="toggleModal('modalCert')" class="text-3xl text-slate-400">&times;</button>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 overflow-y-auto max-h-[60vh]">
-                {% for cert in certificados %}
-                <div class="border p-2 rounded-xl text-center">
-                    {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="rounded-lg mb-2">{% endif %}
-                    <p class="text-[10px] font-bold">{{ cert.titulo }}</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <div id="modalRec" class="modal">
-        <div class="bg-white rounded-3xl w-full max-w-2xl p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-6 border-b pb-4">
-                <h2 class="text-xl font-bold text-slate-800 uppercase italic">Reconocimientos</h2>
-                <button onclick="toggleModal('modalRec')" class="text-3xl text-slate-400">&times;</button>
-            </div>
-            <div class="space-y-4 overflow-y-auto max-h-[60vh]">
-                {% for rec in reconocimientos %}
-                <div class="bg-emerald-50 p-4 rounded-xl flex items-center gap-3">
-                    <i class="fas fa-trophy text-emerald-600"></i>
-                    <p class="font-bold text-sm uppercase">{{ rec.titulo }}</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
     <script>
         function toggleModal(id) {
-            const m = document.getElementById(id);
-            m.classList.toggle('active');
-        }
-
-        function toggleSection(id, checkbox) {
-            const el = document.getElementById(id);
-            if (el) el.style.display = checkbox.checked ? 'block' : 'none';
+            document.getElementById(id).classList.toggle('active');
         }
 
         function generarPDF() {
+            // Recolectamos el estado de cada checkbox
             const params = {
                 sobre_mi: document.getElementById('check_sobre_mi').checked,
                 lenguajes: document.getElementById('check_lenguajes').checked,
@@ -222,7 +185,11 @@
                 reconocimientos: document.getElementById('check_reconocimientos').checked,
                 garage: document.getElementById('check_garage').checked
             };
+            
+            // Creamos el query string: ?sobre_mi=true&lenguajes=false...
             const queryString = Object.keys(params).map(k => k + '=' + params[k]).join('&');
+            
+            // Redirigimos a la vista de PDF
             window.open("{% url 'export_pdf' user_viewed.username %}?" + queryString, '_blank');
         }
     </script>
