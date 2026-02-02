@@ -8,10 +8,10 @@ pip install -r requirements.txt
 # Recolectar archivos estáticos
 python manage.py collectstatic --no-input
 
-# GENERAR Y APLICAR MIGRACIONES (Paso crítico)
-python manage.py makemigrations
+# Aplicar las migraciones a la base de datos (PostgreSQL o SQLite)
+# Esto asegura que las tablas se creen sin borrar los datos existentes
 python manage.py migrate
 
-# CREAR CARPETA DE FOTOS
+# Crear carpeta de fotos para evitar errores de ruta
 mkdir -p media
 chmod -R 755 media
