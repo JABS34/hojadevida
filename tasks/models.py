@@ -1,74 +1,114 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# 1. PERFIL PRINCIPAL
+# 1. PERFIL PRINCIPAL (Basado en CREATE TABLE DATOSPERSONALES)
 class DatosPersonales(models.Model):
+    idperfil = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    nombres = models.CharField(max_length=100)
-    apellidos = models.CharField(max_length=100)
+    nombres = models.CharField(max_length=60)
+    apellidos = models.CharField(max_length=60)
+    descripcionperfil = models.CharField(max_length=50, blank=True, null=True)
+    perfilactivo = models.IntegerField(default=1)
+    nacionalidad = models.CharField(max_length=20)
+    lugarnacimiento = models.CharField(max_length=60)
     fechanacimiento = models.DateField()
-    numerocedula = models.CharField(max_length=15, unique=True)
-    direcciondomiciliaria = models.CharField(max_length=255)
+    numerocedula = models.CharField(max_length=10, unique=True)
+    sexo = models.CharField(max_length=1, choices=[('H', 'M'), ('M', 'F')])
+    estadocivil = models.CharField(max_length=50)
+    licenciaconducir = models.CharField(max_length=6, blank=True, null=True)
+    telefonoconvencional = models.CharField(max_length=15, blank=True, null=True)
+    telefonofijo = models.CharField(max_length=15, blank=True, null=True)
+    direcciontrabajo = models.CharField(max_length=50, blank=True, null=True)
+    direcciondomiciliaria = models.CharField(max_length=50, blank=True, null=True)
+    sitioweb = models.CharField(max_length=60, blank=True, null=True)
     foto = models.ImageField(upload_to='perfil_fotos/', null=True, blank=True)
-    descripcionperfil = models.TextField(blank=True)
     instagram = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return f"{self.nombres} {self.apellidos}"
 
-# 2. SECCIONES DEL CV
+# 2. EXPERIENCIA LABORAL (Basado en CREATE TABLE EXPERIENCIASLABORAL)
 class ExperienciaLaboral(models.Model):
-    perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
-    puesto = models.CharField(max_length=200)
-    empresa = models.CharField(max_length=200)
-    descripcion = models.TextField()
-    def __str__(self): return f"{self.puesto} en {self.empresa}"
+    idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
+    cargodesempenado = models.CharField(max_length=100)
+    nombrempresa = models.CharField(max_length=50)
+    lugarempresa = models.CharField(max_length=50)
+    emailempresa = models.CharField(max_length=100)
+    sitiowebempresa = models.CharField(max_length=100, blank=True, null=True)
+    nombrecontactoempresarial = models.CharField(max_length=100)
+    telefonocontactoempresarial = models.CharField(max_length=60)
+    fechainiciogestion = models.DateField()
+    fechafingestion = models.DateField()
+    descripcionfunciones = models.CharField(max_length=100)
+    activarparaqueseveaenfront = models.BooleanField(default=True)
+    rutacertificado = models.CharField(max_length=100, blank=True, null=True)
 
-class Habilidad(models.Model):
-    perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=100)
-    def __str__(self): return self.nombre
+    def __str__(self):
+        return f"{self.cargodesempenado} en {self.nombrempresa}"
 
-class Certificado(models.Model):
-    perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
-    titulo = models.CharField(max_length=200)
-    institucion = models.CharField(max_length=200)
-    imagen = models.ImageField(upload_to='certificados/')
-    def __str__(self): return self.titulo
+# 3. CURSOS REALIZADOS (Basado en CREATE TABLE CURSOSREALIZADOS)
+class CursosRealizados(models.Model):
+    idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
+    nombrerecurso = models.CharField(max_length=100)
+    fechainicio = models.DateField()
+    fechafin = models.DateField()
+    totalhoras = models.IntegerField()
+    descripcioncurso = models.CharField(max_length=100)
+    entidadpatrocinadora = models.CharField(max_length=100)
+    nombrecontactoauspicia = models.CharField(max_length=100)
+    telefonocontactoauspicia = models.CharField(max_length=60)
+    emailempresapatrocinadora = models.CharField(max_length=60)
+    activarparaqueseveaenfront = models.BooleanField(default=True)
+    rutacertificado = models.CharField(max_length=100, blank=True, null=True)
 
-class Educacion(models.Model):
-    perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
-    institucion = models.CharField(max_length=200)
-    fecha_graduacion = models.DateField()
-    def __str__(self): return f"Graduado de {self.institucion}"
+    def __str__(self):
+        return self.nombrerecurso
 
-class Lenguaje(models.Model):
-    perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=100)
-    def __str__(self): return self.nombre
-
+# 4. RECONOCIMIENTOS (Basado en CREATE TABLE RECONOCIMIENTOS)
 class Reconocimiento(models.Model):
-    perfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
-    titulo = models.CharField(max_length=200)
-    descripcion = models.TextField()
-    fecha = models.DateField()
-    institucion_otorga = models.CharField(max_length=200)
-    imagen = models.ImageField(upload_to='reconocimientos/', null=True, blank=True)
-    def __str__(self): return f"{self.titulo} - {self.perfil.nombres}"
+    idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
+    tiporeconocimiento = models.CharField(max_length=100, choices=[('Académico', 'Académico'), ('Público', 'Público'), ('Privado', 'Privado')])
+    fechareconocimiento = models.DateField()
+    descripcionreconocimiento = models.CharField(max_length=100)
+    entidadpatrocinadora = models.CharField(max_length=100)
+    nombrecontactoauspicia = models.CharField(max_length=100)
+    telefonocontactoauspicia = models.CharField(max_length=60)
+    activarparaqueseveaenfront = models.BooleanField(default=True)
+    rutacertificado = models.CharField(max_length=100, blank=True, null=True)
 
-# 3. VENTA DE GARAGE
-class ProductoGarage(models.Model):
-    ESTADO_OPCIONES = [('Nuevo', 'Nuevo'), ('Medio Usado', 'Medio Usado'), ('Usado', 'Usado (Buen Estado)')]
-    nombre = models.CharField(max_length=200)
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    descripcion = models.TextField()
-    imagen = models.ImageField(upload_to='garage/')
-    estado = models.CharField(max_length=20, choices=ESTADO_OPCIONES, default='Nuevo')
-    disponible = models.BooleanField(default=True)
-    fecha_publicado = models.DateTimeField(auto_now_add=True)
-    def __str__(self): return self.nombre
+    def __str__(self):
+        return self.descripcionreconocimiento
 
-# 4. SISTEMA DE TAREAS
+# 5. PRODUCTOS ACADEMICOS
+class ProductosAcademicos(models.Model):
+    idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
+    nombrerecurso = models.CharField(max_length=100)
+    clasificador = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
+    activarparaqueseveaenfront = models.BooleanField(default=True)
+
+# 6. PRODUCTOS LABORALES
+class ProductosLaborales(models.Model):
+    idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
+    nombreproducto = models.CharField(max_length=100)
+    fechaproducto = models.DateField()
+    descripcion = models.CharField(max_length=100)
+    activarparaqueseveaenfront = models.BooleanField(default=True)
+
+# 7. VENTA DE GARAGE (Basado en CREATE TABLE VENTAGARAGE)
+class VentaGarage(models.Model):
+    idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
+    nombreproducto = models.CharField(max_length=100)
+    estadoproducto = models.CharField(max_length=40, choices=[('Bueno', 'Bueno'), ('Regular', 'Regular')])
+    descripcion = models.CharField(max_length=100)
+    valordelbien = models.DecimalField(max_digits=5, decimal_places=2)
+    activarparaqueseveaenfront = models.BooleanField(default=True)
+    imagen = models.ImageField(upload_to='garage/', null=True, blank=True)
+
+    def __str__(self):
+        return self.nombreproducto
+
+# 8. SISTEMA DE TAREAS
 class Task(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -76,9 +116,11 @@ class Task(models.Model):
     datecompleted = models.DateTimeField(null=True, blank=True)
     important = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    def __str__(self): return f"{self.title} - by {self.user.username}"
 
-# 5. CONTROL DE VISIBILIDAD (NUEVO)
+    def __str__(self):
+        return f"{self.title} - by {self.user.username}"
+
+# 9. CONTROL DE VISIBILIDAD
 class ConfiguracionVisible(models.Model):
     mostrar_garage = models.BooleanField(default=True)
     mostrar_cursos = models.BooleanField(default=True)
@@ -88,4 +130,5 @@ class ConfiguracionVisible(models.Model):
         verbose_name = "Configuración de Botones"
         verbose_name_plural = "Configuración de Botones"
 
-    def __str__(self): return "Interruptores de Visibilidad"
+    def __str__(self):
+        return "Interruptores de Visibilidad"
