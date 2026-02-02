@@ -83,6 +83,10 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "/signin"
 
-# Multimedia local (Sin Cloudinary)
+# Multimedia local (Configuración completa de Media)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Crear carpeta media si no existe automáticamente
+if not os.path.exists(MEDIA_ROOT):
+    os.makedirs(MEDIA_ROOT)
