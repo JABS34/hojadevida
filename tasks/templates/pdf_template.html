@@ -6,33 +6,86 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Configuración de página para impresión */
         @page { size: A4; margin: 0; }
-        body { font-family: sans-serif; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; }
-        .page-pdf { width: 210mm; height: 297mm; display: flex; page-break-after: always; }
-        .sidebar { width: 32%; background-color: #254b94 !important; color: white; padding: 40px 20px; }
-        .main-content { width: 68%; padding: 50px; }
-        .appendix { width: 210mm; min-height: 297mm; padding: 25mm; page-break-before: always; }
-        .badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); padding: 4px 8px; border-radius: 4px; font-size: 10px; margin: 0 4px 6px 0; display: inline-block; }
+        
+        body { 
+            font-family: sans-serif; 
+            background: white; 
+            margin: 0; 
+            padding: 0; 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact;
+        }
+
+        /* Contenedor principal del CV */
+        .page-pdf { 
+            width: 210mm; 
+            height: 297mm; 
+            display: flex; 
+            page-break-after: always; 
+            overflow: hidden;
+        }
+
+        /* Sidebar Azul */
+        .sidebar { 
+            width: 32%; 
+            background-color: #254b94 !important; 
+            color: white; 
+            padding: 40px 20px; 
+        }
+
+        /* Contenido Blanco */
+        .main-content { 
+            width: 68%; 
+            padding: 50px; 
+        }
+
+        /* Hojas de anexos (Cursos y Reconocimientos) */
+        .appendix { 
+            width: 210mm; 
+            min-height: 297mm; 
+            padding: 25mm; 
+            page-break-before: always; 
+            background: white;
+        }
+
+        /* Etiquetas de habilidades */
+        .badge { 
+            background: rgba(255,255,255,0.1); 
+            border: 1px solid rgba(255,255,255,0.3); 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 10px; 
+            margin: 0 4px 6px 0; 
+            display: inline-block; 
+        }
+
+        /* Forzar visibilidad de imágenes en impresión */
+        img { max-width: 100%; display: block; }
     </style>
 </head>
-<body onload="window.print()">
+<body>
+
     <div class="page-pdf">
         <aside class="sidebar">
             <div class="text-center mb-10">
-                {% if perfil.foto %}<img src="{{ perfil.foto.url }}" class="w-32 h-32 rounded-full mx-auto border-4 border-white/20 object-cover">{% endif %}
+                {% if perfil.foto %}
+                    <img src="{{ perfil.foto.url }}" class="w-32 h-32 rounded-full mx-auto border-4 border-white/20 object-cover shadow-lg">
+                {% endif %}
             </div>
             
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Contacto</h3>
             <div class="text-[11px] space-y-2 mb-10">
-                <p>{{ user_viewed.email }}</p>
-                <p>{{ perfil.direcciondomiciliaria }}</p>
+                <p><i class="fas fa-envelope mr-1"></i> {{ user_viewed.email }}</p>
+                <p><i class="fas fa-map-marker-alt mr-1"></i> {{ perfil.direcciondomiciliaria }}</p>
             </div>
 
             {% if show_formacion %}
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Formación</h3>
             {% for edu in estudios %}
                 <div class="mb-4">
-                    <p class="text-[12px] font-bold">{{ edu.institucion }}</p>
+                    <p class="text-[12px] font-bold uppercase">{{ edu.institucion }}</p>
                     <p class="text-[10px] text-blue-200">{{ edu.titulo }}</p>
                 </div>
             {% endfor %}
@@ -41,20 +94,27 @@
             {% if show_habilidades %}
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Habilidades</h3>
             <div class="flex flex-wrap">
-                {% for hab in habilidades %}<span class="badge">{{ hab.nombre }}</span>{% endfor %}
+                {% for hab in habilidades %}
+                    <span class="badge">{{ hab.nombre }}</span>
+                {% endfor %}
             </div>
             {% endif %}
         </aside>
 
         <main class="main-content">
             <header class="mb-10">
-                <h1 class="text-4xl font-black text-slate-900 uppercase">{{ perfil.nombres }}<br><span class="text-[#254b94]">{{ perfil.apellidos }}</span></h1>
+                <h1 class="text-4xl font-black text-slate-900 uppercase leading-tight">
+                    {{ perfil.nombres }}<br>
+                    <span class="text-[#254b94]">{{ perfil.apellidos }}</span>
+                </h1>
             </header>
 
             {% if show_sobre_mi %}
             <section class="mb-8">
                 <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 italic">Perfil</h2>
-                <p class="text-[13px] text-slate-600 italic">"{{ perfil.descripcionperfil }}"</p>
+                <div class="text-[13px] text-slate-600 italic leading-relaxed border-l-4 border-slate-100 pl-4">
+                    "{{ perfil.descripcionperfil }}"
+                </div>
             </section>
             {% endif %}
 
@@ -64,7 +124,7 @@
                 {% for exp in experiencias %}
                 <div class="mb-6">
                     <h3 class="text-[14px] font-bold text-slate-800 uppercase">{{ exp.puesto }}</h3>
-                    <p class="text-[11px] text-[#254b94] font-bold">{{ exp.empresa }}</p>
+                    <p class="text-[11px] text-[#254b94] font-bold uppercase">{{ exp.empresa }}</p>
                     <p class="text-[12px] text-slate-500 mt-1">{{ exp.descripcion }}</p>
                 </div>
                 {% endfor %}
@@ -77,8 +137,10 @@
         {% for cert in certificados %}
         <div class="appendix">
             <h2 class="text-2xl font-bold text-[#254b94] border-b-4 border-[#254b94] pb-2 uppercase mb-4">Certificación</h2>
-            <p class="text-xl font-bold italic mb-4">{{ cert.titulo }}</p>
-            {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full shadow-2xl rounded-lg">{% endif %}
+            <p class="text-xl font-bold italic mb-6">{{ cert.titulo }}</p>
+            {% if cert.imagen %}
+                <img src="{{ cert.imagen.url }}" class="w-full shadow-2xl rounded-lg border border-slate-200">
+            {% endif %}
         </div>
         {% endfor %}
     {% endif %}
@@ -87,10 +149,22 @@
         {% for rec in reconocimientos %}
         <div class="appendix">
             <h2 class="text-2xl font-bold text-emerald-600 border-b-4 border-emerald-600 pb-2 uppercase mb-4">Reconocimiento</h2>
-            <p class="text-xl font-bold italic mb-4">{{ rec.titulo }}</p>
-            {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="w-full shadow-2xl rounded-lg">{% endif %}
+            <p class="text-xl font-bold italic mb-6">{{ rec.titulo }}</p>
+            {% if rec.imagen %}
+                <img src="{{ rec.imagen.url }}" class="w-full shadow-2xl rounded-lg border border-slate-200">
+            {% endif %}
         </div>
         {% endfor %}
     {% endif %}
+
+    <script>
+        // Este script asegura que la ventana de impresión se abra 
+        // solo después de que las imágenes (URL) se hayan cargado.
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                window.print();
+            }, 500); // 500ms de espera para estabilidad
+        });
+    </script>
 </body>
 </html>
