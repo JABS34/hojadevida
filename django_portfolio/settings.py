@@ -9,8 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
 DEBUG = 'RENDER' not in os.environ
 
-# Permitir el dominio de Render
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+# Permitir el dominio de Render y local
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "hojadevida-dkwj.onrender.com"]
 render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_hostname:
     ALLOWED_HOSTS.append(render_external_hostname)
@@ -58,8 +58,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# --- CONFIGURACIÓN DE BASE DE DATOS (POSTGRESQL) ---
-# Esto lee automáticamente la DATABASE_URL que tienes en Render
+# --- BASE DE DATOS POSTGRESQL (Captura de pantalla) ---
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
@@ -85,7 +84,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media (Usando la carpeta que ya tienes en tu proyecto)
+# Media (Carpeta local que mostraste en la imagen)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
