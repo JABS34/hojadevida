@@ -31,7 +31,7 @@ INSTALLED_APPS = [
 # Middleware con Whitenoise para archivos estáticos
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Servir estáticos en Render
+    "whitenoise.middleware.WhiteNoiseMiddleware", 
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -60,13 +60,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# CONFIGURACIÓN DE BASE DE DATOS (Ajustada para Plan Gratuito)
-# Usamos SQLite dentro de la carpeta del proyecto
+# --- CONFIGURACIÓN DE BASE DE DATOS PARA PERSISTENCIA ---
+# Si existe la variable DATABASE_URL en Render, usará PostgreSQL (Eterno).
+# Si no existe, usará SQLite para que puedas seguir trabajando en tu PC (Local).
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
+        conn_max_age=600
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -93,7 +94,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "/signin"
-
-# Al final de django_portfolio/settings.py
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
