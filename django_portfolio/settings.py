@@ -1,17 +1,13 @@
 import os
 from pathlib import Path
+import dj_database_url
 
-# Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# SEGURIDAD
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
-DEBUG = True # Lo dejamos en True para que sea más fácil ver si hay errores
+DEBUG = True 
 
-# Permitir el dominio de Render y local
-ALLOWED_HOSTS = ["*"] # Permitimos todo para evitar bloqueos por ahora
+ALLOWED_HOSTS = ["*"]
 
-# Aplicaciones instaladas
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -22,7 +18,6 @@ INSTALLED_APPS = [
     "tasks", 
 ]
 
-# Middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware", 
@@ -54,26 +49,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# --- VOLVEMOS A SQLITE LOCAL (Donde están tus datos) ---
+# --- USAR POSTGRESQL PARA QUE NO DE ERROR DE TABLAS ---
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
+        conn_max_age=600
+    )
 }
 
-# Configuración regional
 LANGUAGE_CODE = "es-ec"
 TIME_ZONE = "America/Guayaquil"
 USE_I18N = True
 USE_TZ = True
 
-# Archivos estáticos
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media (Carpeta local de tu GitHub)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
