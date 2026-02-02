@@ -1,19 +1,15 @@
 import os
 from pathlib import Path
-import dj_database_url
 
 # Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SEGURIDAD
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
-DEBUG = 'RENDER' not in os.environ
+DEBUG = True # Lo dejamos en True para que sea más fácil ver si hay errores
 
 # Permitir el dominio de Render y local
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "hojadevida-dkwj.onrender.com"]
-render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if render_external_hostname:
-    ALLOWED_HOSTS.append(render_external_hostname)
+ALLOWED_HOSTS = ["*"] # Permitimos todo para evitar bloqueos por ahora
 
 # Aplicaciones instaladas
 INSTALLED_APPS = [
@@ -58,20 +54,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# --- BASE DE DATOS POSTGRESQL (Captura de pantalla) ---
+# --- VOLVEMOS A SQLITE LOCAL (Donde están tus datos) ---
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
-
-AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
 
 # Configuración regional
 LANGUAGE_CODE = "es-ec"
@@ -84,7 +73,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media (Carpeta local que mostraste en la imagen)
+# Media (Carpeta local de tu GitHub)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
