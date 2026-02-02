@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
-# exit on error
 set -o errexit
 
-# Instalar dependencias
+# Instalar librerías
 pip install -r requirements.txt
 
-# Recolectar archivos estáticos
+# Archivos estáticos
 python manage.py collectstatic --no-input
 
-# Aplicar las migraciones a la base de datos (PostgreSQL o SQLite)
-# Esto asegura que las tablas se creen sin borrar los datos existentes
+# Crear las tablas en la base de datos nueva
 python manage.py migrate
 
-# Crear carpeta de fotos para evitar errores de ruta
+# Asegurar carpeta de imágenes
 mkdir -p media
 chmod -R 755 media
