@@ -2,11 +2,11 @@ import os
 from pathlib import Path
 import dj_database_url
 
-# Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SEGURIDAD
-SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-tu-clave-local")
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
+
+# DEBUG es True en tu PC y False en Render
 DEBUG = "RENDER" not in os.environ
 
 ALLOWED_HOSTS = ["*"]
@@ -15,17 +15,14 @@ RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# Aplicaciones instaladas (Orden correcto para Cloudinary)
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "cloudinary_storage",  # Debe ir antes de staticfiles
     "django.contrib.staticfiles",
-    "cloudinary",
-    "tasks", 
+    "tasks",
 ]
 
 MIDDLEWARE = [
@@ -59,7 +56,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# BASE DE DATOS: Usa PostgreSQL en Render y SQLite en tu PC automáticamente
+# CONEXIÓN A BASE DE DATOS (Toma DATABASE_URL de Render automáticamente)
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
@@ -74,13 +71,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# Configuración regional (Ajustada a Ecuador como tenías antes)
 LANGUAGE_CODE = "es-ec"
 TIME_ZONE = "America/Guayaquil"
 USE_I18N = True
 USE_TZ = True
 
-# Archivos Estáticos
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
@@ -88,13 +83,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "/signin"
 
-# CLOUDINARY: Configuración para fotos y PDFs permanentes
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dfus3z6ih',
-    'API_KEY': '399978373383323',
-    'API_SECRET': 'zIk4TP4bLbM9xTo3CkF8rk1TSOg',
-}
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# Multimedia local (Sin Cloudinary)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
