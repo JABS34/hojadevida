@@ -148,17 +148,16 @@
         });
 
         // --- DIRECCIÓN FORZADA A JABS ---
-        function goToProfile() {
-            // Animación de salida
-            document.getElementById('ui-wrapper').classList.add('fade-out-all');
-            document.getElementById('canvas-3d').classList.add('fade-out-all');
-            
-            setTimeout(() => {
-                // He puesto /profile/ porque es el estándar de lo que hemos armado, 
-                // si tu URL es /perfil/jabs/ cámbialo aquí abajo:
-                window.location.href = "/profile/jabs/"; 
-            }, 800);
-        }
+            function goToProfile() {
+        // Animación de salida
+        document.getElementById('ui-wrapper').classList.add('fade-out-all');
+        document.getElementById('canvas-3d').classList.add('fade-out-all');
+        
+        setTimeout(() => {
+            // CAMBIO AQUÍ: de /profile/ a /perfil/ para que coincida con tu urls.py
+            window.location.href = "/perfil/jabs/"; 
+        }, 800);
+    }
     </script>
 </body>
 </html>
