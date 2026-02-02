@@ -14,7 +14,7 @@ from .models import (
 
 # --- VISTAS PÚBLICAS ---
 
-def home(request, username=None):
+def home(request):
     """Página de bienvenida general."""
     admin_user = User.objects.filter(is_superuser=True).first()
     return render(request, "welcome.html", {"admin_user": admin_user})
@@ -42,17 +42,10 @@ def profile_cv(request, username):
     return render(request, 'profile_cv.html', context)
 
 def garage_store(request, username):
-    """
-    Muestra la tienda de Garage de un usuario específico.
-    Filtra los productos para mostrar solo los que pertenecen al perfil del usuario en la URL.
-    """
-    # 1. Buscamos al usuario de la URL (ej: 'jabs')
+    """Muestra la tienda de Garage de un usuario específico."""
     user_target = get_object_or_404(User, username=username)
-    
-    # 2. Obtenemos su perfil de DatosPersonales (que es el que tiene la relación con los productos)
     perfil_target = get_object_or_404(DatosPersonales, user=user_target)
     
-    # 3. Filtramos los productos que pertenecen a ese perfil específico
     productos = ProductoGarage.objects.filter(
         perfil=perfil_target, 
         disponible=True
@@ -74,7 +67,6 @@ def dashboard(request):
     )
 
     if request.method == 'POST':
-        # Actualización de datos personales
         perfil.nombres = request.POST.get('nombres')
         perfil.apellidos = request.POST.get('apellidos')
         perfil.instagram = request.POST.get('instagram')
@@ -121,11 +113,11 @@ def dashboard(request):
                 imagen=request.FILES.get('rec_imagen')
             )
 
-        # Agregar Producto al Garage vinculado al perfil logueado
+        # Agregar Producto al Garage
         prod_n = request.POST.get('prod_nombre')
         if prod_n: 
             ProductoGarage.objects.create(
-                perfil=perfil,  # Aseguramos el vínculo
+                perfil=perfil, 
                 nombre=prod_n, 
                 precio=request.POST.get('prod_precio') or 0, 
                 estado=request.POST.get('prod_estado'), 
@@ -138,7 +130,7 @@ def dashboard(request):
     lenguajes_disponibles = ['Python', 'JavaScript', 'Java', 'C#', 'PHP', 'SQL', 'Swift', 'Go', 'Kotlin']
     return render(request, 'dashboard.html', {'perfil': perfil, 'lenguajes_disponibles': lenguajes_disponibles})
 
-# --- EXPORTACIÓN PDF CON FILTROS ---
+# --- EXPORTACIÓN PDF ---
 
 def export_pdf(request, username):
     user_profile = get_object_or_404(User, username=username)
@@ -165,7 +157,7 @@ def export_pdf(request, username):
     }
     return render(request, 'pdf_template.html', context)
 
-# --- GESTIÓN DE TAREAS Y AUTH (Sin cambios) ---
+# --- TAREAS Y AUTH ---
 
 @login_required
 def tasks(request):
