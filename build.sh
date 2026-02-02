@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 # exit on error
 set -o errexit
@@ -8,12 +9,11 @@ pip install -r requirements.txt
 # Recolectar archivos estáticos
 python manage.py collectstatic --no-input
 
-# GENERAR MIGRACIONES FALTANTES (Esto arregla el error 500)
+# GENERAR Y APLICAR MIGRACIONES (Paso crítico)
 python manage.py makemigrations
-
-# APLICAR MIGRACIONES
 python manage.py migrate
 
-# Crear carpeta de fotos si no existe
+# CREAR CARPETA DE FOTOS
 mkdir -p media
 chmod -R 755 media
+
