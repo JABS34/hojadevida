@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>CV - {{ perfil.nombres }}</title>
+    <title>PDF CV - {{ user_viewed.username }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -21,9 +21,7 @@
     <div class="page-pdf">
         <aside class="sidebar">
             <div class="text-center mb-10">
-                {% if perfil.foto %}
-                    <img src="{{ perfil.foto.url }}" class="w-32 h-32 rounded-full mx-auto border-4 border-white/20 object-cover shadow-lg">
-                {% endif %}
+                {% if perfil.foto %}<img src="{{ perfil.foto.url }}" class="w-32 h-32 rounded-full mx-auto border-4 border-white/20 object-cover shadow-lg">{% endif %}
             </div>
             
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Contacto</h3>
@@ -44,70 +42,32 @@
 
             {% if show_habilidades %}
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Habilidades</h3>
-            <div class="flex flex-wrap">
-                {% for hab in habilidades %}
-                    <span class="badge">{{ hab.nombre }}</span>
-                {% endfor %}
-            </div>
+            <div class="flex flex-wrap">{% for hab in habilidades %}<span class="badge">{{ hab.nombre }}</span>{% endfor %}</div>
             {% endif %}
         </aside>
 
         <main class="main-content">
             <header class="mb-10">
-                <h1 class="text-4xl font-black text-slate-900 uppercase leading-tight">
-                    {{ perfil.nombres }}<br>
-                    <span class="text-[#254b94]">{{ perfil.apellidos }}</span>
-                </h1>
+                <h1 class="text-4xl font-black text-slate-900 uppercase leading-tight">{{ perfil.nombres }}<br><span class="text-[#254b94]">{{ perfil.apellidos }}</span></h1>
             </header>
 
             {% if show_sobre_mi %}
-            <section class="mb-8">
-                <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 italic">Perfil</h2>
-                <div class="text-[13px] text-slate-600 italic leading-relaxed border-l-4 border-slate-100 pl-4">
-                    "{{ perfil.descripcionperfil|default:'Sin descripción.' }}"
-                </div>
+            <section class="mb-8"><h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 italic">Perfil</h2>
+                <div class="text-[13px] text-slate-600 italic leading-relaxed border-l-4 border-slate-100 pl-4">"{{ perfil.descripcionperfil }}"</div>
             </section>
             {% endif %}
 
             {% if show_experiencia %}
-            <section>
-                <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Experiencia</h2>
-                {% for exp in experiencias %}
-                <div class="mb-6">
-                    <h3 class="text-[14px] font-bold text-slate-800 uppercase">{{ exp.puesto }}</h3>
-                    <p class="text-[11px] text-[#254b94] font-bold uppercase">{{ exp.empresa }}</p>
-                    <p class="text-[12px] text-slate-500 mt-1">{{ exp.descripcion }}</p>
-                </div>
-                {% endfor %}
+            <section><h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Experiencia</h2>
+                {% for exp in experiencias %}<div class="mb-6"><h3 class="text-[14px] font-bold text-slate-800 uppercase">{{ exp.puesto }}</h3><p class="text-[11px] text-[#254b94] font-bold uppercase">{{ exp.empresa }}</p><p class="text-[12px] text-slate-500 mt-1">{{ exp.descripcion }}</p></div>{% endfor %}
             </section>
             {% endif %}
         </main>
     </div>
 
-    {% if show_cursos %}
-        {% for cert in certificados %}
-        <div class="appendix">
-            <h2 class="text-2xl font-bold text-[#254b94] border-b-4 border-[#254b94] pb-2 uppercase mb-4">Certificación</h2>
-            <p class="text-xl font-bold italic mb-6">{{ cert.titulo }}</p>
-            {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full shadow-2xl rounded-lg border border-slate-200">{% endif %}
-        </div>
-        {% endfor %}
-    {% endif %}
+    {% if show_cursos %}{% for cert in certificados %}<div class="appendix"><h2>{{ cert.titulo }}</h2>{% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full">{% endif %}</div>{% endfor %}{% endif %}
+    {% if show_reconocimientos %}{% for rec in reconocimientos %}<div class="appendix"><h2>{{ rec.titulo }}</h2>{% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="w-full">{% endif %}</div>{% endfor %}{% endif %}
 
-    {% if show_reconocimientos %}
-        {% for rec in reconocimientos %}
-        <div class="appendix">
-            <h2 class="text-2xl font-bold text-emerald-600 border-b-4 border-emerald-600 pb-2 uppercase mb-4">Reconocimiento</h2>
-            <p class="text-xl font-bold italic mb-6">{{ rec.titulo }}</p>
-            {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="w-full shadow-2xl rounded-lg border border-slate-200">{% endif %}
-        </div>
-        {% endfor %}
-    {% endif %}
-
-    <script>
-        window.addEventListener('load', function() {
-            setTimeout(function() { window.print(); }, 800);
-        });
-    </script>
+    <script>window.onload = function() { setTimeout(() => { window.print(); }, 800); };</script>
 </body>
 </html>

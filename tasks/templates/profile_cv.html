@@ -20,10 +20,10 @@
 <body>
 
     <div class="max-w-[210mm] mx-auto mt-8 flex justify-end gap-3 px-4 no-print">
-        <a href="{% url 'garage_store' user_viewed.username %}" class="bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg hover:scale-105 transition">GARAGE</a>
-        <button onclick="toggleModal('modalCert')" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg hover:scale-105 transition">CURSOS</button>
-        <button onclick="toggleModal('modalRec')" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg hover:scale-105 transition">RECONOCIMIENTOS</button>
-        <button onclick="toggleModal('modalPDF')" class="bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg hover:scale-105 transition">CONFIGURAR PDF</button>
+        <a href="{% url 'garage_store' user_viewed.username %}" class="bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg">GARAGE</a>
+        <button onclick="toggleModal('modalCert')" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg">CURSOS</button>
+        <button onclick="toggleModal('modalRec')" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg">RECONOCIMIENTOS</button>
+        <button onclick="toggleModal('modalPDF')" class="bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg">CONFIGURAR PDF</button>
     </div>
 
     <div class="cv-page">
@@ -116,8 +116,8 @@
                 <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_habilidades" checked> Habilidades</label>
                 <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_experiencia" checked> Experiencia</label>
                 <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_formacion" checked> Formación</label>
-                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_cursos" checked> Cursos (Anexos)</label>
-                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_reconocimientos" checked> Reconocimientos (Anexos)</label>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_cursos" checked> Cursos</label>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_reconocimientos" checked> Reconocimientos</label>
             </div>
             <div class="mt-6 flex gap-3">
                 <button onclick="generarPDF()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold">GENERAR</button>
@@ -127,16 +127,14 @@
     </div>
 
     <div id="modalCert" class="modal">
-        <div class="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <h2 class="text-xl font-bold mb-4">Mis Cursos</h2>
-            <div class="grid grid-cols-2 gap-4 overflow-y-auto pr-2">
+        <div class="bg-white rounded-3xl p-8 max-w-2xl w-full">
+            <h2 class="text-xl font-bold mb-4">Cursos de {{ user_viewed.username }}</h2>
+            <div class="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2">
                 {% for cert in certificados %}
-                <div class="border p-2 rounded-xl text-center bg-slate-50">
+                <div class="border p-2 rounded-xl text-center">
                     {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-lg mb-2">{% endif %}
                     <p class="text-xs font-bold uppercase">{{ cert.titulo }}</p>
                 </div>
-                {% empty %}
-                <p class="text-slate-400 col-span-2 text-center py-10">No hay certificados cargados.</p>
                 {% endfor %}
             </div>
             <button onclick="toggleModal('modalCert')" class="mt-6 w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
@@ -146,14 +144,12 @@
     <div id="modalRec" class="modal">
         <div class="bg-white rounded-3xl p-8 max-w-md w-full">
             <h2 class="text-xl font-bold mb-4 text-emerald-600">Reconocimientos</h2>
-            <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
+            <div class="space-y-3">
                 {% for rec in reconocimientos %}
                 <div class="flex items-center gap-4 bg-emerald-50 p-4 rounded-2xl">
                     <i class="fas fa-trophy text-amber-500 text-xl"></i>
                     <p class="font-bold text-sm uppercase">{{ rec.titulo }}</p>
                 </div>
-                {% empty %}
-                <p class="text-slate-400 text-center py-10">No hay reconocimientos cargados.</p>
                 {% endfor %}
             </div>
             <button onclick="toggleModal('modalRec')" class="mt-6 w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
@@ -174,6 +170,7 @@
                 reconocimientos: document.getElementById('check_reconocimientos').checked
             };
             const queryString = Object.keys(params).map(k => k + '=' + params[k]).join('&');
+            // Corregido: abre el PDF del usuario visualizado
             window.open("{% url 'export_pdf' user_viewed.username %}?" + queryString, '_blank');
         }
     </script>
