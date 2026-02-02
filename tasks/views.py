@@ -14,7 +14,8 @@ from .models import (
 
 # --- VISTAS PÚBLICAS ---
 
-def home(request):
+# Modificado para aceptar username opcional y evitar errores de ruta
+def home(request, username=None):
     admin_user = User.objects.filter(is_superuser=True).first()
     return render(request, "welcome.html", {"admin_user": admin_user})
 
@@ -38,9 +39,12 @@ def profile_cv(request, username):
     }
     return render(request, 'profile_cv.html', context)
 
-def garage_store(request):
+# CORRECCIÓN AQUÍ: Ahora acepta 'username' para que la URL no falle
+def garage_store(request, username=None):
     productos = ProductoGarage.objects.filter(disponible=True).order_by('-fecha_publicado')
-    return render(request, 'garage.html', {'productos': productos})
+    # Opcional: Si quieres mostrar solo los productos del usuario de la URL, 
+    # podrías filtrar por el usuario aquí. Por ahora, muestra todos.
+    return render(request, 'garage.html', {'productos': productos, 'username': username})
 
 # --- DASHBOARD (GESTIÓN DE PERFIL) ---
 
@@ -124,7 +128,6 @@ def export_pdf(request, username):
     context = {
         'perfil': datos, 
         'user_viewed': user_profile,
-        # Consultas de datos para llenar el PDF
         'estudios': Educacion.objects.filter(perfil=datos),
         'experiencias': ExperienciaLaboral.objects.filter(perfil=datos),
         'habilidades': Habilidad.objects.filter(perfil=datos),
@@ -133,7 +136,6 @@ def export_pdf(request, username):
         'reconocimientos': Reconocimiento.objects.filter(perfil=datos),
         'productos_garage': ProductoGarage.objects.filter(disponible=True),
         
-        # Captura de checkboxes (filtros de visibilidad)
         'show_sobre_mi': request.GET.get('sobre_mi') == 'true',
         'show_lenguajes': request.GET.get('lenguajes') == 'true',
         'show_habilidades': request.GET.get('habilidades') == 'true',
