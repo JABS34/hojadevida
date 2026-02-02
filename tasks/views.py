@@ -97,7 +97,7 @@ def export_pdf(request, username):
 def garage_store(request, username):
     user_profile = get_object_or_404(User, username=username)
     productos = ProductoGarage.objects.filter(disponible=True)
-    return render(request, 'garage_store.html', {
+    return render(request, 'garage.html', {
         'productos': productos,
         'user_viewed': user_profile
     })
