@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from tasks import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -15,23 +15,23 @@ urlpatterns = [
     path('signin/', views.signin, name='signin'),
     path('logout/', views.signout, name='logout'),
     
-    # RUTAS DE APLICACIÓN
+    # RUTAS DE APLICACIÓN (Dashboard y Tareas)
     path('dashboard/', views.dashboard, name='dashboard'),
     path('tasks/', views.tasks, name='tasks'),
 
-    # RUTA GARAGE
+    # RUTA DEL GARAGE (Venta de productos)
     path('perfil/<str:username>/garage/', views.garage_store, name='garage_store'), 
 
-    # RUTAS DE PERFIL Y PDF
+    # RUTA DEL PERFIL CV PUBLICO
     path('perfil/<str:username>/', views.profile_cv, name='profile_cv'),
+    
+    # RUTA PARA EXPORTAR PDF (Si tienes la función creada, sino dará error 404)
     path('perfil/<str:username>/pdf/', views.export_pdf, name='export_pdf'),
+    
+    # SERVIR ARCHIVOS MEDIA EN PRODUCCIÓN (Importante para Render)
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
-# Servir archivos estáticos y media durante desarrollo o con DEBUG activado
+# Configuración para servir imágenes en modo DEBUG (Local)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-else:
-    # Garantiza que las imágenes se sirvan en Render aunque DEBUG sea False
-    urlpatterns += [
-        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    ]

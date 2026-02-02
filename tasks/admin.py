@@ -1,37 +1,53 @@
 from django.contrib import admin
 from .models import (
     Task, DatosPersonales, ExperienciaLaboral, 
-    Habilidad, Certificado, Educacion, Lenguaje, 
-    ProductoGarage, Reconocimiento, ConfiguracionVisible
+    CursosRealizados, Reconocimiento, VentaGarage,
+    ProductosAcademicos, ProductosLaborales
 )
 
-@admin.register(ConfiguracionVisible)
-class ConfiguracionVisibleAdmin(admin.ModelAdmin):
-    # Esto evita que crees más de una configuración por error
-    def has_add_permission(self, request):
-        return not ConfiguracionVisible.objects.exists()
+# 1. TAREAS
+admin.site.register(Task)
 
+# 2. DATOS PERSONALES
 @admin.register(DatosPersonales)
 class DatosPersonalesAdmin(admin.ModelAdmin):
-    list_display = ('nombres', 'apellidos', 'user', 'numerocedula')
+    list_display = ('nombres', 'apellidos', 'numerocedula', 'nacionalidad', 'user')
     search_fields = ('nombres', 'apellidos', 'numerocedula')
 
-@admin.register(ProductoGarage)
-class ProductoGarageAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'precio', 'estado', 'disponible', 'fecha_publicado')
-    list_filter = ('disponible', 'estado', 'fecha_publicado')
-    list_editable = ('disponible', 'precio', 'estado')
-    search_fields = ('nombre', 'descripcion')
+# 3. EXPERIENCIA LABORAL
+@admin.register(ExperienciaLaboral)
+class ExperienciaLaboralAdmin(admin.ModelAdmin):
+    list_display = ('cargodesempenado', 'nombrempresa', 'fechainiciogestion', 'fechafingestion', 'activarparaqueseveaenfront')
+    list_filter = ('activarparaqueseveaenfront', 'nombrempresa')
+    search_fields = ('cargodesempenado', 'nombrempresa')
 
+# 4. RECONOCIMIENTOS
 @admin.register(Reconocimiento)
 class ReconocimientoAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'institucion_otorga', 'fecha', 'perfil')
-    list_filter = ('institucion_otorga', 'fecha')
-    search_fields = ('titulo', 'descripcion')
+    list_display = ('descripcionreconocimiento', 'entidadpatrocinadora', 'tiporeconocimiento', 'fechareconocimiento')
+    list_filter = ('tiporeconocimiento', 'activarparaqueseveaenfront')
 
-admin.site.register(Task)
-admin.site.register(Certificado)
-admin.site.register(ExperienciaLaboral)
-admin.site.register(Habilidad)
-admin.site.register(Educacion)
-admin.site.register(Lenguaje)
+# 5. CURSOS REALIZADOS
+@admin.register(CursosRealizados)
+class CursosRealizadosAdmin(admin.ModelAdmin):
+    list_display = ('nombrerecurso', 'entidadpatrocinadora', 'totalhoras', 'fechafin')
+    search_fields = ('nombrerecurso', 'entidadpatrocinadora')
+
+# 6. PRODUCTOS ACADÉMICOS
+@admin.register(ProductosAcademicos)
+class ProductosAcademicosAdmin(admin.ModelAdmin):
+    list_display = ('nombrerecurso', 'clasificador', 'activarparaqueseveaenfront')
+
+# 7. PRODUCTOS LABORALES (NUEVO)
+@admin.register(ProductosLaborales)
+class ProductosLaboralesAdmin(admin.ModelAdmin):
+    list_display = ('nombreproducto', 'fechaproducto', 'activarparaqueseveaenfront')
+    list_filter = ('fechaproducto',)
+
+# 8. VENTA GARAGE (Con atributos SQL correctos)
+@admin.register(VentaGarage)
+class VentaGarageAdmin(admin.ModelAdmin):
+    list_display = ('nombreproducto', 'valordelbien', 'estadoproducto', 'activarparaqueseveaenfront')
+    list_filter = ('estadoproducto', 'activarparaqueseveaenfront')
+    list_editable = ('valordelbien', 'estadoproducto', 'activarparaqueseveaenfront')
+    search_fields = ('nombreproducto',)

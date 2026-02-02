@@ -14,7 +14,7 @@
         .main-content { width: 65%; padding: 50px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.active { display: flex; }
-        @media print { .no-print { display: none !important; } }
+        @media print { .no-print { display: none !important; } .cv-page { margin: 0; box-shadow: none; } }
     </style>
 </head>
 <body>
@@ -30,7 +30,7 @@
         <aside class="aside-bg">
             <div class="mb-10 text-center">
                 {% if perfil.foto %} 
-                    <img src="{{ perfil.foto.url }}" class="w-40 h-40 rounded-3xl mx-auto border-4 border-white/10 object-cover shadow-2xl block">
+                    <img src="{{ perfil.foto.url }}" class="w-40 h-40 rounded-3xl mx-auto border-4 border-white/10 object-cover shadow-2xl">
                 {% else %} 
                     <div class="w-40 h-40 rounded-3xl mx-auto bg-indigo-900 flex items-center justify-center text-5xl font-bold uppercase">{{ perfil.nombres|slice:":1" }}</div> 
                 {% endif %}
@@ -40,103 +40,97 @@
                 <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Contacto</h3>
                 <div class="space-y-3 text-[13px]">
                     <p><i class="fas fa-envelope mr-2"></i> {{ user_viewed.email }}</p>
+                    <p><i class="fas fa-id-card mr-2"></i> {{ perfil.numerocedula }}</p>
+                    <p><i class="fas fa-phone mr-2"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional }}</p>
                     <p><i class="fas fa-map-marker-alt mr-2"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
+                    {% if perfil.sitioweb %}
+                    <p><i class="fas fa-globe mr-2"></i> {{ perfil.sitioweb }}</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="mb-10">
+                <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Productos Académicos</h3>
+                <div class="space-y-4">
+                    {% for prod in productos_academicos %}
+                    <div>
+                        <p class="text-[13px] font-bold uppercase">{{ prod.nombrerecurso }}</p>
+                        <p class="text-[11px] text-blue-300">{{ prod.clasificador }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-[11px] text-white/40 italic">Sin registros académicos.</p>
+                    {% endfor %}
                 </div>
             </section>
 
             <section>
-                <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Formación</h3>
-                <div class="space-y-4">
-                    {% for estudio in estudios %}
-                    <div>
-                        <p class="text-[13px] font-bold uppercase">{{ estudio.titulo }}</p>
-                        <p class="text-[11px] text-blue-300">{{ estudio.institucion }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
+                <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Nacionalidad</h3>
+                <p class="text-[13px] uppercase">{{ perfil.nacionalidad }}</p>
+                <p class="text-[11px] text-blue-300 mt-1">{{ perfil.lugarnacimiento }}</p>
             </section>
         </aside>
 
         <main class="main-content">
             <header class="mb-10">
                 <h1 class="text-[45px] font-extrabold text-slate-900 uppercase leading-none">{{ perfil.nombres }}<br><span class="text-blue-600">{{ perfil.apellidos }}</span></h1>
+                <p class="text-slate-400 font-bold text-[12px] tracking-widest mt-2 uppercase">{{ perfil.estadocivil|default:"" }} • {{ perfil.sexo }}</p>
             </header>
-
-            <section class="mb-10">
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Tecnologías</h2>
-                <div class="flex flex-wrap gap-2">
-                    {% for lang in lenguajes %}
-                    <span class="text-[12px] font-bold bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100 flex items-center gap-2">
-                        <i class="fas fa-code"></i> {{ lang.nombre }}
-                    </span>
-                    {% endfor %}
-                </div>
-            </section>
 
             <section class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Sobre Mí</h2>
                 <div class="text-slate-600 text-[14px] leading-relaxed italic border-l-4 border-blue-100 pl-4 bg-slate-50 p-4 rounded-xl">
-                    "{{ perfil.descripcionperfil|default:'Sin descripción.' }}"
+                    "{{ perfil.descripcionperfil|default:'Perfil profesional en desarrollo.' }}"
                 </div>
             </section>
 
             <section class="mb-10">
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia</h2>
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
                 <div class="space-y-8">
                     {% for exp in experiencias %}
                     <div class="relative pl-6 border-l-2 border-slate-100">
                         <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-600 border-4 border-white"></div>
-                        <h3 class="font-extrabold text-slate-800">{{ exp.puesto }}</h3>
-                        <p class="text-blue-600 text-[11px] font-bold uppercase">{{ exp.empresa }}</p>
-                        <p class="text-slate-500 text-[12px] mt-2">{{ exp.descripcion }}</p>
+                        <h3 class="font-extrabold text-slate-800">{{ exp.cargodesempenado }}</h3>
+                        <div class="flex justify-between items-center">
+                            <p class="text-blue-600 text-[11px] font-bold uppercase">{{ exp.nombrempresa }}</p>
+                            <span class="text-[10px] font-bold text-slate-400">{{ exp.fechainiciogestion|date:"M Y" }} - {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"M Y" }}{% else %}Actualidad{% endif %}</span>
+                        </div>
+                        <p class="text-slate-500 text-[12px] mt-2">{{ exp.descripcionfunciones }}</p>
                     </div>
+                    {% empty %}
+                    <p class="text-slate-400 text-[12px] italic">Sin experiencia laboral registrada.</p>
                     {% endfor %}
                 </div>
             </section>
 
-            <section>
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Habilidades</h2>
-                <div class="flex flex-wrap gap-2">
-                    {% for hab in habilidades %}
-                    <span class="text-[11px] font-bold uppercase bg-slate-900 text-white px-4 py-1.5 rounded-lg">
-                        {{ hab.nombre }}
-                    </span>
+            <section class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Productos Laborales</h2>
+                <div class="grid grid-cols-1 gap-4">
+                    {% for prod in productos_laborales %}
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <h4 class="text-[13px] font-bold text-slate-800 uppercase">{{ prod.nombreproducto }}</h4>
+                        <p class="text-[11px] text-slate-500 mt-1">{{ prod.descripcion }}</p>
+                        <p class="text-[10px] text-blue-600 font-bold mt-2">{{ prod.fechaproducto|date:"d/m/Y" }}</p>
+                    </div>
                     {% endfor %}
                 </div>
             </section>
         </main>
     </div>
 
-    <div id="modalPDF" class="modal">
-        <div class="bg-white rounded-3xl p-10 max-w-md w-full shadow-2xl">
-            <h2 class="text-2xl font-black mb-6 italic border-b pb-2">Configurar PDF</h2>
-            <div class="space-y-2">
-                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_sobre_mi" checked> Perfil</label>
-                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_lenguajes" checked> Tecnologías</label>
-                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_habilidades" checked> Habilidades</label>
-                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_experiencia" checked> Experiencia</label>
-                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_formacion" checked> Formación</label>
-                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_cursos" checked> Cursos (Anexos)</label>
-                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_reconocimientos" checked> Reconocimientos (Anexos)</label>
-            </div>
-            <div class="mt-6 flex gap-3">
-                <button onclick="generarPDF()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold">GENERAR</button>
-                <button onclick="toggleModal('modalPDF')" class="flex-1 bg-slate-200 text-slate-600 py-3 rounded-xl font-bold">CERRAR</button>
-            </div>
-        </div>
-    </div>
-
     <div id="modalCert" class="modal">
         <div class="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <h2 class="text-xl font-bold mb-4">Mis Cursos</h2>
-            <div class="grid grid-cols-2 gap-4 overflow-y-auto pr-2">
-                {% for cert in certificados %}
-                <div class="border p-2 rounded-xl text-center bg-slate-50">
-                    {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full h-32 object-cover rounded-lg mb-2">{% endif %}
-                    <p class="text-xs font-bold uppercase">{{ cert.titulo }}</p>
+            <h2 class="text-xl font-bold mb-4 italic">Capacitación y Cursos</h2>
+            <div class="space-y-4 overflow-y-auto pr-2">
+                {% for curso in cursos %}
+                <div class="flex justify-between items-start border-b pb-4">
+                    <div>
+                        <p class="text-sm font-bold uppercase">{{ curso.nombrerecurso }}</p>
+                        <p class="text-xs text-slate-500">{{ curso.entidadpatrocinadora }} ({{ curso.totalhoras }} horas)</p>
+                    </div>
+                    <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-bold">{{ curso.fechafin|date:"Y" }}</span>
                 </div>
                 {% empty %}
-                <p class="text-slate-400 col-span-2 text-center py-10">No hay certificados cargados.</p>
+                <p class="text-slate-400 text-center py-10">No hay cursos registrados.</p>
                 {% endfor %}
             </div>
             <button onclick="toggleModal('modalCert')" class="mt-6 w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
@@ -145,37 +139,41 @@
 
     <div id="modalRec" class="modal">
         <div class="bg-white rounded-3xl p-8 max-w-md w-full">
-            <h2 class="text-xl font-bold mb-4 text-emerald-600">Reconocimientos</h2>
+            <h2 class="text-xl font-bold mb-4 text-emerald-600 italic">Reconocimientos</h2>
             <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
                 {% for rec in reconocimientos %}
-                <div class="flex items-center gap-4 bg-emerald-50 p-4 rounded-2xl">
-                    <i class="fas fa-trophy text-amber-500 text-xl"></i>
-                    <p class="font-bold text-sm uppercase">{{ rec.titulo }}</p>
+                <div class="bg-emerald-50 p-4 rounded-2xl">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-trophy text-amber-500"></i>
+                        <p class="font-bold text-sm uppercase">{{ rec.descripcionreconocimiento }}</p>
+                    </div>
+                    <p class="text-[11px] text-emerald-700 font-medium">Otorgado por: {{ rec.entidadpatrocinadora }}</p>
                 </div>
                 {% empty %}
-                <p class="text-slate-400 text-center py-10">No hay reconocimientos cargados.</p>
+                <p class="text-slate-400 text-center py-10">No hay reconocimientos registrados.</p>
                 {% endfor %}
             </div>
             <button onclick="toggleModal('modalRec')" class="mt-6 w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
         </div>
     </div>
 
+    <div id="modalPDF" class="modal">
+        <div class="bg-white rounded-3xl p-10 max-w-md w-full shadow-2xl">
+            <h2 class="text-2xl font-black mb-6 italic border-b pb-2">Configurar PDF</h2>
+            <div class="space-y-2">
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_sobre_mi" checked> Perfil</label>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_experiencia" checked> Experiencia</label>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer"><input type="checkbox" id="check_productos" checked> Productos</label>
+            </div>
+            <div class="mt-6 flex gap-3">
+                <button onclick="window.print()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold uppercase text-xs">Imprimir CV</button>
+                <button onclick="toggleModal('modalPDF')" class="flex-1 bg-slate-200 text-slate-600 py-3 rounded-xl font-bold uppercase text-xs">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
-
-        function generarPDF() {
-            const params = {
-                sobre_mi: document.getElementById('check_sobre_mi').checked,
-                lenguajes: document.getElementById('check_lenguajes').checked,
-                habilidades: document.getElementById('check_habilidades').checked,
-                experiencia: document.getElementById('check_experiencia').checked,
-                formacion: document.getElementById('check_formacion').checked,
-                cursos: document.getElementById('check_cursos').checked,
-                reconocimientos: document.getElementById('check_reconocimientos').checked
-            };
-            const queryString = Object.keys(params).map(k => k + '=' + params[k]).join('&');
-            window.open("{% url 'export_pdf' user_viewed.username %}?" + queryString, '_blank');
-        }
     </script>
 </body>
 </html>

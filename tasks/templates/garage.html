@@ -27,9 +27,14 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for producto in productos %}
-            <div class="product-card bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+            <div class="product-card bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl relative group">
+                
+                <div class="absolute top-4 right-4 z-10 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold border border-white/10 uppercase">
+                    <i class="fas fa-check-circle text-green-400 mr-1"></i> {{ producto.estadoproducto }}
+                </div>
+
                 {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-64 object-cover">
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreproducto }}" class="w-full h-64 object-cover group-hover:scale-105 transition duration-500">
                 {% else %}
                     <div class="w-full h-64 bg-slate-800 flex items-center justify-center">
                         <i class="fas fa-box text-5xl text-slate-700"></i>
@@ -38,24 +43,26 @@
                 
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-2">
-                        <h3 class="text-xl font-bold text-white uppercase">{{ producto.nombre }}</h3>
-                        <span class="bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full text-sm font-bold">
-                            ${{ producto.precio }}
+                        <h3 class="text-xl font-bold text-white uppercase leading-tight">{{ producto.nombreproducto }}</h3>
+                        
+                        <span class="bg-amber-500 text-slate-900 px-3 py-1 rounded-lg text-lg font-black shadow-lg shadow-amber-500/20">
+                            ${{ producto.valordelbien }}
                         </span>
                     </div>
-                    <p class="text-slate-400 text-sm mb-6 line-clamp-2">{{ producto.descripcion }}</p>
                     
-                    <a href="https://wa.me/593967450960?text=Hola!%20Me%20interesa%20comprar%20este%20producto:%20{{ producto.nombre }}" 
+                    <p class="text-slate-400 text-sm mb-6 line-clamp-2 h-10">{{ producto.descripcion }}</p>
+                    
+                    <a href="https://wa.me/593967450960?text=Hola!%20Me%20interesa%20comprar%20este%20producto:%20{{ producto.nombreproducto }}%20(${{ producto.valordelbien }})" 
                        target="_blank" 
-                       class="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-500 text-white font-black py-4 rounded-xl transition uppercase tracking-wider">
+                       class="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-500 text-white font-black py-4 rounded-xl transition uppercase tracking-wider shadow-lg shadow-green-900/50">
                         <i class="fab fa-whatsapp text-xl"></i>
                         Comprar ahora
                     </a>
                 </div>
             </div>
             {% empty %}
-            <div class="col-span-full text-center py-20">
-                <i class="fas fa-ghost text-6xl text-slate-700 mb-4"></i>
+            <div class="col-span-full text-center py-20 bg-slate-800/50 rounded-3xl border border-dashed border-slate-700">
+                <i class="fas fa-ghost text-6xl text-slate-700 mb-4 animate-bounce"></i>
                 <p class="text-slate-500 text-xl font-bold">No hay productos en el garage por ahora.</p>
             </div>
             {% endfor %}
