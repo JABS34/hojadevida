@@ -8,14 +8,12 @@ pip install -r requirements.txt
 # Recolectar archivos estáticos
 python manage.py collectstatic --no-input
 
-# Crear carpetas en el DISCO PERSISTENTE de Render
-if [ "$RENDER" ]; then
-  mkdir -p /data/media
-fi
-
-# Generar y aplicar migraciones
+# GENERAR Y APLICAR MIGRACIONES
 python manage.py makemigrations
 python manage.py migrate
 
-# Asegurar permisos
-chmod -R 755 media || true
+# Solo intentar crear la carpeta media si el disco está montado
+if [ -d "/data" ]; then
+    mkdir -p /data/media
+    chmod -R 755 /data/media || true
+fi
