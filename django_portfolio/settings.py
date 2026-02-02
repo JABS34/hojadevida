@@ -6,10 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
 DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
-render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if render_external_hostname:
-    ALLOWED_HOSTS.append(render_external_hostname)
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "hojadevida-dkwj.onrender.com"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -52,20 +49,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# ENLACE DIRECTO A TU BASE DE DATOS (Para que reconozca a jabs6393)
+# CONEXIÓN DIRECTA A POSTGRESQL (Para que jabs6393 exista siempre)
 DATABASES = {
     'default': dj_database_url.config(
         default='postgresql://bd_ujkl_user:clkaWJfdFoFE7QEBTK5wUqvqoaoL2YMo@dpg-d5vp0giqcgvc739rs0ng-a/bd_ujkl',
         conn_max_age=600
     )
 }
-
-AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
 
 LANGUAGE_CODE = "es-ec"
 TIME_ZONE = "America/Guayaquil"
@@ -80,4 +70,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# AQUÍ FORZAMOS EL LOGIN A TU PERFIL
 LOGIN_URL = "/signin"
+LOGIN_REDIRECT_URL = "/perfil/jabs6393/"
