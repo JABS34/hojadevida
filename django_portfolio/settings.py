@@ -2,22 +2,15 @@ import os
 from pathlib import Path
 import dj_database_url
 
-# Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# SEGURIDAD
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
-
-# DEBUG: False en producción (Render)
 DEBUG = 'RENDER' not in os.environ
 
-# Dominios permitidos
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_hostname:
     ALLOWED_HOSTS.append(render_external_hostname)
 
-# Aplicaciones
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -28,7 +21,6 @@ INSTALLED_APPS = [
     "tasks", 
 ]
 
-# Middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware", 
@@ -60,11 +52,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# CONFIGURACIÓN DE BASE DE DATOS ETERNA (PostgreSQL)
-# Se conectará a la DATABASE_URL que tienes en Render
+# ENLACE DIRECTO A TU BASE DE DATOS (Para que reconozca a jabs6393)
 DATABASES = {
     'default': dj_database_url.config(
-        default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
+        default='postgresql://bd_ujkl_user:clkaWJfdFoFE7QEBTK5wUqvqoaoL2YMo@dpg-d5vp0giqcgvc739rs0ng-a/bd_ujkl',
         conn_max_age=600
     )
 }
@@ -76,18 +67,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# Configuración regional
 LANGUAGE_CODE = "es-ec"
 TIME_ZONE = "America/Guayaquil"
 USE_I18N = True
 USE_TZ = True
 
-# Archivos estáticos
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
