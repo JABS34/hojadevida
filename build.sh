@@ -2,16 +2,16 @@
 # exit on error
 set -o errexit
 
-# Instalar dependencias
 pip install -r requirements.txt
 
-# Recolectar archivos estáticos (CSS, JS)
 python manage.py collectstatic --no-input
 
-# Aplicar migraciones de base de datos
-python manage.py migrate
+# Crear los archivos de migración que faltan para la tabla 'tasks_configuracionvisible'
+python manage.py makemigrations tasks --noinput
 
-# CREAR CARPETA DE FOTOS Y DAR PERMISOS
-# Esto evita que salga el cuadro roto por falta de acceso
-mkdir -p media
-chmod -R 755 media
+# Aplicar los cambios a la base de datos de Render
+python manage.py migrate --noinput
+
+# Crear el superusuario automáticamente (usa las variables de entorno de Render)
+# Asegúrate de tener DJANGO_SUPERUSER_USERNAME y DJANGO_SUPERUSER_PASSWORD en Render
+python manage.py createsuperuser --noinput || true
