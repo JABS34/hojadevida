@@ -7,15 +7,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SEGURIDAD
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
+
+# DEBUG: False en producción (Render) automáticamente
 DEBUG = 'RENDER' not in os.environ
 
-# Permitir el dominio de Render
+# Dominios permitidos
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_hostname:
     ALLOWED_HOSTS.append(render_external_hostname)
 
-# Aplicaciones instaladas
+# Aplicaciones
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -58,20 +60,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# --- CONFIGURACIÓN DE PERSISTENCIA (IMPORTANTE) ---
-# Usamos el Mount Path del Disco de Render (/data)
-if 'RENDER' in os.environ:
-    DB_PATH = "/data/db.sqlite3"
-    MEDIA_ROOT_PATH = "/data/media"
-else:
-    DB_PATH = BASE_DIR / 'db.sqlite3'
-    MEDIA_ROOT_PATH = os.path.join(BASE_DIR, 'media')
-
+# --- CONFIGURACIÓN DE BASE DE DATOS ETERNA ---
+# Usa la URL de PostgreSQL en Render. Si no existe, usa SQLite local.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DB_PATH,
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
+        conn_max_age=600
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -92,9 +87,9 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media (Imágenes subidas)
+# Media (Fotos de perfil)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = MEDIA_ROOT_PATH
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "/signin"
