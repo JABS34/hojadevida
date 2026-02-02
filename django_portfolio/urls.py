@@ -4,7 +4,7 @@ from tasks import views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
-from django.contrib.auth.models import User # Importamos el modelo de usuario
+from django.contrib.auth.models import User
 
 # FUNCIÓN TEMPORAL PARA CREAR TU USUARIO
 def crear_mi_usuario(request):
@@ -15,10 +15,7 @@ def crear_mi_usuario(request):
     return HttpResponse("El usuario ya existe.")
 
 urlpatterns = [
-    # RUTA SECRETA PARA CREAR AL ADMIN (Úsala una sola vez)
     path('crear-admin-secreto/', crear_mi_usuario),
-
-    # RUTAS DEL SISTEMA (ADMIN PRIMERO)
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('signup/', views.signup, name='signup'),
@@ -26,6 +23,9 @@ urlpatterns = [
     path('logout/', views.signout, name='logout'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('tasks/', views.tasks, name='tasks'),
+
+    # RUTA QUE FALTABA PARA EL GARAGE
+    path('perfil/<str:username>/garage/', views.home, name='garage_store'), # Temporalmente apunta a home para no fallar
 
     # PERFILES AL FINAL
     path('perfil/<str:username>/', views.profile_cv, name='profile_cv'),

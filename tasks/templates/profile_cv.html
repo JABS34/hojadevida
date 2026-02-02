@@ -26,7 +26,7 @@
 
     <div class="max-w-[210mm] mx-auto mt-8 mb-4 flex flex-wrap justify-end gap-3 px-4 no-print">
         {% if config.mostrar_garage %}
-        <a href="{% url 'garage_store' %}" class="btn-premium bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
+        <a href="{% url 'garage_store' user_viewed.username %}" class="btn-premium bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2">
             <i class="fas fa-shopping-cart"></i> GARAGE
         </a>
         {% endif %}
@@ -53,7 +53,7 @@
             <div class="flex justify-center py-4">
                 <div class="profile-photo rounded-3xl overflow-hidden bg-slate-800 shadow-2xl">
                     {% if perfil.foto %} 
-                        <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
+                        <img src="{{ perfil.foto.url }}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\'h-full flex items-center justify-center text-6xl font-bold bg-indigo-900 text-white\'>{{ perfil.nombres|slice:':1' }}</div>'">
                     {% else %} 
                         <div class="h-full flex items-center justify-center text-6xl font-bold bg-indigo-900 text-white uppercase">{{ perfil.nombres|slice:":1" }}</div> 
                     {% endif %}
@@ -176,7 +176,9 @@
             <div class="overflow-y-auto p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
                 {% for cert in certificados %}
                 <div class="img-mini bg-white p-2 rounded-2xl shadow-md mb-2" onclick="zoomImagen('{{ cert.imagen.url }}', '{{ cert.titulo }}')">
-                    <img src="{{ cert.imagen.url }}" class="w-full aspect-video object-cover rounded-xl">
+                    {% if cert.imagen %}
+                    <img src="{{ cert.imagen.url }}" class="w-full aspect-video object-cover rounded-xl" onerror="this.src='https://placehold.co/600x400?text=Certificado'">
+                    {% endif %}
                     <p class="text-[10px] font-bold text-slate-500 uppercase text-center mt-2">{{ cert.titulo }}</p>
                 </div>
                 {% endfor %}
@@ -184,47 +186,13 @@
         </div>
     </div>
 
-    <div id="modalRec" class="fixed inset-0 bg-slate-900/90 hidden z-[70] flex items-center justify-center p-4 no-print backdrop-blur-sm">
-        <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
-            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                <h2 class="text-xl font-bold text-slate-800 italic uppercase">Reconocimientos</h2>
-                <button onclick="closeModal('modalRec')" class="text-slate-400 hover:text-red-500 text-3xl transition">&times;</button>
-            </div>
-            <div class="overflow-y-auto p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-                {% for rec in reconocimientos %}
-                <div class="img-mini bg-white p-2 rounded-2xl shadow-md mb-2" onclick="zoomImagen('{{ rec.imagen.url }}', '{{ rec.titulo }}')">
-                    <img src="{{ rec.imagen.url }}" class="w-full aspect-video object-cover rounded-xl">
-                    <p class="text-[10px] font-bold text-slate-500 uppercase text-center mt-2">{{ rec.titulo }}</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <div id="visorZoom" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 no-print">
-        <div class="absolute top-6 right-6 flex gap-4">
-            <a id="linkDescarga" href="#" download class="bg-red-600 text-white px-6 py-2.5 rounded-full font-bold text-xs">DESCARGAR</a>
-            <button onclick="closeModal('visorZoom')" class="text-white text-3xl">&times;</button>
-        </div>
-        <img id="imgZoomed" src="" class="max-w-[90vw] max-h-[75vh] object-contain rounded-lg">
-    </div>
-
     <script>
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); if (id !== 'visorZoom') document.body.style.overflow = 'auto'; }
-
         function toggleRealTime(sectionId, checkbox) {
             const section = document.getElementById(sectionId);
-            if (section) {
-                section.style.display = checkbox.checked ? 'block' : 'none';
-            }
+            if (section) section.style.display = checkbox.checked ? 'block' : 'none';
         }
-
-        function zoomImagen(url, titulo) {
-            document.getElementById('imgZoomed').src = url;
-            openModal('visorZoom');
-        }
-
         function generarPDF() {
             const params = {
                 sobre_mi: document.getElementById('check_sobre_mi').checked,
