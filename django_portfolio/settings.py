@@ -2,16 +2,22 @@ import os
 from pathlib import Path
 import dj_database_url
 
+# Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SEGURIDAD
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local')
+
+# DEBUG: False en producción (Render) automáticamente
 DEBUG = 'RENDER' not in os.environ
 
+# Dominios permitidos
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_hostname:
     ALLOWED_HOSTS.append(render_external_hostname)
 
+# Aplicaciones
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -22,6 +28,7 @@ INSTALLED_APPS = [
     "tasks", 
 ]
 
+# Middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware", 
@@ -53,8 +60,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# CONFIGURACIÓN DE BASE DE DATOS PARA NO BORRAR NADA
-# Si hay DATABASE_URL en Render, la usa. Si no, usa SQLite local.
+# CONFIGURACIÓN DE BASE DE DATOS ETERNA
+# Usa la DATABASE_URL de Render para que nada se borre
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{os.path.join(BASE_DIR, "db.sqlite3")}',
@@ -69,15 +76,18 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# Configuración regional
 LANGUAGE_CODE = "es-ec"
 TIME_ZONE = "America/Guayaquil"
 USE_I18N = True
 USE_TZ = True
 
+# Archivos estáticos
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Media (Fotos de perfil)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
