@@ -40,12 +40,15 @@ def signout(request):
     logout(request)
     return redirect('home')
 
-# --- VISTAS DE APLICACIÓN ---
+# --- VISTA PRINCIPAL (BIENVENIDA 3D) ---
 
 def home(request):
-    # Intentamos obtener el primer usuario administrador para mostrar su CV por defecto si alguien entra a la raíz
+    # Intentamos obtener el primer usuario administrador para pasarle el nombre al botón del Welcome
     admin_user = User.objects.filter(is_superuser=True).first()
-    return render(request, 'home.html', {'admin_user': admin_user})
+    # Cargamos welcome.html para mostrar el efecto Three.js
+    return render(request, 'welcome.html', {'admin_user': admin_user})
+
+# --- VISTAS DE APLICACIÓN ---
 
 @login_required
 def dashboard(request):
@@ -61,7 +64,6 @@ def tasks(request):
 
 def profile_cv(request, username):
     user_viewed = get_object_or_404(User, username=username)
-    # Buscamos el perfil asociado a ese usuario específico
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
     
     contexto = {
@@ -92,4 +94,4 @@ def garage_store(request, username):
 
 def export_pdf(request, username):
     from django.http import HttpResponse
-    return HttpResponse(f"Generando PDF para {username}... (Configura WeasyPrint aquí)")
+    return HttpResponse(f"Generando PDF para {username}...")
