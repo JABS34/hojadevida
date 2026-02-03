@@ -151,21 +151,6 @@
             </section>
             {% endif %}
 
-            <section class="mb-10">
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Formación Académica</h2>
-                <div class="space-y-4">
-                    {% for edu in instrucciones %}
-                    <div class="text-sm">
-                        <p class="font-extrabold text-slate-800 uppercase">{{ edu.tituloobtenido }}</p>
-                        <p class="text-blue-700 font-bold text-xs">{{ edu.institucion }}</p>
-                        <p class="text-[10px] text-slate-400 uppercase">{{ edu.nivelinstruccion }}</p>
-                    </div>
-                    {% empty %}
-                    <p class="text-[11px] text-slate-400 italic">Información de formación no disponible.</p>
-                    {% endfor %}
-                </div>
-            </section>
-
             {% if show_experiencia and experiencias %}
             <section class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
