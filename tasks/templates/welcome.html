@@ -6,15 +6,15 @@
     <title>Bienvenido a Mi CV Profesional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/DragControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         html, body { margin: 0; padding: 0; overflow: hidden; background-color: #020617; width: 100%; height: 100%; font-family: sans-serif; }
-        #canvas-3d { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 1; cursor: grab; }
+        #canvas-3d { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 1; }
         .hero-content { position: relative; z-index: 10; pointer-events: none; }
         .hero-content button, .hero-content a { pointer-events: auto; }
-        .fade-out { opacity: 0; transform: scale(0.9); filter: blur(10px); transition: all 0.8s ease; }
+        .fade-out { opacity: 0; transform: scale(0.9); filter: blur(10px); transition: all 0.6s ease; }
         
+        /* Modal de Selección */
         #profile-selector {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(2, 6, 23, 0.98); z-index: 100;
@@ -24,60 +24,55 @@
 </head>
 <body class="text-white">
 
-    <input type="hidden" id="total-activos" value="{{ total_activos }}">
+    <input type="hidden" id="total-activos" value="{{ total_activos|default:0 }}">
     <input type="hidden" id="username-unico" value="{{ username_unico }}">
 
     <div id="profile-selector" class="p-8">
-        <h2 class="text-4xl font-bold mb-10 text-indigo-400">Selecciona un Perfil</h2>
+        <h2 class="text-4xl font-black mb-12 text-indigo-400">Selecciona un Perfil Activo</h2>
         <div class="flex flex-wrap justify-center gap-8">
             {% for perfil in perfiles_activos %}
-            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-700 text-center w-64 shadow-2xl transition hover:border-indigo-500">
+            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-700 text-center w-72 shadow-2xl transition hover:border-indigo-500">
                 {% if perfil.foto %}
                     <img src="{{ perfil.foto.url }}" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-indigo-600">
                 {% else %}
-                    <div class="w-32 h-32 rounded-full mx-auto mb-4 bg-slate-700 flex items-center justify-center">👤</div>
+                    <div class="w-32 h-32 rounded-full mx-auto mb-4 bg-slate-800 flex items-center justify-center text-4xl">👤</div>
                 {% endif %}
-                <h3 class="text-xl font-bold mb-4">{{ perfil.user.first_name }} {{ perfil.user.last_name }}</h3>
-                <button onclick="goToProfile('{{ perfil.user.username }}')" class="inline-block px-6 py-2 bg-indigo-600 rounded-xl font-bold hover:bg-indigo-500 transition">
+                <h3 class="text-xl font-bold mb-6">{{ perfil.user.first_name }} {{ perfil.user.last_name|default:perfil.user.username }}</h3>
+                <button onclick="goToProfile('{{ perfil.user.username }}')" class="w-full py-3 bg-indigo-600 rounded-xl font-bold hover:bg-indigo-500 transition">
                     MIRA MI CV
                 </button>
             </div>
             {% endfor %}
         </div>
-        <button onclick="closeSelector()" class="mt-10 text-slate-400 underline">Volver</button>
+        <button onclick="document.getElementById('profile-selector').style.display='none'" class="mt-12 text-slate-500 hover:text-white underline">Cerrar</button>
     </div>
 
     <section id="hero-main" class="relative w-screen h-screen flex flex-col items-center justify-center text-center overflow-hidden">
         <div id="canvas-3d"></div> 
-
         <div class="hero-content" id="ui-wrapper">
-            <h1 class="text-6xl md:text-8xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-indigo-400 select-none">
-                Bienvenido a Mi <br>CV Profesional
+            <h1 class="text-6xl md:text-8xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-indigo-400">
+                Bienvenido
             </h1>
-            <p class="text-slate-300 text-xl md:text-2xl font-light mb-12 italic select-none">
-                Explora trayectorias y habilidades profesionales.
-            </p>
-
-            <button onclick="handleCVAction()" class="px-12 py-6 bg-indigo-600 rounded-2xl font-black text-2xl shadow-[0_15px_0_rgb(49,46,129)] hover:translate-y-1 active:shadow-none active:translate-y-[15px] transition-all">
+            <p class="text-slate-300 text-xl md:text-2xl font-light mb-12 italic">Explora mi trayectoria profesional.</p>
+            <button onclick="handleCVAction()" class="px-12 py-6 bg-indigo-600 rounded-2xl font-black text-2xl shadow-[0_12px_0_rgb(49,46,129)] hover:translate-y-1 active:shadow-none active:translate-y-[12px] transition-all">
                 Mira mi CV aquí 👇
             </button>
         </div>
     </section>
 
     <script>
-        // Lógica corregida para evitar el rojo en el editor
         function handleCVAction() {
             const total = parseInt(document.getElementById('total-activos').value);
             const usernameUnico = document.getElementById('username-unico').value;
             
             if (total === 0) {
                 Swal.fire({
-                    title: '¡ERROR!',
-                    text: 'No hay perfiles activos en este momento.',
-                    icon: 'error',
-                    background: '#1e1b4b',
+                    title: '¡SIN PERFILES!',
+                    text: 'Actualmente no hay perfiles activos para mostrar.',
+                    icon: 'warning',
+                    background: '#0f172a',
                     color: '#fff',
-                    confirmButtonColor: '#4f46e5'
+                    confirmButtonColor: '#6366f1'
                 });
             } else if (total === 1) {
                 goToProfile(usernameUnico);
@@ -86,39 +81,29 @@
             }
         }
 
-        function closeSelector() {
-            document.getElementById('profile-selector').style.display = 'none';
-        }
-
-        function goToProfile(username) {
+        function goToProfile(user) {
             document.getElementById('ui-wrapper').classList.add('fade-out');
-            document.getElementById('canvas-3d').classList.add('fade-out');
-            document.getElementById('profile-selector').classList.add('fade-out');
-            setTimeout(() => { 
-                window.location.href = "/perfil/" + username + "/"; 
-            }, 800);
+            setTimeout(() => { window.location.href = "/perfil/" + user + "/"; }, 600);
         }
 
         // --- ANIMACIÓN 3D ---
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-3d').appendChild(renderer.domElement);
-        const objects = [];
-        const mat = new THREE.MeshPhongMaterial({ color: 0x4338ca, wireframe: true, transparent: true, opacity: 0.3 });
-        for(let i=0; i<40; i++) {
-            const mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(Math.random()*1.5+0.5, 0), mat);
-            mesh.position.set((Math.random()-0.5)*50, (Math.random()-0.5)*30, (Math.random()-0.5)*20);
-            mesh.userData.v = new THREE.Vector3((Math.random()-0.5)*0.04, (Math.random()-0.5)*0.04, 0);
-            scene.add(mesh);
-            objects.push(mesh);
-        }
-        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-        camera.position.z = 25;
+        
+        const geo = new THREE.IcosahedronGeometry(12, 0);
+        const mat = new THREE.MeshPhongMaterial({ color: 0x4338ca, wireframe: true });
+        const mesh = new THREE.Mesh(geo, mat);
+        scene.add(mesh);
+        scene.add(new THREE.PointLight(0xffffff, 1));
+        camera.position.z = 30;
+
         function animate() {
             requestAnimationFrame(animate);
-            objects.forEach(o => { o.position.add(o.userData.v); o.rotation.y += 0.01; if(Math.abs(o.position.x)>35) o.userData.v.x*=-1; });
+            mesh.rotation.y += 0.005;
+            mesh.rotation.x += 0.005;
             renderer.render(scene, camera);
         }
         animate();
