@@ -36,14 +36,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 40px; /* Espacio entre el trigger y los grupos */
+            gap: 40px;
         }
 
-        /* GRUPOS DE ICONOS CON MÁS ESPACIO */
+        /* GRUPOS DE ICONOS */
         .nav-group {
             display: flex;
-            gap: 50px; /* Iconos más alejados uno del otro */
-            overflow: visible; /* Permitir que sobresalgan */
+            gap: 55px; /* Espacio amplio entre iconos */
+            overflow: visible; 
             width: 0;
             opacity: 0;
             transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -57,7 +57,7 @@
             pointer-events: auto;
         }
 
-        /* BOTONES CON EFECTO SOBRESALIENTE */
+        /* BOTONES CON EFECTO SOBRESALIENTE HACIA ABAJO */
         .nav-item {
             position: relative;
             color: white;
@@ -66,37 +66,42 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 10px;
+            border-radius: 15px;
         }
 
         .nav-item i { font-size: 1.8rem; }
         .nav-item span.label { font-size: 10px; font-weight: 800; margin-top: 4px; text-transform: uppercase; }
 
-        /* MANOS MÁS PEQUEÑAS */
+        /* MANOS PEQUEÑAS */
         .pointer-hand {
             position: absolute;
-            font-size: 1.1rem; /* Reducido según lo pedido */
+            font-size: 1.1rem;
             opacity: 0;
-            top: 40%;
+            top: 45%;
             transform: translateY(-50%);
             transition: opacity 0.2s;
             pointer-events: none;
         }
-        .hand-l { left: -30px; }
-        .hand-r { right: -30px; }
+        .hand-l { left: -28px; }
+        .hand-r { right: -28px; }
 
-        /* HOVER: MÁS GRANDE, SOBRESALE Y VIBRA */
+        /* HOVER: MÁS GRANDE, SOBRESALE HACIA ABAJO Y VIBRA */
         .nav-item:hover { 
-            transform: scale(1.5) translateY(-15px); /* Se hace más grande y sobresale hacia arriba */
+            transform: scale(1.4) translateY(20px); /* Movimiento hacia ABAJO */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
             animation: vibrate 0.1s linear infinite;
-            z-index: 1001; /* Asegura que esté por encima de todo */
+            z-index: 1001;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
         }
         .nav-item:hover .pointer-hand { opacity: 1; }
 
         @keyframes vibrate {
-            0% { transform: scale(1.5) translateY(-15px) translate(0); }
-            25% { transform: scale(1.5) translateY(-15px) translate(1px, -1px); }
-            50% { transform: scale(1.5) translateY(-15px) translate(-1px, 1px); }
-            100% { transform: scale(1.5) translateY(-15px) translate(0); }
+            0% { transform: scale(1.4) translateY(20px) translate(0); }
+            25% { transform: scale(1.4) translateY(20px) translate(1px, -1px); }
+            50% { transform: scale(1.4) translateY(20px) translate(-1px, 1px); }
+            100% { transform: scale(1.4) translateY(20px) translate(0); }
         }
 
         .menu-trigger {
@@ -108,10 +113,10 @@
         }
         .menu-trigger.open { transform: rotate(90deg) scale(0.8); }
 
-        /* HOJA DEL CV */
+        /* VISTA DEL CV */
         .cv-page { 
             width: 210mm; min-height: 297mm; 
-            margin: 40px auto; background: white; 
+            margin: 60px auto; background: white; 
             box-shadow: 0 50px 100px rgba(0,0,0,0.4); 
             display: flex; overflow: hidden; border-radius: 15px; 
         }
@@ -177,35 +182,41 @@
         <aside class="aside-bg">
             <div class="mb-10 text-center">
                 {% if perfil.foto %} 
-                    <img src="{{ perfil.foto.url }}" class="w-40 h-40 rounded-3xl mx-auto border-4 border-white/10 object-cover">
+                    <img src="{{ perfil.foto.url }}" class="w-40 h-40 rounded-3xl mx-auto border-4 border-white/10 object-cover shadow-2xl">
                 {% else %} 
-                    <div class="w-40 h-40 rounded-3xl mx-auto bg-indigo-900 flex items-center justify-center text-5xl font-bold uppercase">
+                    <div class="w-40 h-40 rounded-3xl mx-auto bg-indigo-900 flex items-center justify-center text-5xl font-bold uppercase border-4 border-white/10">
                         {{ perfil.nombres|slice:":1" }}
                     </div> 
                 {% endif %}
             </div>
-            <p class="text-center text-xs font-bold text-blue-300 uppercase tracking-tighter">{{ perfil.nombres }} {{ perfil.apellidos }}</p>
+            <p class="text-center font-bold text-blue-300 uppercase tracking-widest text-xs">{{ perfil.nombres }}</p>
         </aside>
         <main class="main-content">
-            <h1 class="text-4xl font-black text-slate-800 uppercase">Resumen Profesional</h1>
-            <p class="mt-4 text-slate-500 italic">"{{ perfil.descripcionperfil|default:'En busca de nuevos retos.' }}"</p>
+            <h1 class="text-5xl font-black text-slate-900 uppercase leading-none">
+                {{ perfil.nombres }}<br><span class="text-blue-600">{{ perfil.apellidos }}</span>
+            </h1>
+            <div class="mt-8 p-6 bg-slate-50 rounded-2xl border-l-4 border-blue-500 italic text-slate-600">
+                "{{ perfil.descripcionperfil|default:'Perfil profesional en constante crecimiento.' }}"
+            </div>
         </main>
     </div>
 
-    <div id="modalCert" class="modal"><div class="bg-white p-8 rounded-3xl max-w-lg w-full">
-        <h2 class="font-bold text-xl mb-4 italic">Capacitación</h2>
+    <div id="modalCert" class="modal"><div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4">
+        <h2 class="font-bold text-xl mb-4 italic">Cursos y Capacitación</h2>
+        <div class="space-y-2 mb-6">{% for curso in cursos %}<p class="text-sm border-b py-1">{{ curso.nombrerecurso }}</p>{% endfor %}</div>
         <button onclick="toggleModal('modalCert')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
     </div></div>
     
-    <div id="modalRec" class="modal"><div class="bg-white p-8 rounded-3xl max-w-lg w-full">
+    <div id="modalRec" class="modal"><div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4">
         <h2 class="font-bold text-xl mb-4 italic text-emerald-600">Reconocimientos</h2>
+        <div class="space-y-2 mb-6">{% for rec in reconocimientos %}<p class="text-sm bg-emerald-50 p-2 rounded">{{ rec.descripcionreconocimiento }}</p>{% endfor %}</div>
         <button onclick="toggleModal('modalRec')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
     </div></div>
 
-    <div id="modalPDF" class="modal"><div class="bg-white p-10 rounded-3xl max-w-sm w-full">
-        <h2 class="font-black text-2xl mb-6 italic">Exportar CV</h2>
-        <button onclick="window.print()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg">IMPRIMIR / PDF</button>
-        <button onclick="toggleModal('modalPDF')" class="mt-4 w-full text-xs text-slate-400">CANCELAR</button>
+    <div id="modalPDF" class="modal"><div class="bg-white p-10 rounded-3xl max-w-sm w-full mx-4 text-center">
+        <h2 class="font-black text-2xl mb-6 italic">Exportar</h2>
+        <button onclick="window.print()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg mb-4">IMPRIMIR / PDF</button>
+        <button onclick="toggleModal('modalPDF')" class="text-xs text-slate-400 font-bold uppercase">Regresar</button>
     </div></div>
 
     <script>
