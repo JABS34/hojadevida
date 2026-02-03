@@ -20,39 +20,50 @@
             width: 210mm; 
             min-height: 297mm; 
             display: flex; 
-            page-break-after: always; 
+            page-break-after: auto; 
         }
 
-        .sidebar { width: 35%; background-color: #1e3a8a !important; color: white; padding: 40px 25px; }
-        .main-content { width: 65%; padding: 50px; }
+        .sidebar { width: 35%; background-color: #1e3a8a !important; color: white; padding: 40px 25px; min-height: 297mm; }
+        .main-content { width: 65%; padding: 50px; background: white; }
 
-        .section-separator {
-            page-break-before: always;
-            width: 210mm;
-            height: 297mm;
+        /* Separadores de sección tipo Título */
+        .section-header {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            background-color: #f8fafc !important;
+            gap: 10px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #e2e8f0;
+            width: 100%;
+        }
+        .section-header h2 {
+            font-size: 14px;
+            font-weight: 800;
             color: #1e3a8a;
-            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .appendix { 
+        .appendix-container { 
             width: 210mm; 
-            height: 297mm; 
             page-break-before: always; 
-            display: flex; 
-            justify-content: center;
-            align-items: center;
+            padding: 20px;
             background: white;
         }
 
+        .cert-img-box {
+            width: 100%;
+            margin-bottom: 30px;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+
         .cert-img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
         }
 
         @media print { .no-print { display: none; } }
@@ -64,7 +75,7 @@
         <aside class="sidebar">
             <div class="text-center mb-10">
                 {% if perfil.foto %}
-                    <img src="{{ perfil.foto.url }}" class="w-36 h-36 rounded-3xl mx-auto border-4 border-white/20 object-cover shadow-xl">
+                    <img src="{{ perfil.foto.url }}" class="w-36 h-36 rounded-3xl mx-auto border-4 border-white/20 object-cover">
                 {% endif %}
             </div>
             
@@ -73,7 +84,6 @@
                 <p><i class="fas fa-envelope mr-2 w-4"></i> {{ user_viewed.email }}</p>
                 <p><i class="fas fa-phone mr-2 w-4"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional }}</p>
                 <p><i class="fas fa-map-marker-alt mr-2 w-4"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
-                {% if perfil.sitioweb %}<p><i class="fas fa-globe mr-2 w-4"></i> {{ perfil.sitioweb }}</p>{% endif %}
             </div>
 
             {% if show_productos_acad and productos_academicos %}
@@ -90,7 +100,7 @@
 
             {% if show_habilidades and habilidades %}
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4 text-blue-300 italic">Habilidades</h3>
-            <div class="flex flex-wrap gap-2 mb-10">
+            <div class="flex flex-wrap gap-2">
                 {% for hab in habilidades %}
                     <span class="bg-white/10 border border-white/20 px-2 py-1 rounded text-[9px] uppercase font-bold">{{ hab.nombre_habilidad }}</span>
                 {% endfor %}
@@ -99,14 +109,11 @@
         </aside>
 
         <main class="main-content">
-            <header class="mb-10">
+            <header class="mb-8">
                 <h1 class="text-5xl font-black text-slate-900 uppercase leading-none">
                     {{ perfil.nombres }}<br>
                     <span class="text-blue-700">{{ perfil.apellidos }}</span>
                 </h1>
-                <p class="text-slate-400 font-bold text-[11px] tracking-widest mt-2 uppercase">
-                    {{ perfil.estadocivil|default:"" }} • {{ perfil.nacionalidad|default:"Ecuatoriana" }}
-                </p>
             </header>
 
             {% if show_lenguajes and lenguajes %}
@@ -131,91 +138,92 @@
             {% if show_sobre_mi %}
             <section class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Sobre Mí</h2>
-                <div class="text-slate-600 text-sm leading-relaxed border-l-4 border-blue-100 pl-4 bg-slate-50 p-4 rounded-r-xl italic">
+                <div class="text-slate-600 text-sm leading-relaxed border-l-4 border-blue-600 pl-4 bg-slate-50 p-4 italic">
                     "{{ perfil.descripcionperfil|default:'Perfil profesional enfocado en el desarrollo continuo.' }}"
                 </div>
             </section>
             {% endif %}
 
+            <section class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Formación Académica</h2>
+                <div class="space-y-4">
+                    {% for edu in instrucciones %}
+                    <div class="text-sm">
+                        <p class="font-extrabold text-slate-800 uppercase">{{ edu.tituloobtenido }}</p>
+                        <p class="text-blue-700 font-bold text-xs">{{ edu.institucion }}</p>
+                        <p class="text-[10px] text-slate-400 uppercase">{{ edu.nivelinstruccion }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-[11px] text-slate-400 italic">Información de formación no disponible.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
             {% if show_experiencia and experiencias %}
-            <section>
+            <section class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
                 <div class="space-y-6">
                     {% for exp in experiencias %}
                     <div class="relative pl-5 border-l-2 border-slate-100">
                         <div class="absolute -left-[6px] top-1 w-2.5 h-2.5 rounded-full bg-blue-700"></div>
                         <h3 class="text-sm font-bold text-slate-800 uppercase">{{ exp.cargodesempenado }}</h3>
-                        <div class="flex justify-between text-[11px] mb-1">
-                            <span class="text-blue-700 font-bold">{{ exp.nombrempresa }}</span>
-                            <span class="text-slate-400">{{ exp.fechainiciogestion|date:"M Y" }} - {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"M Y" }}{% else %}Actualidad{% endif %}</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500">{{ exp.descripcionfunciones }}</p>
+                        <p class="text-blue-700 font-bold text-xs">{{ exp.nombrempresa }}</p>
+                        <p class="text-[11px] text-slate-500 mt-1">{{ exp.descripcionfunciones }}</p>
                     </div>
                     {% endfor %}
                 </div>
             </section>
             {% endif %}
+
+            {% if show_garage and productos_garage %}
+            <div class="section-header">
+                <i class="fas fa-car-side text-blue-800"></i>
+                <h2>Catálogo Garage</h2>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                {% for item in productos_garage %}
+                <div class="border border-slate-100 p-3 rounded-xl bg-slate-50">
+                    <p class="text-[10px] font-black text-blue-800 uppercase">{{ item.nombreproducto }}</p>
+                    <p class="text-sm font-bold text-slate-900">${{ item.precioventa }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </main>
     </div>
 
-    {% if show_garage and productos_garage %}
-    <div class="section-separator">
-        <i class="fas fa-car-side text-6xl mb-4"></i>
-        <h1 class="text-3xl font-black uppercase tracking-tighter">Catálogo Garage</h1>
-        <p class="text-slate-500 uppercase text-xs tracking-widest mt-2">Productos disponibles del usuario</p>
-    </div>
-    <div class="page-pdf" style="display: block; padding: 50px;">
-        <div class="grid grid-cols-2 gap-6">
-            {% for item in productos_garage %}
-            <div class="border border-slate-200 p-4 rounded-2xl bg-slate-50">
-                <p class="text-xs font-black text-blue-800 uppercase">{{ item.nombreproducto }}</p>
-                <p class="text-lg font-bold text-slate-900 mt-1">${{ item.precioventa }}</p>
-                <p class="text-[10px] text-slate-500 mt-2 uppercase">Estado: {{ item.estado|default:"Disponible" }}</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
     {% if show_certificados %}
         {% if cursos or reconocimientos %}
-        <div class="section-separator">
-            <i class="fas fa-certificate text-6xl mb-4"></i>
-            <h1 class="text-3xl font-black uppercase tracking-tighter">Anexos y Certificaciones</h1>
-            <p class="text-slate-500 uppercase text-xs tracking-widest mt-2">Documentación respaldatoria</p>
+        <div class="appendix-container">
+            <div class="section-header">
+                <i class="fas fa-certificate text-blue-800"></i>
+                <h2>Anexos y Certificaciones</h2>
+            </div>
+
+            {% for curso in cursos %}
+                {% if curso.rutacertificado %}
+                <div class="cert-img-box">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">CURSO: {{ curso.nombrerecurso }}</p>
+                    <img src="{{ curso.rutacertificado.url }}" class="cert-img" onerror="this.style.display='none'">
+                </div>
+                {% endif %}
+            {% endfor %}
+
+            {% for rec in reconocimientos %}
+                {% if rec.rutacertificado %}
+                <div class="cert-img-box">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">RECONOCIMIENTO: {{ rec.descripcionreconocimiento }}</p>
+                    <img src="{{ rec.rutacertificado.url }}" class="cert-img" onerror="this.style.display='none'">
+                </div>
+                {% endif %}
+            {% endfor %}
         </div>
-
-        {% for curso in cursos %}
-            {% if curso.rutacertificado %}
-            <div class="appendix">
-                <div class="absolute top-10 left-10 text-[10px] font-bold text-slate-300 uppercase italic">Certificado: {{ curso.nombrerecurso }}</div>
-                {% if ".pdf" in curso.rutacertificado.url|lower %}
-                    <embed src="{{ curso.rutacertificado.url }}" type="application/pdf" width="90%" height="90%">
-                {% else %}
-                    <img src="{{ curso.rutacertificado.url }}" class="cert-img shadow-2xl">
-                {% endif %}
-            </div>
-            {% endif %}
-        {% endfor %}
-
-        {% for rec in reconocimientos %}
-            {% if rec.rutacertificado %}
-            <div class="appendix">
-                <div class="absolute top-10 left-10 text-[10px] font-bold text-slate-300 uppercase italic">Reconocimiento: {{ rec.descripcionreconocimiento }}</div>
-                {% if ".pdf" in rec.rutacertificado.url|lower %}
-                    <embed src="{{ rec.rutacertificado.url }}" type="application/pdf" width="90%" height="90%">
-                {% else %}
-                    <img src="{{ rec.rutacertificado.url }}" class="cert-img shadow-2xl">
-                {% endif %}
-            </div>
-            {% endif %}
-        {% endfor %}
         {% endif %}
     {% endif %}
 
     <script>
         window.onload = function() {
-            setTimeout(function() { window.print(); }, 1200);
+            setTimeout(function() { window.print(); }, 1500);
         };
     </script>
 </body>
