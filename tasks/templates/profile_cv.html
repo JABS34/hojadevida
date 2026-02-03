@@ -88,37 +88,83 @@
                 background: white !important; 
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important;
+                margin: 0 !important;
+                overflow: visible !important;
             }
+
             /* Ocultar navegación y botones al imprimir */
             .no-print, .top-navbar, .modal, .menu-trigger { display: none !important; }
-            
+            .nav-pills { display: none !important; }
+
+            /* Sidebar Fija a la izquierda (Estilo Captura) */
             .sidebar {
-                position: fixed !important; left: 0; top: 0; bottom: 0;
-                height: 100%; width: 35%; 
-                background: #1e3a8a !important; /* Forzar fondo azul */
-                color: white !important;
-                -webkit-print-color-adjust: exact; 
-            }
-            
-            .cv-page { 
-                margin: 0 !important; 
-                box-shadow: none !important; 
-                width: 100% !important; 
-                border-radius: 0 !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                height: 100% !important;
+                width: 280px !important;
+                border-right: 2px solid #ddd !important;
+                background-color: #ffffff !important; 
+                z-index: 1000;
             }
 
-            /* Clase para ocultar secciones desmarcadas */
-            .hidden-on-print { display: none !important; }
+            /* Contenido a la derecha */
+            .main-content {
+                margin-left: 280px !important; 
+                padding: 30px !important;
+                width: calc(100% - 280px) !important;
+                overflow: visible !important;
+            }
 
-            /* Mostrar la sección de garage al imprimir si está activa */
-            #sec-garage-print {
+            /* Mostrar TODAS las secciones visibles (ignora las pestañas) */
+            section { 
+                display: block !important; 
+                opacity: 1 !important;
+                visibility: visible !important;
+                page-break-inside: avoid;
+                margin-bottom: 30px !important;
+            }
+
+            /* Clase para ocultar lo que NO se seleccionó */
+            section.oculto-impresion {
+                display: none !important;
+            }
+
+            /* Estilos Garage en PDF (Lista) */
+            #garage-print-section {
                 display: block !important;
                 page-break-before: always;
             }
-            #sec-garage-print.hidden-on-print { display: none !important; }
+            #garage-print-section.oculto-impresion {
+                display: none !important;
+            }
+            .garage-list-item {
+                border-bottom: 1px solid #eee;
+                padding: 10px 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .garage-price { color: #28a745; font-weight: bold; font-size: 1.1rem; }
+
+            /* Imágenes Grandes de Certificados */
+            .pdf-cert-container {
+                display: block !important;
+                height: auto !important;
+                visibility: visible !important;
+                margin-top: 15px;
+            }
+            .pdf-cert-img {
+                width: 100% !important;
+                max-width: 500px;
+                height: auto;
+                border: 1px solid #ccc;
+            }
         }
 
-        #sec-garage-print { display: none; } /* Oculto en web normal */
+        /* Ocultar elementos de impresión en la web normal */
+        #garage-print-section, .pdf-cert-container { display: none; }
     </style>
 </head>
 <body>
@@ -134,29 +180,37 @@
         </div>
         <div class="menu-wrapper">
             <div id="groupLeft" class="nav-group">
-                <div id="btn-cursos" class="nav-item" onclick="toggleModal('modalCert')">
+                {% if config.mostrar_cursos %}
+                <div class="nav-item" onclick="toggleModal('modalCert')">
                     <i class="fas fa-graduation-cap"></i>
                     <span class="label">Cursos</span>
                     <span class="pointer-hand hand-l">👉</span>
                     <span class="pointer-hand hand-r">👈</span>
                 </div>
-                <div id="btn-premios" class="nav-item" onclick="toggleModal('modalRec')">
+                {% endif %}
+
+                {% if config.mostrar_reconocimientos %}
+                <div class="nav-item" onclick="toggleModal('modalRec')">
                     <i class="fas fa-trophy"></i>
                     <span class="label">Premios</span>
                     <span class="pointer-hand hand-l">👉</span>
                     <span class="pointer-hand hand-r">👈</span>
                 </div>
+                {% endif %}
             </div>
             <div id="trigger" class="menu-trigger" onclick="toggleBrote()">
                 <i class="fas fa-bars"></i>
             </div>
             <div id="groupRight" class="nav-group">
-                <a id="btn-garage" href="{% url 'garage_store' user_viewed.username %}" class="nav-item">
+                {% if config.mostrar_garage %}
+                <a href="{% url 'garage_store' user_viewed.username %}" class="nav-item">
                     <i class="fas fa-car-side"></i>
                     <span class="label">Garage</span>
                     <span class="pointer-hand hand-l">👉</span>
                     <span class="pointer-hand hand-r">👈</span>
                 </a>
+                {% endif %}
+
                 <div class="nav-item" onclick="toggleModal('modalPDF')">
                     <i class="fas fa-file-pdf"></i>
                     <span class="label">Exportar</span>
@@ -275,6 +329,19 @@
                             <span class="text-[10px] font-bold text-slate-400">{{ exp.fechainiciogestion|date:"M Y" }} - {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"M Y" }}{% else %}Actualidad{% endif %}</span>
                         </div>
                         <p class="text-slate-500 text-[12px] mt-2">{{ exp.descripcionfunciones }}</p>
+                        
+                        <div class="mt-2">
+                            {% if exp.rutacertificado %}
+                            <button class="text-[10px] text-blue-500 font-bold uppercase no-print" 
+                                    onclick="abrirVisor('{{ exp.rutacertificado.url }}', '{{ exp.cargodesempenado }}', '{{ exp.nombrempresa }}')">
+                                <i class="fas fa-eye"></i> Ver Certificado
+                            </button>
+                            <div class="pdf-cert-container">
+                                <p class="text-[10px] font-bold text-slate-800 mt-2">Certificado Laboral:</p>
+                                <img src="{{ exp.rutacertificado.url }}" class="pdf-cert-img" alt="Certificado">
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                     {% empty %}
                     <p class="text-slate-400 text-[12px] italic">Sin experiencia laboral registrada.</p>
@@ -282,16 +349,33 @@
                 </div>
             </section>
 
-            <section id="sec-garage-print" class="mb-10 pt-10 border-t border-slate-200">
+            <section id="sec-productos-laborales" class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Productos Laborales</h2>
+                <div class="space-y-6">
+                    {% for prod in productos_laborales %}
+                    <div>
+                        <h5 class="text-[12px] font-bold text-slate-800 uppercase">{{ prod.nombreproducto }}</h5>
+                        <p class="text-slate-500 text-[12px]">{{ prod.descripcion }}</p>
+                        <span class="text-[10px] text-blue-600 font-bold">{{ prod.fechaproducto|date:"d M Y" }}</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-slate-400 text-[12px] italic">Sin productos laborales registrados.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section id="garage-print-section" class="mb-10 pt-10 border-t border-slate-200">
                 <h2 class="text-[11px] font-black text-orange-500 uppercase tracking-widest mb-6 italic">Venta de Garage & Otros</h2>
                 <div class="space-y-2">
                     {% for prod in productos_garage %}
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <div>
-                            <p class="text-[12px] font-bold text-slate-800 uppercase">{{ prod.nombreproducto }}</p>
-                            <p class="text-[10px] text-slate-400">{{ prod.descripcion }}</p>
+                    <div class="garage-list-item">
+                        <div class="flex justify-between items-center w-full">
+                            <div>
+                                <p class="text-[12px] font-bold text-slate-800 uppercase">{{ prod.nombreproducto }}</p>
+                                <p class="text-[10px] text-slate-400">{{ prod.descripcion }}</p>
+                            </div>
+                            <span class="text-[12px] font-bold text-orange-600">${{ prod.valordelbien }}</span>
                         </div>
-                        <span class="text-[12px] font-bold text-orange-600">${{ prod.valordelbien }}</span>
                     </div>
                     {% endfor %}
                 </div>
@@ -304,12 +388,18 @@
         <h2 class="font-bold text-xl mb-4 italic border-b pb-2">Capacitación y Cursos</h2>
         <div class="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2">
             {% for curso in cursos %}
-            <div class="flex items-center gap-4 border-b border-slate-100 pb-2 cursor-pointer hover:bg-slate-50 transition"
-                 onclick="abrirVisor('{{ curso.rutacertificado.url|default:'' }}', '{{ curso.nombrerecurso }}', '{{ curso.entidadpatrocinadora }}')">
-                <div class="mini-box"><i class="fas fa-file-lines"></i></div>
-                <div>
-                    <p class="text-sm font-bold uppercase">{{ curso.nombrerecurso }}</p>
-                    <p class="text-[10px] text-blue-500 font-bold uppercase">Abrir para descargar</p>
+            <div class="flex flex-col border-b border-slate-100 pb-2">
+                <div class="flex items-center gap-4 cursor-pointer hover:bg-slate-50 transition"
+                     onclick="abrirVisor('{{ curso.rutacertificado.url|default:'' }}', '{{ curso.nombrerecurso }}', '{{ curso.entidadpatrocinadora }}')">
+                    <div class="mini-box"><i class="fas fa-file-lines"></i></div>
+                    <div>
+                        <p class="text-sm font-bold uppercase">{{ curso.nombrerecurso }}</p>
+                        <p class="text-[10px] text-blue-500 font-bold uppercase">Abrir para descargar</p>
+                    </div>
+                </div>
+                <div class="pdf-cert-container">
+                    <p class="text-[10px] font-bold text-slate-800 mt-2">Certificado de Curso:</p>
+                    <img src="{{ curso.rutacertificado.url }}" class="pdf-cert-img" alt="Certificado">
                 </div>
             </div>
             {% empty %}
@@ -323,12 +413,18 @@
         <h2 class="font-bold text-xl mb-4 italic text-emerald-600 border-b pb-2">Reconocimientos</h2>
         <div class="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2">
             {% for rec in reconocimientos %}
-            <div class="flex items-center gap-4 bg-emerald-50 p-3 rounded-xl border border-emerald-100 cursor-pointer hover:bg-emerald-100 transition"
-                 onclick="abrirVisor('{{ rec.rutacertificado.url|default:'' }}', '{{ rec.descripcionreconocimiento }}', '{{ rec.entidadpatrocinadora }}')">
-                <div class="mini-box" style="color:#059669"><i class="fas fa-award"></i></div>
-                <div>
-                    <p class="text-sm font-bold uppercase text-emerald-800">{{ rec.descripcionreconocimiento }}</p>
-                    <p class="text-[10px] text-emerald-600 font-bold uppercase">Ver Reconocimiento</p>
+            <div class="flex flex-col">
+                <div class="flex items-center gap-4 bg-emerald-50 p-3 rounded-xl border border-emerald-100 cursor-pointer hover:bg-emerald-100 transition"
+                     onclick="abrirVisor('{{ rec.rutacertificado.url|default:'' }}', '{{ rec.descripcionreconocimiento }}', '{{ rec.entidadpatrocinadora }}')">
+                    <div class="mini-box" style="color:#059669"><i class="fas fa-award"></i></div>
+                    <div>
+                        <p class="text-sm font-bold uppercase text-emerald-800">{{ rec.descripcionreconocimiento }}</p>
+                        <p class="text-[10px] text-emerald-600 font-bold uppercase">Ver Reconocimiento</p>
+                    </div>
+                </div>
+                <div class="pdf-cert-container">
+                    <p class="text-[10px] font-bold text-slate-800 mt-2">Reconocimiento:</p>
+                    <img src="{{ rec.rutacertificado.url }}" class="pdf-cert-img" alt="Certificado">
                 </div>
             </div>
             {% empty %}
@@ -369,6 +465,11 @@
                     <input type="checkbox" id="chk-experiencia" checked class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-slate-700 uppercase">Experiencia Laboral</span>
                 </label>
+                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
+                    <input type="checkbox" id="chk-productos-laborales" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-slate-700 uppercase">Productos Laborales</span>
+                </label>
+                
                 <label class="flex items-center p-3 bg-orange-50 rounded-xl cursor-pointer hover:bg-orange-100 transition border border-orange-200">
                     <input type="checkbox" id="chk-garage" class="w-5 h-5 text-orange-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-orange-700 uppercase">Incluir Venta de Garage</span>
@@ -427,68 +528,51 @@
 
         window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); }
 
-        // --- CONECTAR CON ADMIN.PY PARA OCULTAR BOTONES ---
-        document.addEventListener("DOMContentLoaded", function() {
-            // Leer valores de Django Config
-            const mostrarCursos = "{{ config.mostrar_cursos|yesno:'true,false' }}" === "true";
-            const mostrarPremios = "{{ config.mostrar_reconocimientos|yesno:'true,false' }}" === "true";
-            const mostrarGarage = "{{ config.mostrar_garage|yesno:'true,false' }}" === "true";
-
-            // Función para ocultar si es falso
-            function checkVis(id, visible) {
-                const el = document.getElementById(id);
-                if(el && !visible) el.style.display = 'none';
-            }
-
-            // Ejecutar chequeo
-            checkVis('btn-cursos', mostrarCursos);
-            checkVis('btn-premios', mostrarPremios);
-            checkVis('btn-garage', mostrarGarage);
-        });
-
         // --- FUNCIÓN DE IMPRESIÓN NATIVA CON FILTROS ---
         function imprimirNativo() {
-            toggleModal('modalPDF'); // Cerrar modal
+            // 1. Cerrar el modal
+            toggleModal('modalPDF');
 
-            // Mapa de checkboxes -> IDs de secciones
+            // 2. Mapeo de checkboxes a secciones HTML
             const mapa = {
                 'chk-sobre-mi': 'sec-sobre-mi',
                 'chk-lenguajes': 'sec-lenguajes',
                 'chk-productos-acad': 'sec-productos-acad',
                 'chk-habilidades': 'sec-habilidades',
-                'chk-experiencia': 'sec-experiencia'
+                'chk-experiencia': 'sec-experiencia',
+                'chk-productos-laborales': 'sec-productos-laborales'
             };
 
-            // Ocultar lo que no se seleccionó
+            // 3. Ocultar lo desmarcado (añade clase CSS)
             for (const [chkId, secId] of Object.entries(mapa)) {
                 const isChecked = document.getElementById(chkId).checked;
                 const section = document.getElementById(secId);
                 if (section) {
-                    if (!isChecked) section.classList.add('hidden-on-print');
-                    else section.classList.remove('hidden-on-print');
+                    if (!isChecked) section.classList.add('oculto-impresion');
+                    else section.classList.remove('oculto-impresion');
                 }
             }
 
-            // Manejar Garage (funciona al revés, oculto por defecto)
+            // 4. Lógica especial Garage (Funciona al revés, está oculto por defecto)
             const garageChecked = document.getElementById('chk-garage').checked;
-            const garageSection = document.getElementById('sec-garage-print');
+            const garageSection = document.getElementById('garage-print-section');
             if(garageChecked) {
-                garageSection.classList.remove('hidden-on-print'); // Asegurar que se vea
-                garageSection.style.display = 'block'; // Forzar display block para impresión
+                garageSection.classList.remove('oculto-impresion'); // Asegurar que no tenga la clase de ocultar
+                // El CSS @media print { #garage-print-section { display: block } } se encargará de mostrarlo
             } else {
-                garageSection.style.display = 'none';
+                garageSection.classList.add('oculto-impresion'); // Forzar ocultarlo si no se quiere
             }
 
-            // Imprimir
+            // 5. Imprimir con pequeño delay
             setTimeout(() => {
                 window.print();
                 
-                // Restaurar vista web después de imprimir
+                // 6. Restaurar la web (quitar filtros)
                 for (const secId of Object.values(mapa)) {
                     const section = document.getElementById(secId);
-                    if(section) section.classList.remove('hidden-on-print');
+                    if(section) section.classList.remove('oculto-impresion');
                 }
-                garageSection.style.display = 'none'; // Volver a ocultar garage
+                garageSection.classList.add('oculto-impresion'); // Volver a estado original
             }, 300);
         }
     </script>
