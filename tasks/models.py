@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# 1. PERFIL PRINCIPAL (Basado en CREATE TABLE DATOSPERSONALES)
+# 1. PERFIL PRINCIPAL
 class DatosPersonales(models.Model):
     idperfil = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -23,11 +23,14 @@ class DatosPersonales(models.Model):
     sitioweb = models.CharField(max_length=60, blank=True, null=True)
     foto = models.ImageField(upload_to='perfil_fotos/', null=True, blank=True)
     instagram = models.CharField(max_length=50, blank=True, null=True)
+    
+    # NUEVO CAMPO PARA SOLUCIONAR TU PROBLEMA
+    activarparaqueseveaenfront = models.BooleanField(default=False, verbose_name="Activar para ver en Web")
 
     def __str__(self):
         return f"{self.nombres} {self.apellidos}"
 
-# 2. EXPERIENCIA LABORAL (Basado en CREATE TABLE EXPERIENCIASLABORAL)
+# 2. EXPERIENCIA LABORAL
 class ExperienciaLaboral(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     cargodesempenado = models.CharField(max_length=100)
@@ -46,7 +49,7 @@ class ExperienciaLaboral(models.Model):
     def __str__(self):
         return f"{self.cargodesempenado} en {self.nombrempresa}"
 
-# 3. CURSOS REALIZADOS (Basado en CREATE TABLE CURSOSREALIZADOS)
+# 3. CURSOS REALIZADOS
 class CursosRealizados(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombrerecurso = models.CharField(max_length=100)
@@ -64,7 +67,7 @@ class CursosRealizados(models.Model):
     def __str__(self):
         return self.nombrerecurso
 
-# 4. RECONOCIMIENTOS (Basado en CREATE TABLE RECONOCIMIENTOS)
+# 4. RECONOCIMIENTOS
 class Reconocimiento(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     tiporeconocimiento = models.CharField(max_length=100, choices=[('Académico', 'Académico'), ('Público', 'Público'), ('Privado', 'Privado')])
@@ -95,7 +98,7 @@ class ProductosLaborales(models.Model):
     descripcion = models.CharField(max_length=100)
     activarparaqueseveaenfront = models.BooleanField(default=True)
 
-# 7. VENTA DE GARAGE (Basado en CREATE TABLE VENTAGARAGE)
+# 7. VENTA DE GARAGE
 class VentaGarage(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombreproducto = models.CharField(max_length=100)
