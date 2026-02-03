@@ -64,7 +64,7 @@ WSGI_APPLICATION = "django_portfolio.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 DATABASES = {
     'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        default='postgresql://bd_a0j3_user:nnGxsl1SFP9oMhFJVj2Wei23xJlUcmg2@dpg-d60jocchg0os73b1gvd0-a.oregon-postgres.render.com/bd_a0j3',
         conn_max_age=600
     )
 }
