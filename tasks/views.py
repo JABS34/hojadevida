@@ -22,7 +22,6 @@ def home(request):
         primer_perfil = perfiles_activos.first()
         username_unico = primer_perfil.user.username if primer_perfil else ""
 
-        # Usamos get_or_create para evitar el Error 500 si no existe el registro
         config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
 
         contexto = {
@@ -73,10 +72,8 @@ def profile_cv(request, username):
     if not perfil:
         return redirect('home')
 
-    # Evitamos error 500 asegurando que exista el registro de configuración
+    # Registro de configuración para evitar Error 500
     config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
-
-    productos_academicos = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
 
     contexto = {
         'user_viewed': user_viewed,
@@ -84,13 +81,51 @@ def profile_cv(request, username):
         'experiencias': ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'cursos': CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'reconocimientos': Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
-        'productos_academicos': productos_academicos, 
+        'productos_academicos': ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True), 
         'productos_laborales': ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'lenguajes': LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'habilidades': Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
-        'config': config_botones, # Ahora es seguro y no dará error 500
+        'config': config_botones,
     }
     return render(request, 'profile_cv.html', contexto)
+
+# --- GARAGE ---
+def garage_store(request, username):
+    user_viewed = get_object_or_404(User, username=username)
+    perfil = DatosPersonales.objects.filter(user=user_viewed).first()
+    config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
+    
+    productos = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else []
+    return render(request, 'garage.html', {
+        'user_viewed': user_viewed, 
+        'productos': productos,
+        'config': config_botones
+    })
+
+# --- EXPORTAR PDF (IGUAL AL TUYO) ---
+def export_pdf(request, username):
+    user_viewed = get_object_or_404(User, username=username)
+    perfil = DatosPersonales.objects.filter(user=user_viewed).first()
+    if not perfil: return redirect('home')
+    show_options = {
+        'show_sobre_mi': request.GET.get('sobre_mi') == 'on',
+        'show_lenguajes': request.GET.get('lenguajes') == 'on',
+        'show_productos_acad': request.GET.get('productos_acad') == 'on',
+        'show_habilidades': request.GET.get('habilidades') == 'on',
+        'show_experiencia': request.GET.get('experiencia') == 'on',
+        'show_certificados': request.GET.get('certificados') == 'on',
+        'show_garage': request.GET.get('garage') == 'on',
+    }
+    contexto = {'user_viewed': user_viewed, 'perfil': perfil, **show_options}
+    if show_options['show_experiencia']: contexto['experiencias'] = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    if show_options['show_habilidades']: contexto['habilidades'] = Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    if show_options['show_lenguajes']: contexto['lenguajes'] = LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    if show_options['show_productos_acad']: contexto['productos_academicos'] = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    if show_options['show_certificados']:
+        contexto['cursos'] = CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+        contexto['reconocimientos'] = Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    if show_options['show_garage']: contexto['productos_garage'] = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    return render(request, 'pdf_template.html', contexto)
 
 # --- TAREAS Y DASHBOARD ---
 @login_required

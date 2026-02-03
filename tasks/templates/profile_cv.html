@@ -94,29 +94,39 @@
         </div>
         <div class="menu-wrapper">
             <div id="groupLeft" class="nav-group">
+                {% if config.mostrar_cursos %}
                 <div class="nav-item" onclick="toggleModal('modalCert')">
                     <i class="fas fa-graduation-cap"></i>
                     <span class="label">Cursos</span>
                     <span class="pointer-hand hand-l">👉</span>
                     <span class="pointer-hand hand-r">👈</span>
                 </div>
+                {% endif %}
+
+                {% if config.mostrar_reconocimientos %}
                 <div class="nav-item" onclick="toggleModal('modalRec')">
                     <i class="fas fa-trophy"></i>
                     <span class="label">Premios</span>
                     <span class="pointer-hand hand-l">👉</span>
                     <span class="pointer-hand hand-r">👈</span>
                 </div>
+                {% endif %}
             </div>
+
             <div id="trigger" class="menu-trigger" onclick="toggleBrote()">
                 <i class="fas fa-bars"></i>
             </div>
+
             <div id="groupRight" class="nav-group">
+                {% if config.mostrar_garage %}
                 <a href="{% url 'garage_store' user_viewed.username %}" class="nav-item">
                     <i class="fas fa-car-side"></i>
                     <span class="label">Garage</span>
                     <span class="pointer-hand hand-l">👉</span>
                     <span class="pointer-hand hand-r">👈</span>
                 </a>
+                {% endif %}
+
                 <div class="nav-item" onclick="toggleModal('modalPDF')">
                     <i class="fas fa-file-pdf"></i>
                     <span class="label">Exportar</span>
@@ -146,9 +156,7 @@
                     {% if perfil.numerocedula %}<p><i class="fas fa-id-card mr-2 w-4 text-blue-300"></i> {{ perfil.numerocedula }}</p>{% endif %}
                     <p><i class="fas fa-phone mr-2 w-4 text-blue-300"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional|default:"Sin teléfono" }}</p>
                     <p><i class="fas fa-map-marker-alt mr-2 w-4 text-blue-300"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
-                    {% if perfil.sitioweb %}
-                    <p><i class="fas fa-globe mr-2 w-4 text-blue-300"></i> {{ perfil.sitioweb }}</p>
-                    {% endif %}
+                    {% if perfil.sitioweb %}<p><i class="fas fa-globe mr-2 w-4 text-blue-300"></i> {{ perfil.sitioweb }}</p>{% endif %}
                 </div>
             </section>
 
@@ -291,7 +299,6 @@
                 <h2 class="font-bold text-2xl text-slate-800 uppercase italic">Exportar PDF</h2>
                 <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Personaliza tu documento</p>
             </div>
-
             <form action="{% url 'export_pdf' user_viewed.username %}" method="GET" target="_blank" class="space-y-2">
                 <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
                     <input type="checkbox" name="sobre_mi" checked class="w-5 h-5 text-blue-600 rounded mr-3">
@@ -313,67 +320,6 @@
                     <input type="checkbox" name="experiencia" checked class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-slate-700 uppercase">Experiencia Laboral</span>
                 </label>
-                <label class="flex items-center p-3 bg-blue-50 rounded-xl cursor-pointer border border-blue-200">
-                    <input type="checkbox" name="certificados" checked class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-blue-800 uppercase">Cursos y Reconocimientos (Anexos)</span>
-                </label>
-                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="garage" class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-slate-700 uppercase">Garage (Productos en venta)</span>
-                </label>
 
-                <div class="flex gap-3 mt-6">
-                    <button type="button" onclick="toggleModal('modalPDF')" class="flex-1 py-4 text-slate-400 font-bold uppercase tracking-widest text-[10px]">Cerrar</button>
-                    <button type="submit" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition uppercase tracking-widest text-[10px]">
-                        Generar PDF
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modalVisor" class="modal">
-        <div class="preview-container">
-            <div class="pdf-side">
-                <div class="text-center">
-                    <i class="fas fa-file-circle-check text-[120px] text-blue-600 opacity-20"></i>
-                    <p class="mt-4 text-slate-400 font-bold uppercase text-xs tracking-widest">Documento Listo</p>
-                </div>
-            </div>
-            <div class="info-side">
-                <div class="mb-8">
-                    <i class="fas fa-cloud-arrow-down text-5xl text-blue-500 mb-4"></i>
-                    <h2 id="visorTitulo" class="text-xl font-black text-slate-800 uppercase leading-tight"></h2>
-                    <p id="visorSub" class="text-sm text-slate-500 italic mt-2"></p>
-                </div>
-                <a id="visorBtnDescarga" href="" target="_blank" download class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-3 hover:bg-blue-700 transition">
-                    <i class="fas fa-download"></i> DESCARGAR DOCUMENTO
-                </a>
-                <button onclick="toggleModal('modalVisor')" class="mt-8 text-xs text-slate-400 font-bold uppercase tracking-widest">Regresar</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function toggleBrote() {
-            document.getElementById('groupLeft').classList.toggle('active');
-            document.getElementById('groupRight').classList.toggle('active');
-            document.getElementById('trigger').classList.toggle('open');
-        }
-        function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
-
-        function abrirVisor(ruta, titulo, entidad) {
-            if (!ruta || ruta === "None" || ruta === "") {
-                alert("No hay un archivo disponible.");
-                return;
-            }
-            document.getElementById('visorTitulo').innerText = titulo;
-            document.getElementById('visorSub').innerText = entidad;
-            document.getElementById('visorBtnDescarga').href = ruta; 
-            toggleModal('modalVisor');
-        }
-
-        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); }
-    </script>
-</body>
-</html>
+                {% if config.mostrar_cursos or config.mostrar_reconocimientos %}
+                <label class="flex items-center p-3 bg-blue-5
