@@ -35,7 +35,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Vital para Render
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Vital para Render (Arregla la interfaz fea)
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -91,14 +91,16 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-# Importante para Render
+# Importante para Render: Esto hace que se vean los estilos (CSS)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Media Files (Configuración Cloudinary para Render)
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-# --- SEGURIDAD: LEER DESDE VARIABLES DE ENTORNO ---
+# --- CORRECCIÓN IMPORTANTE ---
+# Usamos las claves genéricas aquí. Tienes que poner los valores REALES (dpaajunu7, etc.)
+# en la sección "Environment Variables" de la página web de Render.
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('dpaajunu7'),
     'API_KEY':    os.environ.get('229623356596985'),
