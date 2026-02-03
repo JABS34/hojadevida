@@ -71,9 +71,9 @@
         .modal.active { display: flex; }
 
         /* ESTILOS VISTA PREVIA SPLIT */
-        .preview-container { display: flex; width: 90%; max-width: 1100px; height: 80vh; background: white; border-radius: 24px; overflow: hidden; }
-        .pdf-side { flex: 2; background: #333; }
-        .info-side { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fdfdfd; text-align: center; border-left: 1px solid #eee; }
+        .preview-container { display: flex; width: 85%; max-width: 900px; height: 60vh; background: white; border-radius: 24px; overflow: hidden; }
+        .pdf-side { flex: 1.5; background: #f8fafc; display: flex; align-items: center; justify-content: center; border-right: 1px solid #e2e8f0; }
+        .info-side { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; text-align: center; }
         
         /* CUADRITO PEQUEÑO */
         .mini-box { width: 40px; height: 40px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6; border: 1px solid #e2e8f0; flex-shrink: 0; }
@@ -209,21 +209,6 @@
                     {% endfor %}
                 </div>
             </section>
-
-            <section>
-                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Productos Laborales</h2>
-                <div class="grid grid-cols-1 gap-4">
-                    {% for prod in productos_laborales %}
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 hover:bg-white hover:shadow-md transition">
-                        <h4 class="text-[13px] font-bold text-slate-800 uppercase">{{ prod.nombreproducto }}</h4>
-                        <p class="text-[11px] text-slate-500 mt-1">{{ prod.descripcion }}</p>
-                        <p class="text-[10px] text-blue-600 font-bold mt-2"><i class="far fa-calendar-alt mr-1"></i> {{ prod.fechaproducto|date:"d/m/Y" }}</p>
-                    </div>
-                    {% empty %}
-                    <p class="text-slate-400 text-[12px] italic">No hay productos registrados.</p>
-                    {% endfor %}
-                </div>
-            </section>
         </main>
     </div>
 
@@ -233,10 +218,10 @@
             {% for curso in cursos %}
             <div class="flex items-center gap-4 border-b border-slate-100 pb-2 cursor-pointer hover:bg-slate-50 transition" 
                  onclick="abrirVisor('{{ curso.rutacertificado }}', '{{ curso.nombrerecurso }}', '{{ curso.entidadpatrocinadora }}')">
-                <div class="mini-box"><i class="fas fa-file-pdf"></i></div>
+                <div class="mini-box"><i class="fas fa-file-lines"></i></div>
                 <div>
                     <p class="text-sm font-bold uppercase">{{ curso.nombrerecurso }}</p>
-                    <p class="text-[10px] text-blue-500 font-bold uppercase">Click para vista previa</p>
+                    <p class="text-[10px] text-blue-500 font-bold uppercase">Abrir para descargar</p>
                 </div>
             </div>
             {% empty %}
@@ -268,16 +253,19 @@
     <div id="modalVisor" class="modal">
         <div class="preview-container">
             <div class="pdf-side">
-                <iframe id="iframeVisor" src="" width="100%" height="100%" style="border:none;"></iframe>
+                <div class="text-center">
+                    <i class="fas fa-file-circle-check text-[120px] text-blue-600 opacity-20"></i>
+                    <p class="mt-4 text-slate-400 font-bold uppercase text-xs tracking-widest">Documento Listo</p>
+                </div>
             </div>
             <div class="info-side">
                 <div class="mb-8">
-                    <i class="fas fa-file-pdf text-5xl text-blue-600 mb-4"></i>
+                    <i class="fas fa-cloud-arrow-down text-5xl text-blue-500 mb-4"></i>
                     <h2 id="visorTitulo" class="text-xl font-black text-slate-800 uppercase leading-tight"></h2>
                     <p id="visorSub" class="text-sm text-slate-500 italic mt-2"></p>
                 </div>
                 <a id="visorBtnDescarga" href="" target="_blank" download class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-3 hover:bg-blue-700 transition">
-                    <i class="fas fa-download"></i> DESCARGAR AHORA
+                    <i class="fas fa-download"></i> DESCARGAR DOCUMENTO
                 </a>
                 <button onclick="toggleModal('modalVisor')" class="mt-8 text-xs text-slate-400 font-bold uppercase tracking-widest">Regresar</button>
             </div>
@@ -294,24 +282,10 @@
 
         function abrirVisor(ruta, titulo, entidad) {
             if (!ruta || ruta === "None" || ruta === "") {
-                alert("No hay un archivo guardado para este registro.");
+                alert("No hay un archivo disponible.");
                 return;
             }
             
-            let urlFinal = ruta;
-            
-            // Lógica corregida para Google Drive: Forzar visualización de PDF real
-            if (ruta.includes("drive.google.com")) {
-                const regex = /\/d\/(.*?)(\/|$|preview|view)/;
-                const match = ruta.match(regex);
-                if (match && match[1]) {
-                    const fileId = match[1];
-                    // Usamos el visor nativo de Google Docs para renderizar el PDF sin pedir login
-                    urlFinal = `https://docs.google.com/viewer?embedded=true&url=https://drive.google.com/uc?id=${fileId}`;
-                }
-            }
-
-            document.getElementById('iframeVisor').src = urlFinal;
             document.getElementById('visorTitulo').innerText = titulo;
             document.getElementById('visorSub').innerText = entidad;
             document.getElementById('visorBtnDescarga').href = ruta; 
