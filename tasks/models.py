@@ -43,7 +43,8 @@ class ExperienciaLaboral(models.Model):
     fechafingestion = models.DateField()
     descripcionfunciones = models.CharField(max_length=100)
     activarparaqueseveaenfront = models.BooleanField(default=True)
-    rutacertificado = models.CharField(max_length=100, blank=True, null=True)
+    # MODIFICADO: Ahora acepta archivos (PDF)
+    rutacertificado = models.FileField(upload_to='certificados/experiencia/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.cargodesempenado} en {self.nombrempresa}"
@@ -61,7 +62,8 @@ class CursosRealizados(models.Model):
     telefonocontactoauspicia = models.CharField(max_length=60)
     emailempresapatrocinadora = models.CharField(max_length=60)
     activarparaqueseveaenfront = models.BooleanField(default=True)
-    rutacertificado = models.CharField(max_length=100, blank=True, null=True)
+    # MODIFICADO: Ahora acepta archivos (PDF)
+    rutacertificado = models.FileField(upload_to='certificados/cursos/', blank=True, null=True)
 
     def __str__(self):
         return self.nombrerecurso
@@ -76,7 +78,8 @@ class Reconocimiento(models.Model):
     nombrecontactoauspicia = models.CharField(max_length=100)
     telefonocontactoauspicia = models.CharField(max_length=60)
     activarparaqueseveaenfront = models.BooleanField(default=True)
-    rutacertificado = models.CharField(max_length=100, blank=True, null=True)
+    # MODIFICADO: Ahora acepta archivos (PDF)
+    rutacertificado = models.FileField(upload_to='certificados/reconocimientos/', blank=True, null=True)
 
     def __str__(self):
         return self.descripcionreconocimiento
