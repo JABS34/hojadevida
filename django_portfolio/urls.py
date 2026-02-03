@@ -25,13 +25,12 @@ urlpatterns = [
     # RUTA DEL PERFIL CV PUBLICO
     path('perfil/<str:username>/', views.profile_cv, name='profile_cv'),
     
-    # RUTA PARA EXPORTAR PDF (Si tienes la función creada, sino dará error 404)
+    # RUTA PARA EXPORTAR PDF
     path('perfil/<str:username>/pdf/', views.export_pdf, name='export_pdf'),
     
-    # SERVIR ARCHIVOS MEDIA EN PRODUCCIÓN (Importante para Render)
+    # SERVIR ARCHIVOS MEDIA EN PRODUCCIÓN
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
-# Configuración para servir imágenes en modo DEBUG (Local)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
