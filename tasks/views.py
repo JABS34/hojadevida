@@ -11,51 +11,33 @@ from .models import (
     LenguajeProgramacion, Habilidad
 )
 
-# --- VISTA PRINCIPAL CON FILTRO ESTRICTO Y SALTO DIRECTO ---
+# --- VISTA PRINCIPAL ---
 def home(request):
     try:
-        # 1. Filtramos estrictamente los perfiles habilitados
         perfiles_activos = DatosPersonales.objects.filter(activarparaqueseveaenfront=True)
+        if not perfiles_activos.exists():
+            perfiles_activos = DatosPersonales.objects.all()
+        
         total_activos = perfiles_activos.count()
-
-        # 2. Lógica de redirección automática:
-        # Si hay exactamente 1 perfil y tiene un usuario vinculado, entramos directo
-        if total_activos == 1:
-            perfil_unico = perfiles_activos.first()
-            if perfil_unico.user:
-                return redirect('profile_cv', username=perfil_unico.user.username)
-
-        # 3. Si hay 0 o más de 1, preparamos el contexto para el selector
-        username_unico = ""
-        # Esto es por si el botón "Empezar" en el JS necesita un valor base
-        if total_activos > 0:
-            primer_perfil = perfiles_activos.first()
-            if primer_perfil.user:
-                username_unico = primer_perfil.user.username
-
-        # Obtenemos configuración global (ID 1)
-        config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
+        primer_perfil = perfiles_activos.first()
+        username_unico = primer_perfil.user.username if primer_perfil else ""
 
         contexto = {
             'perfiles_activos': perfiles_activos,
             'total_activos': total_activos,
             'username_unico': username_unico,
-            'config': config_botones,
+            'config': ConfiguracionVisible.objects.first(),
         }
     except Exception as e:
-        print(f"Error detectado: {e}")
         contexto = {
-            'perfiles_activos': [], 
-            'total_activos': 0, 
-            'username_unico': "", 
-            'config': None
+            'perfiles_activos': [],
+            'total_activos': 0,
+            'username_unico': "",
+            'config': None,
         }
-    
     return render(request, 'welcome.html', contexto)
 
-# --- LAS DEMÁS VISTAS SE MANTIENEN IGUAL ---
-
-# --- AUTENTICACIÓN ---
+# --- VISTAS DE AUTENTICACIÓN ---
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {'form': UserCreationForm()})
@@ -92,39 +74,37 @@ def profile_cv(request, username):
     if not perfil:
         return redirect('home')
 
-    config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
-
     contexto = {
         'user_viewed': user_viewed,
         'perfil': perfil,
         'experiencias': ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'cursos': CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'reconocimientos': Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
-        'productos_academicos': ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True), 
+        'productos_academicos': ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'productos_laborales': ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'lenguajes': LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'habilidades': Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
-        'config': config_botones,
+        'config': ConfiguracionVisible.objects.first(),
     }
     return render(request, 'profile_cv.html', contexto)
+
+# --- TAREAS ---
+@login_required
+def dashboard(request):
+    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
+    return render(request, 'dashboard.html', {'tasks': tasks})
+
+@login_required
+def tasks(request):
+    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
+    return render(request, 'tasks.html', {'tasks': tasks})
 
 # --- GARAGE ---
 def garage_store(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
-    
-    config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
-    
-    if not config_botones.mostrar_garage:
-        return redirect('profile_cv', username=username)
-
     productos = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else []
-    
-    return render(request, 'garage.html', {
-        'user_viewed': user_viewed, 
-        'productos': productos,
-        'config': config_botones
-    })
+    return render(request, 'garage.html', {'user_viewed': user_viewed, 'productos': productos})
 
 # --- EXPORTAR PDF ---
 def export_pdf(request, username):
@@ -159,6 +139,7 @@ def export_pdf(request, username):
     if show_options['show_lenguajes']:
         contexto['lenguajes'] = LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
+    # MODIFICACIÓN CLAVE: Carga de productos académicos para el PDF
     if show_options['show_productos_acad']:
         contexto['productos_academicos'] = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
@@ -170,14 +151,3 @@ def export_pdf(request, username):
         contexto['productos_garage'] = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
 
     return render(request, 'pdf_template.html', contexto)
-
-# --- TAREAS Y DASHBOARD ---
-@login_required
-def dashboard(request):
-    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
-    return render(request, 'dashboard.html', {'tasks': tasks})
-
-@login_required
-def tasks(request):
-    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
-    return render(request, 'tasks.html', {'tasks': tasks})

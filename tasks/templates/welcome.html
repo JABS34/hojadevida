@@ -19,31 +19,24 @@
         }
         .hero-content button { pointer-events: auto; }
 
-        /* --- SELECTOR DE PERFIL MEJORADO --- */
+        /* --- SELECTOR DE PERFIL (MINECRAFT ANIMALS) --- */
         #profile-selector {
             position: fixed; inset: 0; z-index: 100; display: none;
             flex-direction: column; align-items: center; justify-content: center;
-            background: #020617;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
             overflow: hidden;
         }
 
-        /* Efecto Linterna / Destello */
-        .flashlight-spark {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0.1);
-            opacity: 0;
-            pointer-events: none;
-            z-index: 1;
+        .mc-animal {
+            position: absolute; width: 80px; height: 80px;
+            image-rendering: pixelated; pointer-events: none; z-index: 5;
+            transition: all 2s linear;
         }
 
         .profile-card-pixel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(99, 102, 241, 0.3);
             border-radius: 30px;
             padding: 40px;
             width: 320px;
@@ -51,17 +44,11 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 10;
         }
-        .profile-card-pixel:hover { 
-            transform: scale(1.05); 
-            border-color: #6366f1; 
-            background: rgba(99, 102, 241, 0.05);
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
-        }
+        .profile-card-pixel:hover { transform: scale(1.1); border-color: #818cf8; box-shadow: 0 0 40px rgba(99, 102, 241, 0.2); }
 
         .img-container {
             width: 140px; height: 140px; margin: 0 auto 25px;
             border-radius: 50%; border: 4px solid #6366f1; overflow: hidden;
-            background: #1e293b; display: flex; align-items: center; justify-content: center;
         }
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -79,18 +66,13 @@
             100% { transform: translate(-2px, -2px); }
         }
 
+        /* Partículas */
         .emoji-particle { position: absolute; pointer-events: none; z-index: 200; font-size: 2.5rem; animation: floatUp 0.8s ease-out forwards; }
         .pixel-particle { position: absolute; width: 12px; height: 12px; pointer-events: none; z-index: 200; }
 
         @keyframes floatUp {
             0% { transform: scale(0) rotate(0deg); opacity: 1; }
             100% { transform: scale(1.5) translateY(-150px) rotate(45deg); opacity: 0; }
-        }
-
-        @keyframes flashAnim {
-            0% { opacity: 0; transform: scale(0); }
-            50% { opacity: 0.3; transform: scale(1.5); }
-            100% { opacity: 0; transform: scale(2); }
         }
     </style>
 </head>
@@ -100,36 +82,24 @@
     <input type="hidden" id="username-unico" value="{{ username_unico }}">
 
     <div id="profile-selector">
-        <div id="spark-container" class="absolute inset-0"></div>
-        <h2 class="text-5xl font-black mb-16 text-white z-10 italic tracking-tighter">SELECCIONA TU PERFIL</h2>
-        
+        <div id="mc-background" class="absolute inset-0"></div>
+        <h2 class="text-5xl font-black mb-16 text-white z-10 italic">SELECCIONA TU PERFIL</h2>
         <div class="flex flex-wrap justify-center gap-10 z-10">
             {% for perfil in perfiles_activos %}
             <div class="profile-card-pixel">
                 <div class="img-container">
                     {% if perfil.foto %}
-                        <img src="{{ perfil.foto.url }}" alt="Foto de {{ perfil.nombres }}">
+                        <img src="{{ perfil.foto.url }}">
                     {% else %}
-                        <div class="text-5xl">👤</div>
+                        <div class="w-full h-full bg-slate-800 flex items-center justify-center text-5xl">👤</div>
                     {% endif %}
                 </div>
-                <h3 class="text-2xl font-bold text-white mb-8 tracking-tight">{{ perfil.nombres }} {{ perfil.apellidos }}</h3>
-                
-                {% if perfil.user %}
-                    <button onclick="mineExplode(event, '{{ perfil.user.username }}')" class="btn-vibrate uppercase tracking-widest text-sm">MIRA MI CV</button>
-                {% else %}
-                    <p class="text-red-400 text-xs font-bold uppercase">Usuario no vinculado</p>
-                {% endif %}
-            </div>
-            {% empty %}
-            <div class="text-center z-10">
-                <p class="text-slate-400 text-xl italic">No hay perfiles activos configurados.</p>
-                <p class="text-indigo-400 text-sm mt-2">Activa al menos un perfil en el panel administrativo.</p>
+                <h3 class="text-2xl font-bold text-white mb-8">{{ perfil.nombres }}</h3>
+                <button onclick="mineExplode(event, '{{ perfil.user.username }}')" class="btn-vibrate">MIRA MI CV</button>
             </div>
             {% endfor %}
         </div>
-        
-        <button onclick="document.getElementById('profile-selector').style.display='none'" class="mt-12 text-slate-500 hover:text-white transition-colors z-10 font-bold uppercase text-xs tracking-widest">VOLVER AL INICIO</button>
+        <button onclick="document.getElementById('profile-selector').style.display='none'" class="mt-12 text-slate-500 hover:text-white transition-colors z-10 font-bold">VOLVER</button>
     </div>
 
     <section id="hero-main" class="relative w-screen h-screen flex flex-col items-center justify-center text-center overflow-hidden">
@@ -148,25 +118,29 @@
     </section>
 
     <script>
-        // --- EFECTO DE DESTELLOS TIPO LINTERNILLA ---
-        function createSpark() {
-            const container = document.getElementById('spark-container');
-            if (document.getElementById('profile-selector').style.display === 'flex') {
-                const spark = document.createElement('div');
-                spark.className = 'flashlight-spark';
-                
-                const x = Math.random() * 100;
-                const y = Math.random() * 100;
-                
-                spark.style.left = x + '%';
-                spark.style.top = y + '%';
-                spark.style.animation = `flashAnim ${1 + Math.random() * 2}s ease-in-out forwards`;
-                
-                container.appendChild(spark);
-                setTimeout(() => spark.remove(), 3000);
-            }
+        // --- ANIMALES DE MINECRAFT ---
+        const mcField = document.getElementById('mc-background');
+        const animals = [
+            'https://minecraft.wiki/images/Pig_JE3_BE2.png',
+            'https://minecraft.wiki/images/Sheep_JE3_BE2.png',
+            'https://minecraft.wiki/images/Chicken_JE2_BE2.png',
+            'https://minecraft.wiki/images/Cow_JE2_BE2.png'
+        ];
+
+        for(let i=0; i<10; i++){
+            const animal = document.createElement('img');
+            animal.src = animals[i % animals.length];
+            animal.className = 'mc-animal';
+            animal.style.left = Math.random() * 90 + '%';
+            animal.style.top = Math.random() * 90 + '%';
+            mcField.appendChild(animal);
+            
+            setInterval(() => {
+                const moveX = (Math.random() - 0.5) * 300;
+                const moveY = (Math.random() - 0.5) * 300;
+                animal.style.transform = `translate(${moveX}px, ${moveY}px) scale(${moveX > 0 ? 1 : -1}, 1)`;
+            }, 3000);
         }
-        setInterval(createSpark, 600);
 
         // --- EXPLOSIONES ---
         function emojiExplode(x, y) {
@@ -200,14 +174,11 @@
         function handleCVAction() {
             const total = parseInt(document.getElementById('total-activos').value);
             const user = document.getElementById('username-unico').value;
-            if (total === 1 && user !== "") {
-                window.location.href = "/perfil/" + user + "/";
-            } else {
-                document.getElementById('profile-selector').style.display = 'flex';
-            }
+            if (total === 1) window.location.href = "/perfil/" + user + "/";
+            else document.getElementById('profile-selector').style.display = 'flex';
         }
 
-        // --- MOTOR 3D ---
+        // --- MOTOR 3D (BIENVENIDA) ---
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -217,6 +188,7 @@
         const objects = [];
         const indigoMat = new THREE.MeshPhongMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.4 });
         
+        // Polvo estelar
         const partGeo = new THREE.BufferGeometry();
         const posArray = new Float32Array(2000 * 3);
         for(let i=0; i < 2000 * 3; i++) posArray[i] = (Math.random() - 0.5) * 120;
@@ -256,11 +228,16 @@
         scene.add(new THREE.PointLight(0x6366f1, 2, 100));
         camera.position.z = 35;
 
+        // Arrastre y Lanzamiento
         const drag = new THREE.DragControls(objects, camera, renderer.domElement);
         drag.addEventListener('dragstart', (e) => { e.object.userData.isDragging = true; });
-        drag.addEventListener('drag', (e) => { e.object.userData.velocity.set((Math.random()-0.5)*0.8, (Math.random()-0.5)*0.8, 0); });
+        drag.addEventListener('drag', (e) => { 
+            // Dar velocidad al mover
+            e.object.userData.velocity.set((Math.random()-0.5)*0.8, (Math.random()-0.5)*0.8, 0); 
+        });
         drag.addEventListener('dragend', (e) => { e.object.userData.isDragging = false; });
 
+        // Clic y Explosión de Emojis
         window.addEventListener('mousedown', (e) => {
             const ray = new THREE.Raycaster();
             const mouse = new THREE.Vector2((e.clientX/window.innerWidth)*2-1, -(e.clientY/window.innerHeight)*2+1);
@@ -268,6 +245,7 @@
             const inter = ray.intersectObjects(objects);
             if(inter.length > 0) {
                 emojiExplode(e.clientX, e.clientY);
+                // Lanzar objeto al darle clic
                 inter[0].object.userData.velocity.set((Math.random()-0.5)*2, (Math.random()-0.5)*2, (Math.random()-0.5)*1);
             }
         });
@@ -278,8 +256,10 @@
                 if(!obj.userData.isDragging) {
                     obj.position.add(obj.userData.velocity);
                     obj.rotation.x += 0.01; obj.rotation.y += 0.01;
+                    // Rebote en los bordes
                     if (Math.abs(obj.position.x) > 45) obj.userData.velocity.x *= -1;
                     if (Math.abs(obj.position.y) > 35) obj.userData.velocity.y *= -1;
+                    // Rozamiento sutil para que no aceleren infinitamente
                     obj.userData.velocity.multiplyScalar(0.995);
                 }
             });
