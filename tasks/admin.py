@@ -68,7 +68,7 @@ class HabilidadAdmin(admin.ModelAdmin):
     list_filter = ('categoria', 'activarparaqueseveaenfront')
     list_editable = ('activarparaqueseveaenfront',)
 
-# 11. CONTROL DE VISIBILIDAD (NUEVO)
+# 11. CONTROL DE VISIBILIDAD
 @admin.register(ConfiguracionVisible)
 class ConfiguracionVisibleAdmin(admin.ModelAdmin):
     list_display = ('idperfilconqueestaactivo', 'mostrar_garage', 'mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_editar')
