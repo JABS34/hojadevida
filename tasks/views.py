@@ -11,19 +11,14 @@ from .models import (
     LenguajeProgramacion, Habilidad
 )
 
-# --- VISTA PRINCIPAL (BIENVENIDA CON LÓGICA DE PERFILES) ---
+# --- VISTA PRINCIPAL ---
 def home(request):
     try:
-        # 1. Intentamos buscar perfiles marcados como activos en el Admin
         perfiles_activos = DatosPersonales.objects.filter(activarparaqueseveaenfront=True)
-        
-        # 2. Si no hay ninguno activo, buscamos TODOS los perfiles para que no salga el error
         if not perfiles_activos.exists():
             perfiles_activos = DatosPersonales.objects.all()
         
         total_activos = perfiles_activos.count()
-        
-        # 3. Preparamos el username del primero para el botón directo
         primer_perfil = perfiles_activos.first()
         username_unico = primer_perfil.user.username if primer_perfil else ""
 
@@ -34,14 +29,12 @@ def home(request):
             'config': ConfiguracionVisible.objects.first(),
         }
     except Exception as e:
-        # Si algo falla en la base de datos, evitamos que la página se rompa
         contexto = {
             'perfiles_activos': [],
             'total_activos': 0,
             'username_unico': "",
             'config': None,
         }
-    
     return render(request, 'welcome.html', contexto)
 
 # --- VISTAS DE AUTENTICACIÓN ---
@@ -78,7 +71,6 @@ def profile_cv(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
     
-    # Si el perfil no existe, volvemos al inicio
     if not perfil:
         return redirect('home')
 
@@ -96,7 +88,7 @@ def profile_cv(request, username):
     }
     return render(request, 'profile_cv.html', contexto)
 
-# --- VISTAS DE TAREAS Y DASHBOARD ---
+# --- TAREAS ---
 @login_required
 def dashboard(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
@@ -107,14 +99,14 @@ def tasks(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
     return render(request, 'tasks.html', {'tasks': tasks})
 
-# --- VISTA DEL GARAGE ---
+# --- GARAGE ---
 def garage_store(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
     productos = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else []
     return render(request, 'garage.html', {'user_viewed': user_viewed, 'productos': productos})
 
-# --- VISTA PARA EXPORTAR PDF (MODIFICADA SEGÚN SOLICITUD) ---
+# --- EXPORTAR PDF ---
 def export_pdf(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
@@ -122,7 +114,6 @@ def export_pdf(request, username):
     if not perfil:
         return redirect('home')
 
-    # Detectar qué opciones fueron seleccionadas en el modal (Checkboxes)
     show_options = {
         'show_sobre_mi': request.GET.get('sobre_mi') == 'on',
         'show_lenguajes': request.GET.get('lenguajes') == 'on',
@@ -133,14 +124,12 @@ def export_pdf(request, username):
         'show_garage': request.GET.get('garage') == 'on',
     }
 
-    # Contexto base con el usuario y perfil
     contexto = {
         'user_viewed': user_viewed,
         'perfil': perfil,
         **show_options
     }
 
-    # Carga de datos de la base de datos SOLO si la casilla correspondiente está marcada
     if show_options['show_experiencia']:
         contexto['experiencias'] = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
@@ -150,7 +139,7 @@ def export_pdf(request, username):
     if show_options['show_lenguajes']:
         contexto['lenguajes'] = LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
-    # Aseguramos que se carguen los productos académicos si la opción está activa
+    # MODIFICACIÓN CLAVE: Carga de productos académicos para el PDF
     if show_options['show_productos_acad']:
         contexto['productos_academicos'] = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
