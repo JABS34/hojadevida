@@ -10,27 +10,30 @@ from .models import (
     ProductosAcademicos, ProductosLaborales, ConfiguracionVisible,
     LenguajeProgramacion, Habilidad
 )
-# --- VISTA PRINCIPAL ---
-# --- VISTA PRINCIPAL CORREGIDA ---
+
+# --- VISTA PRINCIPAL CON FILTRO ESTRICTO Y SALTO DIRECTO ---
 def home(request):
     try:
-        # 1. Intentamos obtener perfiles activos
+        # 1. Filtramos estrictamente los perfiles habilitados
         perfiles_activos = DatosPersonales.objects.filter(activarparaqueseveaenfront=True)
-        
-        # 2. Si no hay marcados como activos, intentamos traer todos para que no se vea vacío
-        if not perfiles_activos.exists():
-            perfiles_activos = DatosPersonales.objects.all()
-        
-        # 3. Contamos y verificamos el primer perfil de forma segura
         total_activos = perfiles_activos.count()
-        primer_perfil = perfiles_activos.first()
-        
-        # Usamos getattr para evitar errores si primer_perfil o primer_perfil.user son None
-        username_unico = ""
-        if primer_perfil and primer_perfil.user:
-            username_unico = primer_perfil.user.username
 
-        # 4. Obtenemos configuración (ID 1)
+        # 2. Lógica de redirección automática:
+        # Si hay exactamente 1 perfil y tiene un usuario vinculado, entramos directo
+        if total_activos == 1:
+            perfil_unico = perfiles_activos.first()
+            if perfil_unico.user:
+                return redirect('profile_cv', username=perfil_unico.user.username)
+
+        # 3. Si hay 0 o más de 1, preparamos el contexto para el selector
+        username_unico = ""
+        # Esto es por si el botón "Empezar" en el JS necesita un valor base
+        if total_activos > 0:
+            primer_perfil = perfiles_activos.first()
+            if primer_perfil.user:
+                username_unico = primer_perfil.user.username
+
+        # Obtenemos configuración global (ID 1)
         config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
 
         contexto = {
@@ -40,7 +43,6 @@ def home(request):
             'config': config_botones,
         }
     except Exception as e:
-        # En caso de cualquier error crítico, mandamos contexto vacío para que cargue el HTML
         print(f"Error detectado: {e}")
         contexto = {
             'perfiles_activos': [], 
@@ -50,6 +52,9 @@ def home(request):
         }
     
     return render(request, 'welcome.html', contexto)
+
+# --- LAS DEMÁS VISTAS SE MANTIENEN IGUAL ---
+
 # --- AUTENTICACIÓN ---
 def signup(request):
     if request.method == 'GET':
@@ -62,6 +67,7 @@ def signup(request):
             return redirect('dashboard')
         except ValueError:
             return render(request, 'signup.html', {'form': UserCreationForm(), 'error': 'Datos inválidos.'})
+
 def signin(request):
     if request.method == 'GET':
         return render(request, 'signin.html', {'form': AuthenticationForm()})
@@ -72,10 +78,12 @@ def signin(request):
         else:
             login(request, user)
             return redirect('dashboard')
+
 @login_required
 def signout(request):
     logout(request)
     return redirect('home')
+
 # --- PERFIL CV PÚBLICO ---
 def profile_cv(request, username):
     user_viewed = get_object_or_404(User, username=username)
@@ -84,7 +92,6 @@ def profile_cv(request, username):
     if not perfil:
         return redirect('home')
 
-    # Obtenemos la configuración para los botones del navbar
     config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
 
     contexto = {
@@ -97,18 +104,17 @@ def profile_cv(request, username):
         'productos_laborales': ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'lenguajes': LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'habilidades': Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
-        'config': config_botones, # <--- Enviamos la configuración al template
+        'config': config_botones,
     }
     return render(request, 'profile_cv.html', contexto)
+
 # --- GARAGE ---
 def garage_store(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
     
-    # Verificamos si el garage debe estar visible globalmente
     config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
     
-    # Si la opción está desactivada en admin, redirigimos al perfil o home
     if not config_botones.mostrar_garage:
         return redirect('profile_cv', username=username)
 
@@ -144,7 +150,6 @@ def export_pdf(request, username):
         **show_options
     }
 
-    # Consultas condicionales según el formulario de exportación
     if show_options['show_experiencia']:
         contexto['experiencias'] = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
@@ -165,6 +170,7 @@ def export_pdf(request, username):
         contexto['productos_garage'] = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
 
     return render(request, 'pdf_template.html', contexto)
+
 # --- TAREAS Y DASHBOARD ---
 @login_required
 def dashboard(request):
