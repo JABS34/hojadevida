@@ -11,18 +11,44 @@ from .models import (
     LenguajeProgramacion, Habilidad
 )
 # --- VISTA PRINCIPAL ---
+# --- VISTA PRINCIPAL CORREGIDA ---
 def home(request):
-    # Traemos TODO sin filtros para probar
-    perfiles_activos = DatosPersonales.objects.all()
-    total_activos = perfiles_activos.count()
-    
-    config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
+    try:
+        # 1. Intentamos obtener perfiles activos
+        perfiles_activos = DatosPersonales.objects.filter(activarparaqueseveaenfront=True)
+        
+        # 2. Si no hay marcados como activos, intentamos traer todos para que no se vea vacío
+        if not perfiles_activos.exists():
+            perfiles_activos = DatosPersonales.objects.all()
+        
+        # 3. Contamos y verificamos el primer perfil de forma segura
+        total_activos = perfiles_activos.count()
+        primer_perfil = perfiles_activos.first()
+        
+        # Usamos getattr para evitar errores si primer_perfil o primer_perfil.user son None
+        username_unico = ""
+        if primer_perfil and primer_perfil.user:
+            username_unico = primer_perfil.user.username
 
-    contexto = {
-        'perfiles_activos': perfiles_activos,
-        'total_activos': total_activos,
-        'config': config_botones,
-    }
+        # 4. Obtenemos configuración (ID 1)
+        config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
+
+        contexto = {
+            'perfiles_activos': perfiles_activos,
+            'total_activos': total_activos,
+            'username_unico': username_unico,
+            'config': config_botones,
+        }
+    except Exception as e:
+        # En caso de cualquier error crítico, mandamos contexto vacío para que cargue el HTML
+        print(f"Error detectado: {e}")
+        contexto = {
+            'perfiles_activos': [], 
+            'total_activos': 0, 
+            'username_unico': "", 
+            'config': None
+        }
+    
     return render(request, 'welcome.html', contexto)
 # --- AUTENTICACIÓN ---
 def signup(request):
