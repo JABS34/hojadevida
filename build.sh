@@ -1,23 +1,14 @@
 #!/usr/bin/env bash
+# Exit on error
 set -o errexit
 
-# Instalar dependencias
+# 1. Instalar dependencias
 pip install -r requirements.txt
 
-# Recolectar archivos estáticos
-python manage.py collectstatic --no-input
+# 2. Recolectar estáticos (CSS/JS)
+# La opción --clear es la clave: borra lo viejo y fuerza la copia nueva
+python manage.py collectstatic --no-input --clear
 
-# --- PASOS CRÍTICOS PARA LA BASE DE DATOS ---
-# 1. Forzar la creación de archivos de migración para tu app 'tasks'
-python manage.py makemigrations auth
-python manage.py makemigrations tasks
-
-# 2. Aplicar las migraciones (crear las tablas de verdad en Postgres)
-python manage.py migrate --noinput
-
-# 3. Crear el superusuario (usando estas variables fijas para no fallar)
-# Si prefieres, cámbialas aquí mismo directamente
-export DJANGO_SUPERUSER_USERNAME=jabs6393
-export DJANGO_SUPERUSER_PASSWORD=jabs12345
-
-python manage.py createsuperuser --noinput || true
+# 3. Migraciones de base de datos
+python manage.py makemigrations
+python manage.py migrate
