@@ -87,7 +87,7 @@ class ProductosAcademicos(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombrerecurso = models.CharField(max_length=100)
     clasificador = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=800)
     activarparaqueseveaenfront = models.BooleanField(default=True)
 
 # 6. PRODUCTOS LABORALES
