@@ -10,32 +10,20 @@ from .models import (
     ProductosAcademicos, ProductosLaborales, ConfiguracionVisible,
     LenguajeProgramacion, Habilidad
 )
-
 # --- VISTA PRINCIPAL ---
 def home(request):
-    try:
-        perfiles_activos = DatosPersonales.objects.filter(activarparaqueseveaenfront=True)
-        if not perfiles_activos.exists():
-            perfiles_activos = DatosPersonales.objects.all()
-        
-        total_activos = perfiles_activos.count()
-        primer_perfil = perfiles_activos.first()
-        username_unico = primer_perfil.user.username if primer_perfil else ""
-
-        # Obtenemos la configuración única (ID 1)
-        config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
-
-        contexto = {
-            'perfiles_activos': perfiles_activos,
-            'total_activos': total_activos,
-            'username_unico': username_unico,
-            'config': config_botones,
-        }
-    except Exception as e:
-        contexto = {'perfiles_activos': [], 'total_activos': 0, 'username_unico': "", 'config': None}
+    # Traemos TODO sin filtros para probar
+    perfiles_activos = DatosPersonales.objects.all()
+    total_activos = perfiles_activos.count()
     
-    return render(request, 'welcome.html', contexto)
+    config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
 
+    contexto = {
+        'perfiles_activos': perfiles_activos,
+        'total_activos': total_activos,
+        'config': config_botones,
+    }
+    return render(request, 'welcome.html', contexto)
 # --- AUTENTICACIÓN ---
 def signup(request):
     if request.method == 'GET':
@@ -48,7 +36,6 @@ def signup(request):
             return redirect('dashboard')
         except ValueError:
             return render(request, 'signup.html', {'form': UserCreationForm(), 'error': 'Datos inválidos.'})
-
 def signin(request):
     if request.method == 'GET':
         return render(request, 'signin.html', {'form': AuthenticationForm()})
@@ -59,12 +46,10 @@ def signin(request):
         else:
             login(request, user)
             return redirect('dashboard')
-
 @login_required
 def signout(request):
     logout(request)
     return redirect('home')
-
 # --- PERFIL CV PÚBLICO ---
 def profile_cv(request, username):
     user_viewed = get_object_or_404(User, username=username)
@@ -89,7 +74,6 @@ def profile_cv(request, username):
         'config': config_botones, # <--- Enviamos la configuración al template
     }
     return render(request, 'profile_cv.html', contexto)
-
 # --- GARAGE ---
 def garage_store(request, username):
     user_viewed = get_object_or_404(User, username=username)
@@ -155,7 +139,6 @@ def export_pdf(request, username):
         contexto['productos_garage'] = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
 
     return render(request, 'pdf_template.html', contexto)
-
 # --- TAREAS Y DASHBOARD ---
 @login_required
 def dashboard(request):

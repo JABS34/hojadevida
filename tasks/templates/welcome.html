@@ -102,21 +102,33 @@
     <div id="profile-selector">
         <div id="spark-container" class="absolute inset-0"></div>
         <h2 class="text-5xl font-black mb-16 text-white z-10 italic tracking-tighter">SELECCIONA TU PERFIL</h2>
+        
         <div class="flex flex-wrap justify-center gap-10 z-10">
             {% for perfil in perfiles_activos %}
             <div class="profile-card-pixel">
                 <div class="img-container">
                     {% if perfil.foto %}
-                        <img src="{{ perfil.foto.url }}" alt="Foto">
+                        <img src="{{ perfil.foto.url }}" alt="Foto de {{ perfil.nombres }}">
                     {% else %}
                         <div class="text-5xl">👤</div>
                     {% endif %}
                 </div>
-                <h3 class="text-2xl font-bold text-white mb-8 tracking-tight">{{ perfil.nombres }}</h3>
-                <button onclick="mineExplode(event, '{{ perfil.user.username }}')" class="btn-vibrate uppercase tracking-widest text-sm">MIRA MI CV</button>
+                <h3 class="text-2xl font-bold text-white mb-8 tracking-tight">{{ perfil.nombres }} {{ perfil.apellidos }}</h3>
+                
+                {% if perfil.user %}
+                    <button onclick="mineExplode(event, '{{ perfil.user.username }}')" class="btn-vibrate uppercase tracking-widest text-sm">MIRA MI CV</button>
+                {% else %}
+                    <p class="text-red-400 text-xs font-bold uppercase">Usuario no vinculado</p>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="text-center z-10">
+                <p class="text-slate-400 text-xl italic">No hay perfiles activos configurados.</p>
+                <p class="text-indigo-400 text-sm mt-2">Activa al menos un perfil en el panel administrativo.</p>
             </div>
             {% endfor %}
         </div>
+        
         <button onclick="document.getElementById('profile-selector').style.display='none'" class="mt-12 text-slate-500 hover:text-white transition-colors z-10 font-bold uppercase text-xs tracking-widest">VOLVER AL INICIO</button>
     </div>
 
@@ -188,8 +200,11 @@
         function handleCVAction() {
             const total = parseInt(document.getElementById('total-activos').value);
             const user = document.getElementById('username-unico').value;
-            if (total === 1) window.location.href = "/perfil/" + user + "/";
-            else document.getElementById('profile-selector').style.display = 'flex';
+            if (total === 1 && user !== "") {
+                window.location.href = "/perfil/" + user + "/";
+            } else {
+                document.getElementById('profile-selector').style.display = 'flex';
+            }
         }
 
         // --- MOTOR 3D ---
