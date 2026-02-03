@@ -44,7 +44,6 @@ class ExperienciaLaboral(models.Model):
     fechafingestion = models.DateField()
     descripcionfunciones = models.CharField(max_length=100)
     activarparaqueseveaenfront = models.BooleanField(default=True)
-    # MODIFICADO: Acepta PDF y formatos de imagen (PNG, JPG, JPEG)
     rutacertificado = models.FileField(
         upload_to='certificados/experiencia/', 
         blank=True, 
@@ -68,7 +67,6 @@ class CursosRealizados(models.Model):
     telefonocontactoauspicia = models.CharField(max_length=60)
     emailempresapatrocinadora = models.CharField(max_length=60)
     activarparaqueseveaenfront = models.BooleanField(default=True)
-    # MODIFICADO: Acepta PDF y formatos de imagen (PNG, JPG, JPEG)
     rutacertificado = models.FileField(
         upload_to='certificados/cursos/', 
         blank=True, 
@@ -89,7 +87,6 @@ class Reconocimiento(models.Model):
     nombrecontactoauspicia = models.CharField(max_length=100)
     telefonocontactoauspicia = models.CharField(max_length=60)
     activarparaqueseveaenfront = models.BooleanField(default=True)
-    # MODIFICADO: Acepta PDF y formatos de imagen (PNG, JPG, JPEG)
     rutacertificado = models.FileField(
         upload_to='certificados/reconocimientos/', 
         blank=True, 
@@ -107,6 +104,9 @@ class ProductosAcademicos(models.Model):
     clasificador = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=800)
     activarparaqueseveaenfront = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombrerecurso
 
 # 6. PRODUCTOS LABORALES
 class ProductosLaborales(models.Model):
@@ -141,20 +141,20 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.title} - by {self.user.username}"
 
-# 9. CONTROL DE VISIBILIDAD
+# 9. CONTROL DE VISIBILIDAD (ACTUALIZADO)
 class ConfiguracionVisible(models.Model):
+    idperfilconqueestaactivo = models.OneToOneField(DatosPersonales, on_delete=models.CASCADE, verbose_name="Perfil")
     mostrar_garage = models.BooleanField(default=True)
     mostrar_cursos = models.BooleanField(default=True)
     mostrar_reconocimientos = models.BooleanField(default=True)
+    mostrar_editar = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Configuración de Botones"
         verbose_name_plural = "Configuración de Botones"
 
     def __str__(self):
-        return "Interruptores de Visibilidad"
-
-# --- NUEVAS SECCIONES SOLICITADAS ---
+        return f"Configuración de {self.idperfilconqueestaactivo}"
 
 # 10. LENGUAJES DE PROGRAMACIÓN
 class LenguajeProgramacion(models.Model):
@@ -166,7 +166,7 @@ class LenguajeProgramacion(models.Model):
     def __str__(self):
         return self.nombre
 
-# 11. HABILIDADES (SKILLS)
+# 11. HABILIDADES
 class Habilidad(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre_habilidad = models.CharField(max_length=100)
@@ -175,12 +175,3 @@ class Habilidad(models.Model):
 
     def __str__(self):
         return self.nombre_habilidad
-    
-# models.py
-class ConfiguracionVisible(models.Model):
-    # Si tus otros modelos usan este nombre, cámbialo aquí también:
-    idperfilconqueestaactivo = models.OneToOneField(DatosPersonales, on_delete=models.CASCADE) 
-    mostrar_reconocimientos = models.BooleanField(default=True)
-    mostrar_cursos = models.BooleanField(default=True)
-    mostrar_garage = models.BooleanField(default=True)
-    mostrar_editar = models.BooleanField(default=True)

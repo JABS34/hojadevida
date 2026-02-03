@@ -3,19 +3,9 @@ from .models import (
     Task, DatosPersonales, ExperienciaLaboral, 
     CursosRealizados, Reconocimiento, VentaGarage,
     ProductosAcademicos, ProductosLaborales,
-    LenguajeProgramacion, Habilidad,
-    ConfiguracionVisible  # <--- Asegúrate de que esté en models.py
+    LenguajeProgramacion, Habilidad, ConfiguracionVisible
 )
 
-# --- NUEVO: CONTROL DE VISIBILIDAD DE BOTONES ---
-# admin.py
-@admin.register(ConfiguracionVisible)
-class ConfiguracionVisibleAdmin(admin.ModelAdmin):
-    # Cambia 'user' por el nombre real del campo en tu modelo
-    list_display = ('idperfilconqueestaactivo', 'mostrar_reconocimientos', 'mostrar_cursos', 'mostrar_garage', 'mostrar_editar')
-    list_editable = ('mostrar_reconocimientos', 'mostrar_cursos', 'mostrar_garage', 'mostrar_editar')
-
-    
 # 1. TAREAS
 admin.site.register(Task)
 
@@ -48,6 +38,7 @@ class CursosRealizadosAdmin(admin.ModelAdmin):
 @admin.register(ProductosAcademicos)
 class ProductosAcademicosAdmin(admin.ModelAdmin):
     list_display = ('nombrerecurso', 'clasificador', 'activarparaqueseveaenfront')
+    list_editable = ('activarparaqueseveaenfront',)
 
 # 7. PRODUCTOS LABORALES
 @admin.register(ProductosLaborales)
@@ -76,3 +67,9 @@ class HabilidadAdmin(admin.ModelAdmin):
     list_display = ('nombre_habilidad', 'categoria', 'idperfilconqueestaactivo', 'activarparaqueseveaenfront')
     list_filter = ('categoria', 'activarparaqueseveaenfront')
     list_editable = ('activarparaqueseveaenfront',)
+
+# 11. CONTROL DE VISIBILIDAD (NUEVO)
+@admin.register(ConfiguracionVisible)
+class ConfiguracionVisibleAdmin(admin.ModelAdmin):
+    list_display = ('idperfilconqueestaactivo', 'mostrar_garage', 'mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_editar')
+    list_editable = ('mostrar_garage', 'mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_editar')
