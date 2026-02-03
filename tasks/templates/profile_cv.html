@@ -180,7 +180,7 @@
         </div>
         <div class="menu-wrapper">
             <div id="groupLeft" class="nav-group">
-                {% if config.mostrar_cursos %}
+                {% if not config or config.mostrar_cursos %}
                 <div class="nav-item" onclick="toggleModal('modalCert')">
                     <i class="fas fa-graduation-cap"></i>
                     <span class="label">Cursos</span>
@@ -189,7 +189,7 @@
                 </div>
                 {% endif %}
 
-                {% if config.mostrar_reconocimientos %}
+                {% if not config or config.mostrar_reconocimientos %}
                 <div class="nav-item" onclick="toggleModal('modalRec')">
                     <i class="fas fa-trophy"></i>
                     <span class="label">Premios</span>
@@ -202,7 +202,7 @@
                 <i class="fas fa-bars"></i>
             </div>
             <div id="groupRight" class="nav-group">
-                {% if config.mostrar_garage %}
+                {% if not config or config.mostrar_garage %}
                 <a href="{% url 'garage_store' user_viewed.username %}" class="nav-item">
                     <i class="fas fa-car-side"></i>
                     <span class="label">Garage</span>
