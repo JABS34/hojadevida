@@ -166,10 +166,23 @@
                 </div>
             </section>
 
-            <section>
+            <section class="mb-10">
                 <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Nacionalidad</h3>
                 <p class="text-[13px] uppercase">{{ perfil.nacionalidad|default:"No especificada" }}</p>
                 <p class="text-[11px] text-blue-300 mt-1">{{ perfil.lugarnacimiento }}</p>
+            </section>
+
+            <section>
+                <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Habilidades</h3>
+                <div class="flex flex-wrap gap-2">
+                    {% for hab in habilidades %}
+                        <span class="text-[10px] font-bold px-2 py-1 bg-white/10 border border-white/10 rounded-md uppercase">
+                            {{ hab.nombre_habilidad }}
+                        </span>
+                    {% empty %}
+                        <p class="text-[11px] text-white/40 italic">Sin habilidades registradas.</p>
+                    {% endfor %}
+                </div>
             </section>
         </aside>
 
@@ -183,6 +196,25 @@
                     {{ perfil.estadocivil|default:"" }} {% if perfil.sexo %}• {{ perfil.sexo }}{% endif %}
                 </p>
             </header>
+
+            <section class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Lenguajes de Programación</h2>
+                <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+                    {% for lang in lenguajes %}
+                        <div class="w-full">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-[12px] font-bold text-slate-700 uppercase">{{ lang.nombre }}</span>
+                                <span class="text-[10px] font-bold text-blue-600">{{ lang.nivel_porcentaje }}%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-1.5">
+                                <div class="bg-blue-600 h-1.5 rounded-full" style="width: {{ lang.nivel_porcentaje|stringformat:'s' }}%"></div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-slate-400 text-[12px] italic">Sin lenguajes registrados.</p>
+                    {% endfor %}
+                </div>
+            </section>
 
             <section class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Sobre Mí</h2>
@@ -285,11 +317,9 @@
                 alert("No hay un archivo disponible.");
                 return;
             }
-            
             document.getElementById('visorTitulo').innerText = titulo;
             document.getElementById('visorSub').innerText = entidad;
             document.getElementById('visorBtnDescarga').href = ruta; 
-            
             toggleModal('modalVisor');
         }
 

@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from .models import (
     Task, DatosPersonales, ExperienciaLaboral, 
     CursosRealizados, Reconocimiento, VentaGarage,
-    ProductosAcademicos, ProductosLaborales, ConfiguracionVisible
+    ProductosAcademicos, ProductosLaborales, ConfiguracionVisible,
+    LenguajeProgramacion, Habilidad # Se agregan los nuevos modelos
 )
 
 # --- VISTA PRINCIPAL (BIENVENIDA CON LÓGICA DE PERFILES) ---
@@ -89,6 +90,10 @@ def profile_cv(request, username):
         'reconocimientos': Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'productos_academicos': ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'productos_laborales': ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
+        # --- NUEVAS CONSULTAS ---
+        'lenguajes': LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
+        'habilidades': Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
+        # ------------------------
         'config': ConfiguracionVisible.objects.first(),
     }
     return render(request, 'profile_cv.html', contexto)
