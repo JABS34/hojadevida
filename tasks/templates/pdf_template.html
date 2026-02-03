@@ -26,7 +26,6 @@
         .sidebar { width: 35%; background-color: #1e3a8a !important; color: white; padding: 40px 25px; min-height: 297mm; }
         .main-content { width: 65%; padding: 50px; background: white; }
 
-        /* Separadores de sección tipo Título */
         .section-header {
             display: flex;
             align-items: center;
@@ -48,7 +47,7 @@
         .appendix-container { 
             width: 210mm; 
             page-break-before: always; 
-            padding: 20px;
+            padding: 40px;
             background: white;
         }
 
@@ -63,6 +62,13 @@
             max-width: 100%;
             height: auto;
             border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .garage-item-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
             border-radius: 8px;
         }
 
@@ -84,6 +90,7 @@
                 <p><i class="fas fa-envelope mr-2 w-4"></i> {{ user_viewed.email }}</p>
                 <p><i class="fas fa-phone mr-2 w-4"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional }}</p>
                 <p><i class="fas fa-map-marker-alt mr-2 w-4"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
+                <p><i class="fas fa-flag mr-2 w-4"></i> {{ perfil.nacionalidad|default:"Ecuatoriana" }}</p>
             </div>
 
             {% if show_productos_acad and productos_academicos %}
@@ -174,21 +181,6 @@
                 </div>
             </section>
             {% endif %}
-
-            {% if show_garage and productos_garage %}
-            <div class="section-header">
-                <i class="fas fa-car-side text-blue-800"></i>
-                <h2>Catálogo Garage</h2>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                {% for item in productos_garage %}
-                <div class="border border-slate-100 p-3 rounded-xl bg-slate-50">
-                    <p class="text-[10px] font-black text-blue-800 uppercase">{{ item.nombreproducto }}</p>
-                    <p class="text-sm font-bold text-slate-900">${{ item.precioventa }}</p>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
         </main>
     </div>
 
@@ -221,9 +213,32 @@
         {% endif %}
     {% endif %}
 
+    {% if show_garage and productos_garage %}
+    <div class="appendix-container">
+        <div class="section-header">
+            <i class="fas fa-car-side text-blue-800"></i>
+            <h2>Catálogo Garage</h2>
+        </div>
+        <div class="space-y-6">
+            {% for item in productos_garage %}
+            <div class="flex items-center gap-6 border border-slate-100 p-4 rounded-2xl bg-slate-50 page-break-inside-avoid">
+                {% if item.imagenproducto %}
+                    <img src="{{ item.imagenproducto.url }}" class="garage-item-img border border-slate-200 shadow-sm">
+                {% endif %}
+                <div>
+                    <p class="text-xs font-black text-blue-800 uppercase">{{ item.nombreproducto }}</p>
+                    <p class="text-xl font-bold text-slate-900 mt-1">${{ item.precioventa }}</p>
+                    <p class="text-[11px] text-slate-500 mt-1 uppercase">{{ item.descripcion|default:"" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <script>
         window.onload = function() {
-            setTimeout(function() { window.print(); }, 1500);
+            setTimeout(function() { window.print(); }, 2000);
         };
     </script>
 </body>
