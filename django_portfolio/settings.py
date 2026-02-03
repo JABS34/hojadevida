@@ -100,9 +100,9 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # --- SEGURIDAD: LEER DESDE VARIABLES DE ENTORNO ---
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY':    os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
+    'CLOUD_NAME': os.environ.get('dpaajunu7'),
+    'API_KEY':    os.environ.get('229623356596985'),
+    'API_SECRET': os.environ.get('i1mOO4cLQU1HzOGKfEehH1ryaPU')
 }
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
