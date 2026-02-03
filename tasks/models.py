@@ -7,6 +7,7 @@ class DatosPersonales(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nombres = models.CharField(max_length=60)
     apellidos = models.CharField(max_length=60)
+    # CAMBIO REALIZADO: TextField permite texto largo sin límite
     descripcionperfil = models.TextField(blank=True, null=True)
     perfilactivo = models.IntegerField(default=1)
     nacionalidad = models.CharField(max_length=20)
@@ -24,7 +25,6 @@ class DatosPersonales(models.Model):
     foto = models.ImageField(upload_to='perfil_fotos/', null=True, blank=True)
     instagram = models.CharField(max_length=50, blank=True, null=True)
     
-    # NUEVO CAMPO PARA SOLUCIONAR TU PROBLEMA
     activarparaqueseveaenfront = models.BooleanField(default=False, verbose_name="Activar para ver en Web")
 
     def __str__(self):
