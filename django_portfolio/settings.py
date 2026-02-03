@@ -6,33 +6,34 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
 
-# DEBUG será True solo si NO estamos en Render
+# DEBUG False en Render para seguridad
 DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = ["*"]
-
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 INSTALLED_APPS = [
-    # 1. Cloudinary debe ir PRIMERO
+    # Apps de terceros
     "cloudinary_storage",
     "cloudinary",
     
+    # Apps de Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles", # Django necesita esto, pero Cloudinary lo manejará
+    "django.contrib.staticfiles", # NECESARIO para que WhiteNoise encuentre los estilos
     
+    # Tu app
     "tasks",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    # "whitenoise.middleware.WhiteNoiseMiddleware",  <-- BORRAMOS WHITENOISE (Ya no lo usamos)
+    "whitenoise.middleware.WhiteNoiseMiddleware", # <--- ESTO ARREGLA EL DISEÑO
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -80,27 +81,26 @@ TIME_ZONE = "America/Guayaquil"
 USE_I18N = True
 USE_TZ = True
 
-# --- CAMBIO IMPORTANTE AQUÍ ---
+# --- CONFIGURACIÓN DE ARCHIVOS ESTÁTICOS (WHITENOISE) ---
+STATIC_URL = "/static/"
 
-# Configuración de Cloudinary (LEE DESDE VARIABLES DE ENTORNO DE RENDER)
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY':    os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-    'STATIC_TAG': 'static_files',  # Etiqueta para organizar archivos en Cloudinary
-}
+# Carpeta donde Render recolectará todo
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-# 1. Archivos Estáticos (CSS, JS, Admin) -> SE VAN A CLOUDINARY
-STATIC_URL = '/static/'
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
+# Importante: Esto usa WhiteNoise para servir los archivos
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
-# 2. Archivos Multimedia (Fotos subidas) -> SE VAN A CLOUDINARY
+# --- CONFIGURACIÓN DE MEDIA (CLOUDINARY) ---
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY':    os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
+}
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 LOGIN_URL = "/signin"
