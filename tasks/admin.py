@@ -22,29 +22,34 @@ class ExperienciaLaboralAdmin(admin.ModelAdmin):
     list_display = ('cargodesempenado', 'nombrempresa', 'fechainiciogestion', 'fechafingestion', 'activarparaqueseveaenfront')
     list_filter = ('activarparaqueseveaenfront', 'nombrempresa')
     search_fields = ('cargodesempenado', 'nombrempresa')
+    list_editable = ('activarparaqueseveaenfront',)
 
 # 4. RECONOCIMIENTOS
 @admin.register(Reconocimiento)
 class ReconocimientoAdmin(admin.ModelAdmin):
     list_display = ('descripcionreconocimiento', 'entidadpatrocinadora', 'tiporeconocimiento', 'fechareconocimiento', 'activarparaqueseveaenfront')
     list_filter = ('tiporeconocimiento', 'activarparaqueseveaenfront')
+    list_editable = ('activarparaqueseveaenfront',)
 
 # 5. CURSOS REALIZADOS
 @admin.register(CursosRealizados)
 class CursosRealizadosAdmin(admin.ModelAdmin):
     list_display = ('nombrerecurso', 'entidadpatrocinadora', 'totalhoras', 'fechafin', 'activarparaqueseveaenfront')
     search_fields = ('nombrerecurso', 'entidadpatrocinadora')
+    list_editable = ('activarparaqueseveaenfront',)
 
 # 6. PRODUCTOS ACADÉMICOS
 @admin.register(ProductosAcademicos)
 class ProductosAcademicosAdmin(admin.ModelAdmin):
     list_display = ('nombrerecurso', 'clasificador', 'activarparaqueseveaenfront')
+    list_editable = ('activarparaqueseveaenfront',)
 
 # 7. PRODUCTOS LABORALES
 @admin.register(ProductosLaborales)
 class ProductosLaboralesAdmin(admin.ModelAdmin):
     list_display = ('nombreproducto', 'fechaproducto', 'activarparaqueseveaenfront')
     list_filter = ('fechaproducto',)
+    list_editable = ('activarparaqueseveaenfront',)
 
 # 8. VENTA GARAGE
 @admin.register(VentaGarage)
@@ -68,23 +73,25 @@ class HabilidadAdmin(admin.ModelAdmin):
     list_filter = ('categoria', 'activarparaqueseveaenfront')
     list_editable = ('activarparaqueseveaenfront',)
 
-# 11. CONFIGURACIÓN DE VISIBILIDAD (CORREGIDO)
+# 11. CONFIGURACIÓN DE VISIBILIDAD (PANEL DE CONTROL DE ÍCONOS)
 @admin.register(ConfiguracionVisible)
 class ConfiguracionVisibleAdmin(admin.ModelAdmin):
-    # Solo usamos los campos que existen en tu Models
     list_display = ('__str__', 'mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_garage')
     list_editable = ('mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_garage')
-
+    
+    # Esto organiza mejor la vista dentro del registro
     fieldsets = (
-        ('Control de Visibilidad', {
-            'description': 'Activa o desactiva los botones de la web.',
+        ('Panel de Control del Menú', {
+            'description': 'Aquí puedes activar o desactivar los íconos visibles en la barra de navegación del CV.',
             'fields': ('mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_garage')
         }),
     )
 
     def has_add_permission(self, request):
-        # Si ya hay una configuración, no deja añadir otra
+        # Si ya existe 1 configuración, no dejar crear otra.
+        # Solo queremos un panel de control único.
         return False if self.model.objects.count() > 0 else True
 
     def has_delete_permission(self, request, obj=None):
+        # Evitar borrar la configuración por error
         return False
