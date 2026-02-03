@@ -7,7 +7,7 @@ class DatosPersonales(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nombres = models.CharField(max_length=60)
     apellidos = models.CharField(max_length=60)
-    descripcionperfil = models.CharField(max_length=250, blank=True, null=True)
+    descripcionperfil = models.CharField(max_length=150, blank=True, null=True)
     perfilactivo = models.IntegerField(default=1)
     nacionalidad = models.CharField(max_length=20)
     lugarnacimiento = models.CharField(max_length=60)
