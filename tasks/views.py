@@ -10,14 +10,19 @@ from .models import (
     ProductosAcademicos, ProductosLaborales, ConfiguracionVisible
 )
 
-# --- VISTA PRINCIPAL (LÓGICA DE ACTIVACIÓN) ---
+# --- VISTA PRINCIPAL (BIENVENIDA CON LÓGICA DE PERFILES) ---
 def home(request):
     try:
-        # Buscamos perfiles que tengan el check de activo en el Admin
+        # 1. Intentamos buscar perfiles marcados como activos en el Admin
         perfiles_activos = DatosPersonales.objects.filter(activarparaqueseveaenfront=True)
+        
+        # 2. Si no hay ninguno activo, buscamos TODOS los perfiles para que no salga el error
+        if not perfiles_activos.exists():
+            perfiles_activos = DatosPersonales.objects.all()
+        
         total_activos = perfiles_activos.count()
         
-        # Preparamos el username si solo hay uno para ir directo
+        # 3. Preparamos el username del primero para el botón directo
         primer_perfil = perfiles_activos.first()
         username_unico = primer_perfil.user.username if primer_perfil else ""
 
@@ -27,8 +32,8 @@ def home(request):
             'username_unico': username_unico,
             'config': ConfiguracionVisible.objects.first(),
         }
-    except Exception:
-        # Si la tabla no existe o el campo está mal, evitamos el Error 500
+    except Exception as e:
+        # Si algo falla en la base de datos, evitamos que la página se rompa
         contexto = {
             'perfiles_activos': [],
             'total_activos': 0,
@@ -72,22 +77,23 @@ def profile_cv(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
     
-    # Si el perfil existe pero no está activo, no dejamos entrar
-    if perfil and not getattr(perfil, 'activarparaqueseveaenfront', False):
+    # Si el perfil no existe, volvemos al inicio
+    if not perfil:
         return redirect('home')
 
     contexto = {
         'user_viewed': user_viewed,
         'perfil': perfil,
-        'experiencias': ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else [],
-        'cursos': CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else [],
-        'reconocimientos': Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else [],
-        'productos_academicos': ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else [],
-        'productos_laborales': ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else [],
+        'experiencias': ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
+        'cursos': CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
+        'reconocimientos': Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
+        'productos_academicos': ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
+        'productos_laborales': ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'config': ConfiguracionVisible.objects.first(),
     }
     return render(request, 'profile_cv.html', contexto)
 
+# --- VISTAS DE TAREAS Y DASHBOARD ---
 @login_required
 def dashboard(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
@@ -98,12 +104,14 @@ def tasks(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
     return render(request, 'tasks.html', {'tasks': tasks})
 
+# --- VISTA DEL GARAGE ---
 def garage_store(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
     productos = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else []
     return render(request, 'garage.html', {'user_viewed': user_viewed, 'productos': productos})
 
+# --- VISTA PARA EXPORTAR PDF ---
 def export_pdf(request, username):
     from django.http import HttpResponse
     return HttpResponse(f"Generando PDF para {username}...")
