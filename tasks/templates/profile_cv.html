@@ -11,113 +11,57 @@
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background: radial-gradient(circle at center, #3b4b75 0%, #1e293b 100%); 
-            min-height: 100vh;
-            margin: 0;
+            min-height: 100vh; margin: 0;
         }
 
-        /* BARRA SUPERIOR */
+        /* --- BARRA DE NAVEGACIÓN (SIN CAMBIOS SEGÚN TU PEDIDO) --- */
         .top-navbar {
-            width: 100%;
-            height: 80px;
+            width: 100%; height: 80px;
             background: linear-gradient(90deg, #1e3a8a 0%, #6366f1 50%, #1e3a8a 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            padding: 0 20px;
+            display: flex; align-items: center; justify-content: center;
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 0 20px;
         }
-
         .home-container { position: absolute; left: 30px; }
-
-        .menu-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-        }
-
-        /* GRUPOS DE ICONOS */
+        .menu-wrapper { display: flex; align-items: center; justify-content: center; gap: 40px; }
         .nav-group {
-            display: flex;
-            gap: 55px; /* Espacio amplio entre iconos */
-            overflow: visible; 
-            width: 0;
-            opacity: 0;
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
+            display: flex; gap: 55px; overflow: visible; width: 0; opacity: 0;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none;
         }
-
-        .nav-group.active {
-            width: auto;
-            opacity: 1;
-            padding: 0 40px;
-            pointer-events: auto;
-        }
-
-        /* BOTONES CON EFECTO SOBRESALIENTE HACIA ABAJO */
+        .nav-group.active { width: auto; opacity: 1; padding: 0 40px; pointer-events: auto; }
         .nav-item {
-            position: relative;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 10px;
-            border-radius: 15px;
+            position: relative; color: white; display: flex; flex-direction: column;
+            align-items: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 10px; border-radius: 15px;
         }
-
         .nav-item i { font-size: 1.8rem; }
         .nav-item span.label { font-size: 10px; font-weight: 800; margin-top: 4px; text-transform: uppercase; }
-
-        /* MANOS PEQUEÑAS */
         .pointer-hand {
-            position: absolute;
-            font-size: 1.1rem;
-            opacity: 0;
-            top: 45%;
-            transform: translateY(-50%);
-            transition: opacity 0.2s;
-            pointer-events: none;
+            position: absolute; font-size: 1.1rem; opacity: 0; top: 45%;
+            transform: translateY(-50%); transition: opacity 0.2s; pointer-events: none;
         }
         .hand-l { left: -28px; }
         .hand-r { right: -28px; }
-
-        /* HOVER: MÁS GRANDE, SOBRESALE HACIA ABAJO Y VIBRA */
         .nav-item:hover { 
-            transform: scale(1.4) translateY(20px); /* Movimiento hacia ABAJO */
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            animation: vibrate 0.1s linear infinite;
-            z-index: 1001;
+            transform: scale(1.4) translateY(20px); 
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px);
+            animation: vibrate 0.1s linear infinite; z-index: 1001;
             box-shadow: 0 15px 30px rgba(0,0,0,0.4);
         }
         .nav-item:hover .pointer-hand { opacity: 1; }
-
         @keyframes vibrate {
             0% { transform: scale(1.4) translateY(20px) translate(0); }
             25% { transform: scale(1.4) translateY(20px) translate(1px, -1px); }
             50% { transform: scale(1.4) translateY(20px) translate(-1px, 1px); }
             100% { transform: scale(1.4) translateY(20px) translate(0); }
         }
-
-        .menu-trigger {
-            font-size: 2.2rem;
-            color: white;
-            cursor: pointer;
-            z-index: 10;
-            transition: transform 0.3s ease;
-        }
+        .menu-trigger { font-size: 2.2rem; color: white; cursor: pointer; z-index: 10; transition: transform 0.3s ease; }
         .menu-trigger.open { transform: rotate(90deg) scale(0.8); }
 
-        /* VISTA DEL CV */
+        /* --- HOJA DE VIDA --- */
         .cv-page { 
-            width: 210mm; min-height: 297mm; 
-            margin: 60px auto; background: white; 
-            box-shadow: 0 50px 100px rgba(0,0,0,0.4); 
+            width: 210mm; min-height: 297mm; margin: 60px auto; 
+            background: white; box-shadow: 0 50px 100px rgba(0,0,0,0.4); 
             display: flex; overflow: hidden; border-radius: 15px; 
         }
         .aside-bg { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); width: 35%; color: white; padding: 40px 30px; }
@@ -140,7 +84,6 @@
                 <span class="pointer-hand hand-r">👈</span>
             </a>
         </div>
-
         <div class="menu-wrapper">
             <div id="groupLeft" class="nav-group">
                 <div class="nav-item" onclick="toggleModal('modalCert')">
@@ -156,11 +99,9 @@
                     <span class="pointer-hand hand-r">👈</span>
                 </div>
             </div>
-
             <div id="trigger" class="menu-trigger" onclick="toggleBrote()">
                 <i class="fas fa-bars"></i>
             </div>
-
             <div id="groupRight" class="nav-group">
                 <a href="{% url 'garage_store' user_viewed.username %}" class="nav-item">
                     <i class="fas fa-car-side"></i>
@@ -189,34 +130,130 @@
                     </div> 
                 {% endif %}
             </div>
-            <p class="text-center font-bold text-blue-300 uppercase tracking-widest text-xs">{{ perfil.nombres }}</p>
+
+            <section class="mb-10">
+                <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Contacto</h3>
+                <div class="space-y-3 text-[13px]">
+                    <p><i class="fas fa-envelope mr-2 w-4 text-blue-300"></i> {{ user_viewed.email }}</p>
+                    {% if perfil.numerocedula %}<p><i class="fas fa-id-card mr-2 w-4 text-blue-300"></i> {{ perfil.numerocedula }}</p>{% endif %}
+                    <p><i class="fas fa-phone mr-2 w-4 text-blue-300"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional|default:"Sin teléfono" }}</p>
+                    <p><i class="fas fa-map-marker-alt mr-2 w-4 text-blue-300"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
+                    {% if perfil.sitioweb %}
+                    <p><i class="fas fa-globe mr-2 w-4 text-blue-300"></i> {{ perfil.sitioweb }}</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="mb-10">
+                <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Productos Académicos</h3>
+                <div class="space-y-4">
+                    {% for prod in productos_academicos %}
+                    <div>
+                        <p class="text-[12px] font-bold uppercase leading-tight">{{ prod.nombrerecurso }}</p>
+                        <p class="text-[10px] text-blue-300">{{ prod.clasificador }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-[11px] text-white/40 italic">Sin registros académicos.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section>
+                <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Nacionalidad</h3>
+                <p class="text-[13px] uppercase">{{ perfil.nacionalidad|default:"No especificada" }}</p>
+                <p class="text-[11px] text-blue-300 mt-1">{{ perfil.lugarnacimiento }}</p>
+            </section>
         </aside>
+
         <main class="main-content">
-            <h1 class="text-5xl font-black text-slate-900 uppercase leading-none">
-                {{ perfil.nombres }}<br><span class="text-blue-600">{{ perfil.apellidos }}</span>
-            </h1>
-            <div class="mt-8 p-6 bg-slate-50 rounded-2xl border-l-4 border-blue-500 italic text-slate-600">
-                "{{ perfil.descripcionperfil|default:'Perfil profesional en constante crecimiento.' }}"
-            </div>
+            <header class="mb-10">
+                <h1 class="text-[45px] font-extrabold text-slate-900 uppercase leading-none">
+                    {{ perfil.nombres|default:"Nombre" }}<br>
+                    <span class="text-blue-600">{{ perfil.apellidos|default:"Apellido" }}</span>
+                </h1>
+                <p class="text-slate-400 font-bold text-[12px] tracking-widest mt-2 uppercase">
+                    {{ perfil.estadocivil|default:"" }} {% if perfil.sexo %}• {{ perfil.sexo }}{% endif %}
+                </p>
+            </header>
+
+            <section class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Sobre Mí</h2>
+                <div class="text-slate-600 text-[14px] leading-relaxed italic border-l-4 border-blue-100 pl-4 bg-slate-50 p-4 rounded-xl">
+                    "{{ perfil.descripcionperfil|default:'Perfil profesional en desarrollo.' }}"
+                </div>
+            </section>
+
+            <section class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
+                <div class="space-y-8">
+                    {% for exp in experiencias %}
+                    <div class="relative pl-6 border-l-2 border-slate-100">
+                        <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-600 border-4 border-white"></div>
+                        <h3 class="font-extrabold text-slate-800">{{ exp.cargodesempenado }}</h3>
+                        <div class="flex justify-between items-center">
+                            <p class="text-blue-600 text-[11px] font-bold uppercase">{{ exp.nombrempresa }}</p>
+                            <span class="text-[10px] font-bold text-slate-400">{{ exp.fechainiciogestion|date:"M Y" }} - {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"M Y" }}{% else %}Actualidad{% endif %}</span>
+                        </div>
+                        <p class="text-slate-500 text-[12px] mt-2">{{ exp.descripcionfunciones }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-slate-400 text-[12px] italic">Sin experiencia laboral registrada.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section>
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Productos Laborales</h2>
+                <div class="grid grid-cols-1 gap-4">
+                    {% for prod in productos_laborales %}
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 hover:bg-white hover:shadow-md transition">
+                        <h4 class="text-[13px] font-bold text-slate-800 uppercase">{{ prod.nombreproducto }}</h4>
+                        <p class="text-[11px] text-slate-500 mt-1">{{ prod.descripcion }}</p>
+                        <p class="text-[10px] text-blue-600 font-bold mt-2"><i class="far fa-calendar-alt mr-1"></i> {{ prod.fechaproducto|date:"d/m/Y" }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-slate-400 text-[12px] italic">No hay productos registrados.</p>
+                    {% endfor %}
+                </div>
+            </section>
         </main>
     </div>
 
     <div id="modalCert" class="modal"><div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4">
-        <h2 class="font-bold text-xl mb-4 italic">Cursos y Capacitación</h2>
-        <div class="space-y-2 mb-6">{% for curso in cursos %}<p class="text-sm border-b py-1">{{ curso.nombrerecurso }}</p>{% endfor %}</div>
+        <h2 class="font-bold text-xl mb-4 italic border-b pb-2">Capacitación y Cursos</h2>
+        <div class="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2">
+            {% for curso in cursos %}
+            <div class="border-b border-slate-100 pb-2">
+                <p class="text-sm font-bold uppercase">{{ curso.nombrerecurso }}</p>
+                <p class="text-xs text-slate-500">{{ curso.entidadpatrocinadora }} ({{ curso.totalhoras }} hrs)</p>
+            </div>
+            {% empty %}
+            <p class="text-center text-slate-400 py-4">Sin registros.</p>
+            {% endfor %}
+        </div>
         <button onclick="toggleModal('modalCert')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
     </div></div>
     
     <div id="modalRec" class="modal"><div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4">
-        <h2 class="font-bold text-xl mb-4 italic text-emerald-600">Reconocimientos</h2>
-        <div class="space-y-2 mb-6">{% for rec in reconocimientos %}<p class="text-sm bg-emerald-50 p-2 rounded">{{ rec.descripcionreconocimiento }}</p>{% endfor %}</div>
+        <h2 class="font-bold text-xl mb-4 italic text-emerald-600 border-b pb-2">Reconocimientos</h2>
+        <div class="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2">
+            {% for rec in reconocimientos %}
+            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                <p class="text-sm font-bold uppercase text-emerald-800"><i class="fas fa-medal mr-2"></i>{{ rec.descripcionreconocimiento }}</p>
+                <p class="text-[10px] text-emerald-600 mt-1">Otorgado por: {{ rec.entidadpatrocinadora }}</p>
+            </div>
+            {% empty %}
+            <p class="text-center text-slate-400 py-4">Sin registros.</p>
+            {% endfor %}
+        </div>
         <button onclick="toggleModal('modalRec')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
     </div></div>
 
     <div id="modalPDF" class="modal"><div class="bg-white p-10 rounded-3xl max-w-sm w-full mx-4 text-center">
-        <h2 class="font-black text-2xl mb-6 italic">Exportar</h2>
-        <button onclick="window.print()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg mb-4">IMPRIMIR / PDF</button>
-        <button onclick="toggleModal('modalPDF')" class="text-xs text-slate-400 font-bold uppercase">Regresar</button>
+        <h2 class="font-black text-2xl mb-6 italic">Exportar Hoja de Vida</h2>
+        <p class="text-xs text-slate-400 mb-6 uppercase tracking-widest font-bold">Asegúrate de configurar los márgenes a "Ninguno" en el panel de impresión.</p>
+        <button onclick="window.print()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg mb-4 hover:bg-blue-700">DESCARGAR PDF</button>
+        <button onclick="toggleModal('modalPDF')" class="text-xs text-slate-400 font-bold uppercase hover:text-slate-600 transition">Cancelar</button>
     </div></div>
 
     <script>
@@ -225,14 +262,8 @@
             document.getElementById('groupRight').classList.toggle('active');
             document.getElementById('trigger').classList.toggle('open');
         }
-
-        function toggleModal(id) {
-            document.getElementById(id).classList.toggle('active');
-        }
-
-        window.onclick = function(e) {
-            if (e.target.classList.contains('modal')) e.target.classList.remove('active');
-        }
+        function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
+        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); }
     </script>
 </body>
 </html>
