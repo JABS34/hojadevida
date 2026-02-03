@@ -7,7 +7,6 @@ class DatosPersonales(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nombres = models.CharField(max_length=60)
     apellidos = models.CharField(max_length=60)
-    # LÍMITE AJUSTADO A 800 CARACTERES: Ideal para una descripción normal y profesional
     descripcionperfil = models.CharField(max_length=800, blank=True, null=True)
     perfilactivo = models.IntegerField(default=1)
     nacionalidad = models.CharField(max_length=20)
@@ -135,3 +134,25 @@ class ConfiguracionVisible(models.Model):
 
     def __str__(self):
         return "Interruptores de Visibilidad"
+
+# --- NUEVAS SECCIONES SOLICITADAS ---
+
+# 10. LENGUAJES DE PROGRAMACIÓN
+class LenguajeProgramacion(models.Model):
+    idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=50)
+    nivel_porcentaje = models.IntegerField(default=50, help_text="Nivel del 1 al 100")
+    activarparaqueseveaenfront = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombre
+
+# 11. HABILIDADES (SKILLS)
+class Habilidad(models.Model):
+    idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
+    nombre_habilidad = models.CharField(max_length=100)
+    categoria = models.CharField(max_length=50, choices=[('Blanda', 'Habilidad Blanda'), ('Tecnica', 'Habilidad Técnica')], default='Tecnica')
+    activarparaqueseveaenfront = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombre_habilidad

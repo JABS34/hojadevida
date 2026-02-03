@@ -2,7 +2,8 @@ from django.contrib import admin
 from .models import (
     Task, DatosPersonales, ExperienciaLaboral, 
     CursosRealizados, Reconocimiento, VentaGarage,
-    ProductosAcademicos, ProductosLaborales
+    ProductosAcademicos, ProductosLaborales,
+    LenguajeProgramacion, Habilidad # Nuevos importados
 )
 
 # 1. TAREAS
@@ -38,16 +39,30 @@ class CursosRealizadosAdmin(admin.ModelAdmin):
 class ProductosAcademicosAdmin(admin.ModelAdmin):
     list_display = ('nombrerecurso', 'clasificador', 'activarparaqueseveaenfront')
 
-# 7. PRODUCTOS LABORALES (NUEVO)
+# 7. PRODUCTOS LABORALES
 @admin.register(ProductosLaborales)
 class ProductosLaboralesAdmin(admin.ModelAdmin):
     list_display = ('nombreproducto', 'fechaproducto', 'activarparaqueseveaenfront')
     list_filter = ('fechaproducto',)
 
-# 8. VENTA GARAGE (Con atributos SQL correctos)
+# 8. VENTA GARAGE
 @admin.register(VentaGarage)
 class VentaGarageAdmin(admin.ModelAdmin):
     list_display = ('nombreproducto', 'valordelbien', 'estadoproducto', 'activarparaqueseveaenfront')
     list_filter = ('estadoproducto', 'activarparaqueseveaenfront')
     list_editable = ('valordelbien', 'estadoproducto', 'activarparaqueseveaenfront')
     search_fields = ('nombreproducto',)
+
+# 9. LENGUAJES DE PROGRAMACIÓN (NUEVO)
+@admin.register(LenguajeProgramacion)
+class LenguajeProgramacionAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'nivel_porcentaje', 'idperfilconqueestaactivo', 'activarparaqueseveaenfront')
+    list_editable = ('nivel_porcentaje', 'activarparaqueseveaenfront')
+    list_filter = ('activarparaqueseveaenfront',)
+
+# 10. HABILIDADES (NUEVO)
+@admin.register(Habilidad)
+class HabilidadAdmin(admin.ModelAdmin):
+    list_display = ('nombre_habilidad', 'categoria', 'idperfilconqueestaactivo', 'activarparaqueseveaenfront')
+    list_filter = ('categoria', 'activarparaqueseveaenfront')
+    list_editable = ('activarparaqueseveaenfront',)
