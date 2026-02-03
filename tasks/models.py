@@ -175,3 +175,13 @@ class Habilidad(models.Model):
 
     def __str__(self):
         return self.nombre_habilidad
+    
+class ConfiguracionVisible(models.Model):
+    # Relacionamos con el usuario o perfil si es necesario, o lo dejamos global
+    mostrar_reconocimientos = models.BooleanField(default=True, verbose_name="Ver Botón Premios")
+    mostrar_cursos = models.BooleanField(default=True, verbose_name="Ver Botón Cursos")
+    mostrar_garage = models.BooleanField(default=True, verbose_name="Ver Botón Garage")
+    mostrar_editar = models.BooleanField(default=True, verbose_name="Ver Botón Editar")
+
+    class Meta:
+        verbose_name = "Configuración de Visibilidad"

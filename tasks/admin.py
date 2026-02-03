@@ -3,8 +3,16 @@ from .models import (
     Task, DatosPersonales, ExperienciaLaboral, 
     CursosRealizados, Reconocimiento, VentaGarage,
     ProductosAcademicos, ProductosLaborales,
-    LenguajeProgramacion, Habilidad # Nuevos importados
+    LenguajeProgramacion, Habilidad,
+    ConfiguracionVisible  # <--- Asegúrate de que esté en models.py
 )
+
+# --- NUEVO: CONTROL DE VISIBILIDAD DE BOTONES ---
+@admin.register(ConfiguracionVisible)
+class ConfiguracionVisibleAdmin(admin.ModelAdmin):
+    list_display = ('user', 'mostrar_reconocimientos', 'mostrar_cursos', 'mostrar_garage', 'mostrar_editar')
+    list_editable = ('mostrar_reconocimientos', 'mostrar_cursos', 'mostrar_garage', 'mostrar_editar')
+    # Esto permite que edites los checks directamente desde la lista principal del admin
 
 # 1. TAREAS
 admin.site.register(Task)
@@ -53,14 +61,14 @@ class VentaGarageAdmin(admin.ModelAdmin):
     list_editable = ('valordelbien', 'estadoproducto', 'activarparaqueseveaenfront')
     search_fields = ('nombreproducto',)
 
-# 9. LENGUAJES DE PROGRAMACIÓN (NUEVO)
+# 9. LENGUAJES DE PROGRAMACIÓN
 @admin.register(LenguajeProgramacion)
 class LenguajeProgramacionAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'nivel_porcentaje', 'idperfilconqueestaactivo', 'activarparaqueseveaenfront')
     list_editable = ('nivel_porcentaje', 'activarparaqueseveaenfront')
     list_filter = ('activarparaqueseveaenfront',)
 
-# 10. HABILIDADES (NUEVO)
+# 10. HABILIDADES
 @admin.register(Habilidad)
 class HabilidadAdmin(admin.ModelAdmin):
     list_display = ('nombre_habilidad', 'categoria', 'idperfilconqueestaactivo', 'activarparaqueseveaenfront')
