@@ -44,7 +44,6 @@ class ExperienciaLaboral(models.Model):
     fechafingestion = models.DateField()
     descripcionfunciones = models.CharField(max_length=100)
     activarparaqueseveaenfront = models.BooleanField(default=True)
-    # MODIFICADO: Acepta PDF y formatos de imagen (PNG, JPG, JPEG)
     rutacertificado = models.FileField(
         upload_to='certificados/experiencia/', 
         blank=True, 
@@ -68,7 +67,6 @@ class CursosRealizados(models.Model):
     telefonocontactoauspicia = models.CharField(max_length=60)
     emailempresapatrocinadora = models.CharField(max_length=60)
     activarparaqueseveaenfront = models.BooleanField(default=True)
-    # MODIFICADO: Acepta PDF y formatos de imagen (PNG, JPG, JPEG)
     rutacertificado = models.FileField(
         upload_to='certificados/cursos/', 
         blank=True, 
@@ -89,7 +87,6 @@ class Reconocimiento(models.Model):
     nombrecontactoauspicia = models.CharField(max_length=100)
     telefonocontactoauspicia = models.CharField(max_length=60)
     activarparaqueseveaenfront = models.BooleanField(default=True)
-    # MODIFICADO: Acepta PDF y formatos de imagen (PNG, JPG, JPEG)
     rutacertificado = models.FileField(
         upload_to='certificados/reconocimientos/', 
         blank=True, 
@@ -143,9 +140,9 @@ class Task(models.Model):
 
 # 9. CONTROL DE VISIBILIDAD
 class ConfiguracionVisible(models.Model):
-    mostrar_garage = models.BooleanField(default=True)
-    mostrar_cursos = models.BooleanField(default=True)
-    mostrar_reconocimientos = models.BooleanField(default=True)
+    mostrar_garage = models.BooleanField(default=True, verbose_name="Mostrar Botón Garage")
+    mostrar_cursos = models.BooleanField(default=True, verbose_name="Mostrar Botón Cursos")
+    mostrar_reconocimientos = models.BooleanField(default=True, verbose_name="Mostrar Botón Reconocimientos")
 
     class Meta:
         verbose_name = "Configuración de Botones"
@@ -153,8 +150,6 @@ class ConfiguracionVisible(models.Model):
 
     def __str__(self):
         return "Interruptores de Visibilidad"
-
-# --- NUEVAS SECCIONES SOLICITADAS ---
 
 # 10. LENGUAJES DE PROGRAMACIÓN
 class LenguajeProgramacion(models.Model):
@@ -166,7 +161,7 @@ class LenguajeProgramacion(models.Model):
     def __str__(self):
         return self.nombre
 
-# 11. HABILIDADES (SKILLS)
+# 11. HABILIDADES
 class Habilidad(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre_habilidad = models.CharField(max_length=100)
