@@ -7,8 +7,8 @@ class DatosPersonales(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nombres = models.CharField(max_length=60)
     apellidos = models.CharField(max_length=60)
-    # CAMBIO REALIZADO: TextField permite texto largo sin límite
-    descripcionperfil = models.TextField(blank=True, null=True)
+    # LÍMITE AJUSTADO A 800 CARACTERES: Ideal para una descripción normal y profesional
+    descripcionperfil = models.CharField(max_length=800, blank=True, null=True)
     perfilactivo = models.IntegerField(default=1)
     nacionalidad = models.CharField(max_length=20)
     lugarnacimiento = models.CharField(max_length=60)
