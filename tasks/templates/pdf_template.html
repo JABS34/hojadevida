@@ -16,7 +16,6 @@
             print-color-adjust: exact; 
         }
         
-        /* Evita que el CV se corte a la mitad */
         .page-pdf { 
             width: 210mm; 
             min-height: 297mm; 
@@ -27,7 +26,6 @@
         .sidebar { width: 32%; background-color: #1e3a8a !important; color: white; padding: 40px 20px; }
         .main-content { width: 68%; padding: 50px; }
 
-        /* Estilo para que los certificados PNG ocupen toda la hoja */
         .appendix { 
             width: 210mm; 
             height: 297mm; 
@@ -45,7 +43,6 @@
             border: 1px solid #eee;
         }
 
-        /* Ocultar elementos innecesarios al imprimir */
         @media print {
             .no-print { display: none; }
         }
@@ -65,34 +62,91 @@
             <div class="text-[11px] space-y-2 mb-10">
                 <p><i class="fas fa-envelope mr-1"></i> {{ user_viewed.email }}</p>
                 <p><i class="fas fa-phone mr-1"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional }}</p>
-                <p><i class="fas fa-map-marker-alt mr-1"></i> {{ perfil.direcciondomiciliaria|default:"Manta, Ecuador" }}</p>
+                <p><i class="fas fa-map-marker-alt mr-1"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
             </div>
 
-            {% if habilidades %}
+            {% if show_habilidades and habilidades %}
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Habilidades</h3>
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap gap-2 mb-10">
                 {% for hab in habilidades %}
-                    <span class="bg-white/10 border border-white/30 px-2 py-1 rounded text-[10px]">{{ hab.nombre_habilidad }}</span>
+                    <span class="bg-white/10 border border-white/30 px-2 py-1 rounded text-[10px] uppercase font-bold">{{ hab.nombre_habilidad }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if show_productos_acad and productos_academicos %}
+            <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Formación Académica</h3>
+            <div class="text-[10px] space-y-3">
+                {% for prod in productos_academicos %}
+                <div>
+                    <p class="font-bold uppercase text-blue-200">{{ prod.nombrerecurso }}</p>
+                    <p class="italic text-white/70">{{ prod.clasificador }}</p>
+                </div>
                 {% endfor %}
             </div>
             {% endif %}
         </aside>
 
         <main class="main-content">
-            <h1 class="text-4xl font-black text-slate-900 uppercase mb-10">
+            <h1 class="text-4xl font-black text-slate-900 uppercase mb-4">
                 {{ perfil.nombres }} <span class="text-[#1e3a8a]">{{ perfil.apellidos }}</span>
             </h1>
 
-            {% if experiencias %}
+            {% if show_sobre_mi %}
+            <section class="mb-10">
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 italic">Perfil Profesional</h2>
+                <p class="text-slate-600 text-sm leading-relaxed border-l-4 border-slate-100 pl-4">
+                    {{ perfil.descripcionperfil|default:"Profesional enfocado en resultados." }}
+                </p>
+            </section>
+            {% endif %}
+
+            {% if show_lenguajes and lenguajes %}
+            <section class="mb-10">
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Lenguajes de Programación</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    {% for lang in lenguajes %}
+                    <div class="text-sm">
+                        <div class="flex justify-between font-bold text-slate-700">
+                            <span>{{ lang.nombre }}</span>
+                            <span>{{ lang.nivel_porcentaje }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-1 rounded-full mt-1">
+                            <div class="bg-blue-800 h-1 rounded-full" style="width: {{ lang.nivel_porcentaje }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {% if show_experiencia and experiencias %}
             <section>
-                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Experiencia Laboral</h2>
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
                 {% for exp in experiencias %}
-                <div class="mb-6">
-                    <h3 class="text-lg font-bold text-slate-800 uppercase">{{ exp.cargodesempenado }}</h3>
-                    <p class="text-sm text-[#1e3a8a] font-bold">{{ exp.nombrempresa }}</p>
-                    <p class="text-sm text-slate-500 mt-1">{{ exp.descripcionfunciones }}</p>
+                <div class="mb-8 border-l-2 border-slate-100 pl-4 relative">
+                    <div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-blue-800"></div>
+                    <h3 class="text-md font-bold text-slate-800 uppercase">{{ exp.cargodesempenado }}</h3>
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-sm text-[#1e3a8a] font-extrabold">{{ exp.nombrempresa }}</p>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">{{ exp.fechainiciogestion|date:"M Y" }} - {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"M Y" }}{% else %}Actualidad{% endif %}</span>
+                    </div>
+                    <p class="text-xs text-slate-500 leading-relaxed">{{ exp.descripcionfunciones }}</p>
                 </div>
                 {% endfor %}
+            </section>
+            {% endif %}
+
+            {% if show_garage and productos_garage %}
+            <section class="mt-10 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <h2 class="text-xs font-bold text-slate-800 uppercase tracking-widest mb-4"><i class="fas fa-store mr-2"></i>Catálogo Garage (En Venta)</h2>
+                <div class="grid grid-cols-2 gap-2">
+                    {% for item in productos_garage %}
+                    <div class="text-[10px] text-slate-600 bg-white p-2 rounded shadow-sm border border-slate-100">
+                        <span class="font-bold text-blue-800">{{ item.nombreproducto }}</span> - ${{ item.precioventa }}
+                    </div>
+                    {% endfor %}
+                </div>
             </section>
             {% endif %}
         </main>
@@ -125,7 +179,6 @@
     {% endif %}
 
     <script>
-        // Esperamos a que todas las imágenes carguen antes de imprimir
         window.onload = function() {
             setTimeout(function() {
                 window.print();

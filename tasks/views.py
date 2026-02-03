@@ -8,7 +8,7 @@ from .models import (
     Task, DatosPersonales, ExperienciaLaboral, 
     CursosRealizados, Reconocimiento, VentaGarage,
     ProductosAcademicos, ProductosLaborales, ConfiguracionVisible,
-    LenguajeProgramacion, Habilidad # Se agregan los nuevos modelos
+    LenguajeProgramacion, Habilidad
 )
 
 # --- VISTA PRINCIPAL (BIENVENIDA CON LÓGICA DE PERFILES) ---
@@ -90,10 +90,8 @@ def profile_cv(request, username):
         'reconocimientos': Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'productos_academicos': ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'productos_laborales': ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
-        # --- NUEVAS CONSULTAS ---
         'lenguajes': LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'habilidades': Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
-        # ------------------------
         'config': ConfiguracionVisible.objects.first(),
     }
     return render(request, 'profile_cv.html', contexto)
@@ -116,7 +114,7 @@ def garage_store(request, username):
     productos = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else []
     return render(request, 'garage.html', {'user_viewed': user_viewed, 'productos': productos})
 
-# --- VISTA PARA EXPORTAR PDF (MODIFICADA SEGÚN TU SOLICITUD) ---
+# --- VISTA PARA EXPORTAR PDF MODIFICADA ---
 def export_pdf(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
@@ -124,40 +122,43 @@ def export_pdf(request, username):
     if not perfil:
         return redirect('home')
 
-    # Detectar qué opciones fueron seleccionadas en el modal
-    show_sobre_mi = request.GET.get('sobre_mi') == 'on'
-    show_lenguajes = request.GET.get('lenguajes') == 'on'
-    show_productos_acad = request.GET.get('productos_acad') == 'on'
-    show_habilidades = request.GET.get('habilidades') == 'on'
-    show_experiencia = request.GET.get('experiencia') == 'on'
-    show_certificados = request.GET.get('certificados') == 'on'
-    show_garage = request.GET.get('garage') == 'on'
+    # Detectar qué opciones fueron seleccionadas en el modal (Checkboxes)
+    # Usamos request.GET.get porque el formulario del modal usa method="GET"
+    show_options = {
+        'show_sobre_mi': request.GET.get('sobre_mi') == 'on',
+        'show_lenguajes': request.GET.get('lenguajes') == 'on',
+        'show_productos_acad': request.GET.get('productos_acad') == 'on',
+        'show_habilidades': request.GET.get('habilidades') == 'on',
+        'show_experiencia': request.GET.get('experiencia') == 'on',
+        'show_certificados': request.GET.get('certificados') == 'on',
+        'show_garage': request.GET.get('garage') == 'on',
+    }
 
+    # Contexto base con el usuario y perfil
     contexto = {
         'user_viewed': user_viewed,
         'perfil': perfil,
-        'show_sobre_mi': show_sobre_mi,
-        'show_lenguajes': show_lenguajes,
-        'show_productos_acad': show_productos_acad,
-        'show_habilidades': show_habilidades,
-        'show_experiencia': show_experiencia,
-        'show_certificados': show_certificados,
-        'show_garage': show_garage,
+        **show_options  # Esto añade todas las variables show_ al contexto
     }
 
-    # Carga de datos filtrada por la selección del usuario
-    if show_experiencia:
+    # Carga de datos de la base de datos SOLO si la casilla está marcada
+    if show_options['show_experiencia']:
         contexto['experiencias'] = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    if show_habilidades:
+    
+    if show_options['show_habilidades']:
         contexto['habilidades'] = Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    if show_lenguajes:
+    
+    if show_options['show_lenguajes']:
         contexto['lenguajes'] = LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    if show_productos_acad:
+    
+    if show_options['show_productos_acad']:
         contexto['productos_academicos'] = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    if show_certificados:
+    
+    if show_options['show_certificados']:
         contexto['cursos'] = CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
         contexto['reconocimientos'] = Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    if show_garage:
+    
+    if show_options['show_garage']:
         contexto['productos_garage'] = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
 
     return render(request, 'pdf_template.html', contexto)
