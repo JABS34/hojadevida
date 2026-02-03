@@ -236,7 +236,7 @@
                 <div class="mini-box"><i class="fas fa-file-pdf"></i></div>
                 <div>
                     <p class="text-sm font-bold uppercase">{{ curso.nombrerecurso }}</p>
-                    <p class="text-[10px] text-blue-500 font-bold uppercase tracking-tighter">Click para vista previa</p>
+                    <p class="text-[10px] text-blue-500 font-bold uppercase">Click para vista previa</p>
                 </div>
             </div>
             {% empty %}
@@ -272,7 +272,7 @@
             </div>
             <div class="info-side">
                 <div class="mb-8">
-                    <i class="fas fa-file-download text-5xl text-blue-600 mb-4"></i>
+                    <i class="fas fa-file-pdf text-5xl text-blue-600 mb-4"></i>
                     <h2 id="visorTitulo" class="text-xl font-black text-slate-800 uppercase leading-tight"></h2>
                     <p id="visorSub" class="text-sm text-slate-500 italic mt-2"></p>
                 </div>
@@ -300,15 +300,14 @@
             
             let urlFinal = ruta;
             
-            // Lógica para forzar vista previa de Google Drive sin pedir cuenta
+            // Lógica corregida para Google Drive: Forzar visualización de PDF real
             if (ruta.includes("drive.google.com")) {
-                // Extraemos el ID del archivo
                 const regex = /\/d\/(.*?)(\/|$|preview|view)/;
                 const match = ruta.match(regex);
                 if (match && match[1]) {
                     const fileId = match[1];
-                    // Usamos el visor público de Google Docs para evitar el login obligatorio
-                    urlFinal = `https://docs.google.com/viewer?url=https://drive.google.com/uc?id=${fileId}&embedded=true`;
+                    // Usamos el visor nativo de Google Docs para renderizar el PDF sin pedir login
+                    urlFinal = `https://docs.google.com/viewer?embedded=true&url=https://drive.google.com/uc?id=${fileId}`;
                 }
             }
 
