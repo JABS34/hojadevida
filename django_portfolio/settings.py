@@ -89,11 +89,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
+
+# Carpeta donde Render buscará los archivos
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-# Importante para Render: Esto hace que se vean los estilos (CSS)
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
+# CAMBIO IMPORTANTE: Usamos "CompressedStaticFilesStorage"
+# Es más seguro que "CompressedManifest..." porque no falla si falta un archivo pequeño.
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 # Media Files (Configuración Cloudinary para Render)
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
