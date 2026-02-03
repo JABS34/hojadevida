@@ -9,73 +9,71 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/DragControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* Estilos Base */
-        html, body { margin: 0; padding: 0; overflow: hidden; background-color: #1e293b; width: 100%; height: 100%; font-family: sans-serif; }
+        html, body { margin: 0; padding: 0; overflow: hidden; background-color: #cbd5e1; width: 100%; height: 100%; }
         #canvas-3d { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 1; cursor: grab; }
         
         .hero-content { 
             position: relative; z-index: 10; pointer-events: none;
-            text-shadow: 0 2px 10px rgba(255,255,255,0.2);
+            text-shadow: 0 1px 4px rgba(255,255,255,0.5);
         }
         .hero-content button { pointer-events: auto; }
 
-        /* SECCIÓN SELECTOR DE PERFIL */
+        /* --- SELECTOR DE PERFIL CON GATOS PIXEL --- */
         #profile-selector {
             position: fixed; inset: 0; z-index: 100; display: none;
             flex-direction: column; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #2e1065 0%, #020617 100%);
+            background: #1e1b4b; overflow: hidden;
         }
 
-        /* Gatos Pixel Animados en el Fondo */
-        .pixel-cat {
-            position: absolute; width: 64px; height: 64px;
-            image-rendering: pixelated;
-            pointer-events: none; z-index: 1;
-            opacity: 0.7;
+        /* Contenedor de gatos pixelados en el fondo */
+        .cat-bg {
+            position: absolute; width: 60px; height: 60px;
+            image-rendering: pixelated; pointer-events: none; z-index: 0;
+            opacity: 0.8;
         }
 
-        /* Recuadros con Zoom */
         .profile-card-pixel {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 4px solid #4f46e5;
-            border-radius: 20px;
-            padding: 30px;
-            width: 280px;
+            backdrop-filter: blur(12px);
+            border: 3px solid #6366f1;
+            border-radius: 24px;
+            padding: 35px;
+            width: 300px;
             text-align: center;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 10;
         }
-        .profile-card-pixel:hover { transform: scale(1.1); border-color: #818cf8; }
+        .profile-card-pixel:hover { transform: scale(1.1); box-shadow: 0 0 30px rgba(99, 102, 241, 0.4); }
 
         .img-container {
-            width: 120px; height: 120px; margin: 0 auto 20px;
-            border-radius: 50%; border: 4px solid #6366f1; overflow: hidden;
+            width: 130px; height: 130px; margin: 0 auto 20px;
+            border-radius: 50%; border: 4px solid #818cf8; overflow: hidden;
         }
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Botón con Vibración */
+        /* Animación Vibrante para el botón */
         .btn-vibrate {
-            background: #6366f1; color: white; padding: 12px; border-radius: 10px;
-            width: 100%; font-weight: bold; transition: all 0.2s;
+            background: #4f46e5; color: white; padding: 14px; border-radius: 12px;
+            width: 100%; font-weight: 900; letter-spacing: 1px;
+            transition: background 0.3s;
         }
         .btn-vibrate:hover {
-            animation: vibrate 0.1s linear infinite;
-            background: #4f46e5;
+            animation: vibrate 0.15s linear infinite;
+            background: #6366f1;
         }
 
         @keyframes vibrate {
             0% { transform: translate(0); }
-            25% { transform: translate(2px, -2px); }
-            50% { transform: translate(-2px, 2px); }
-            75% { transform: translate(2px, 2px); }
-            100% { transform: translate(-2px, -2px); }
+            25% { transform: translate(3px, -3px); }
+            50% { transform: translate(-3px, 3px); }
+            75% { transform: translate(3px, 3px); }
+            100% { transform: translate(-3px, -3px); }
         }
 
-        /* Partículas Pixel (Minecraft Style) */
-        .pixel-particle {
-            position: absolute; width: 15px; height: 15px;
-            background: #6366f1; pointer-events: none; z-index: 200;
+        /* Partículas Pixeladas (Minecraft) */
+        .pixel-block {
+            position: absolute; width: 16px; height: 16px;
+            pointer-events: none; z-index: 200;
         }
     </style>
 </head>
@@ -85,94 +83,92 @@
     <input type="hidden" id="username-unico" value="{{ username_unico }}">
 
     <div id="profile-selector">
-        <div id="cat-field" class="absolute inset-0 overflow-hidden"></div>
+        <div id="pixel-cats-container" class="absolute inset-0"></div>
         
-        <h2 class="text-4xl font-black mb-12 text-white z-10 uppercase tracking-widest">Selecciona tu Avatar</h2>
-        
-        <div class="flex flex-wrap justify-center gap-8 z-10">
+        <h2 class="text-5xl font-black mb-16 text-white z-10 drop-shadow-lg italic">¿Quién eres hoy?</h2>
+        <div class="flex flex-wrap justify-center gap-10 z-10">
             {% for perfil in perfiles_activos %}
             <div class="profile-card-pixel">
                 <div class="img-container">
                     {% if perfil.foto %}
                         <img src="{{ perfil.foto.url }}">
                     {% else %}
-                        <div class="w-full h-full bg-slate-700 flex items-center justify-center text-3xl">🐱</div>
+                        <div class="w-full h-full bg-slate-800 flex items-center justify-center text-5xl">👤</div>
                     {% endif %}
                 </div>
-                <h3 class="text-white font-bold text-xl mb-6">{{ perfil.nombres }}</h3>
-                <button onclick="minecraftExplosion(event, '{{ perfil.user.username }}')" class="btn-vibrate">
+                <h3 class="text-2xl font-bold text-white mb-8">{{ perfil.nombres }}</h3>
+                <button onclick="pixelExplode(event, '{{ perfil.user.username }}')" class="btn-vibrate">
                     MIRA MI CV
                 </button>
             </div>
             {% endfor %}
         </div>
+        <button onclick="document.getElementById('profile-selector').style.display='none'" class="mt-12 text-slate-400 hover:text-white transition-colors z-10">Cerrar Sesión</button>
     </div>
 
     <section id="hero-main" class="relative w-screen h-screen flex flex-col items-center justify-center text-center">
         <div id="canvas-3d"></div> 
         <div class="hero-content" id="ui-wrapper">
-            <h1 class="text-6xl md:text-8xl font-black mb-4 text-slate-800">
+            <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-4 text-slate-800 italic">
                 Bienvenido a Mi CV <br>Profesional
             </h1>
-            <p class="text-slate-600 text-xl md:text-2xl font-medium mb-12 max-w-2xl mx-auto">
-                Trayectoria, proyectos y habilidades en una experiencia 3D.
+            <p class="text-slate-600 text-xl md:text-2xl font-semibold mb-12 max-w-2xl mx-auto">
+                Explora mi trayectoria en un entorno digital interactivo.
             </p>
-            <button onclick="handleCVAction()" class="px-12 py-6 bg-indigo-500 text-white rounded-full font-bold text-2xl shadow-xl hover:bg-indigo-600 transition-all active:scale-95">
-                Comenzar ahora
+            <button onclick="handleCVAction()" class="px-14 py-7 bg-indigo-600 text-white rounded-3xl font-black text-2xl shadow-[0_12px_0_rgb(49,46,129)] hover:translate-y-1 active:translate-y-[12px] active:shadow-none transition-all">
+                ACCEDER AL SISTEMA 👇
             </button>
         </div>
     </section>
 
     <script>
-        // --- LÓGICA DE GATOS PIXEL ---
-        const catField = document.getElementById('cat-field');
-        const catGifs = [
-            'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueXN6Znd4ZzRreW5qZzRreW5qZzRreW5qZzRreW5qZzRreSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3o72EX5QZ9N9d51dq0/giphy.gif', // Caminando
-            'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2ZqcGZ6Znd4ZzRreW5qZzRreW5qZzRreW5qZzRreW5qZzRreSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/JIX9t2j0ZTN9S/giphy.gif'   // Jugando
+        // --- GATOS PIXELADOS (Fondo Dinámico) ---
+        const catContainer = document.getElementById('pixel-cats-container');
+        const catUrls = [
+            'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3pwa3N6Znd4ZzRreW5qZzRreW5qZzRreW5qZzRreW5qZzRreSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3o72EX5QZ9N9d51dq0/giphy.gif',
+            'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3pwa3N6Znd4ZzRreW5qZzRreW5qZzRreW5qZzRreW5qZzRreSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/JIX9t2j0ZTN9S/giphy.gif'
         ];
 
-        for(let i=0; i<10; i++) {
+        for(let i=0; i<12; i++){
             const cat = document.createElement('img');
-            cat.src = catGifs[Math.floor(Math.random() * catGifs.length)];
-            cat.className = 'pixel-cat';
+            cat.src = catUrls[Math.floor(Math.random() * catUrls.length)];
+            cat.className = 'cat-bg';
             cat.style.left = Math.random() * 100 + '%';
             cat.style.top = Math.random() * 100 + '%';
-            cat.style.transform = `scale(${0.5 + Math.random()})`;
-            catField.appendChild(cat);
+            catContainer.appendChild(cat);
             
-            // Movimiento aleatorio simple
+            // Movimiento errático
             setInterval(() => {
-                cat.style.left = (parseFloat(cat.style.left) + (Math.random() - 0.5) * 5) + '%';
-                cat.style.top = (parseFloat(cat.style.top) + (Math.random() - 0.5) * 5) + '%';
-            }, 3000);
+                cat.style.left = (parseFloat(cat.style.left) + (Math.random() - 0.5) * 8) + '%';
+                cat.style.top = (parseFloat(cat.style.top) + (Math.random() - 0.5) * 8) + '%';
+            }, 2500);
         }
 
-        // --- EXPLOSIÓN MINECRAFT ---
-        function minecraftExplosion(e, username) {
+        // --- EXPLOSIÓN PIXELADA TIPO MINECRAFT ---
+        function pixelExplode(e, username) {
             const rect = e.target.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
 
-            for (let i = 0; i < 30; i++) {
-                const p = document.createElement('div');
-                p.className = 'pixel-particle';
-                p.style.left = centerX + 'px';
-                p.style.top = centerY + 'px';
-                p.style.backgroundColor = ['#6366f1', '#818cf8', '#ffffff', '#312e81'][Math.floor(Math.random()*4)];
-                document.body.appendChild(p);
+            for(let i=0; i<40; i++){
+                const block = document.createElement('div');
+                block.className = 'pixel-block';
+                block.style.left = x + 'px';
+                block.style.top = y + 'px';
+                block.style.backgroundColor = ['#6366f1', '#4f46e5', '#ffffff', '#818cf8'][Math.floor(Math.random()*4)];
+                document.body.appendChild(block);
 
                 const angle = Math.random() * Math.PI * 2;
-                const dist = 50 + Math.random() * 150;
+                const velocity = 5 + Math.random() * 10;
                 
-                p.animate([
-                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                    { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }
-                ], { duration: 600, easing: 'cubic-bezier(0, .9, .57, 1)' });
+                block.animate([
+                    { transform: 'translate(0,0) scale(1)', opacity: 1 },
+                    { transform: `translate(${Math.cos(angle)*200}px, ${Math.sin(angle)*200}px) scale(0)`, opacity: 0 }
+                ], { duration: 700, easing: 'steps(8)' });
 
-                setTimeout(() => p.remove(), 600);
+                setTimeout(() => block.remove(), 700);
             }
-            
-            setTimeout(() => { window.location.href = "/perfil/" + username + "/"; }, 500);
+            setTimeout(() => { window.location.href = "/perfil/" + username + "/"; }, 600);
         }
 
         function handleCVAction() {
@@ -182,44 +178,53 @@
             else document.getElementById('profile-selector').style.display = 'flex';
         }
 
-        // --- MOTOR 3D (MUNDO CLARO) ---
+        // --- MOTOR 3D (COLOR CLARO + OBJETOS SÓLIDOS) ---
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xdbeafe); // Azul muy claro
+        scene.background = new THREE.Color(0xd1d5db); // Color claro
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-3d').appendChild(renderer.domElement);
 
         const objects = [];
-        const colors = [0x6366f1, 0x818cf8, 0xbfdbfe];
+        const mats = [
+            new THREE.MeshPhongMaterial({ color: 0x6366f1, shininess: 100 }),
+            new THREE.MeshStandardMaterial({ color: 0x4f46e5, metalness: 0.5, roughness: 0.1 })
+        ];
 
-        for(let i=0; i<40; i++) {
+        for(let i=0; i<45; i++) {
             const geo = [new THREE.IcosahedronGeometry(1.5), new THREE.TorusGeometry(1, 0.4, 16, 32), new THREE.BoxGeometry(2,2,2)][i%3];
-            const mat = new THREE.MeshPhongMaterial({ color: colors[i%3], shininess: 100 });
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.set((Math.random()-0.5)*50, (Math.random()-0.5)*30, (Math.random()-0.5)*20);
-            mesh.userData = { velocity: new THREE.Vector3((Math.random()-0.5)*0.05, (Math.random()-0.5)*0.05, (Math.random()-0.5)*0.02) };
+            const mesh = new THREE.Mesh(geo, mats[i%2]);
+            mesh.position.set((Math.random()-0.5)*60, (Math.random()-0.5)*40, (Math.random()-0.5)*20);
+            mesh.userData = { velocity: new THREE.Vector3((Math.random()-0.5)*0.08, (Math.random()-0.5)*0.08, (Math.random()-0.5)*0.03) };
             scene.add(mesh);
             objects.push(mesh);
         }
 
+        // Iluminación para resaltar el 3D
         const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(1, 1, 2);
+        light.position.set(5, 5, 10);
         scene.add(light);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-        camera.position.z = 30;
+        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+        camera.position.z = 35;
 
         function animate() {
             requestAnimationFrame(animate);
             objects.forEach(obj => {
                 obj.position.add(obj.userData.velocity);
                 obj.rotation.x += 0.01; obj.rotation.y += 0.01;
-                if (Math.abs(obj.position.x) > 35) obj.userData.velocity.x *= -1;
-                if (Math.abs(obj.position.y) > 25) obj.userData.velocity.y *= -1;
+                if (Math.abs(obj.position.x) > 40) obj.userData.velocity.x *= -1;
+                if (Math.abs(obj.position.y) > 30) obj.userData.velocity.y *= -1;
             });
             renderer.render(scene, camera);
         }
         animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
