@@ -71,7 +71,6 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .modal.active { display: flex; }
 
-        /* ESTILOS VISTA PREVIA SPLIT */
         .preview-container { display: flex; width: 85%; max-width: 900px; height: 60vh; background: white; border-radius: 24px; overflow: hidden; }
         .pdf-side { flex: 1.5; background: #f8fafc; display: flex; align-items: center; justify-content: center; border-right: 1px solid #e2e8f0; }
         .info-side { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; text-align: center; }
@@ -145,31 +144,14 @@
                     <p><i class="fas fa-envelope mr-2 w-4 text-blue-300"></i> {{ user_viewed.email }}</p>
                     {% if perfil.numerocedula %}<p><i class="fas fa-id-card mr-2 w-4 text-blue-300"></i> {{ perfil.numerocedula }}</p>{% endif %}
                     <p><i class="fas fa-phone mr-2 w-4 text-blue-300"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional|default:"Sin teléfono" }}</p>
-                    <p><i class="fas fa-map-marker-alt mr-2 w-4 text-blue-300"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
-                    {% if perfil.sitioweb %}
-                    <p><i class="fas fa-globe mr-2 w-4 text-blue-300"></i> {{ perfil.sitioweb }}</p>
-                    {% endif %}
-                </div>
-            </section>
-
-            <section class="mb-10">
-                <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Productos Académicos</h3>
-                <div class="space-y-4">
-                    {% for prod in productos_academicos %}
-                    <div>
-                        <p class="text-[12px] font-bold uppercase leading-tight">{{ prod.nombrerecurso }}</p>
-                        <p class="text-[10px] text-blue-300">{{ prod.clasificador }}</p>
-                    </div>
-                    {% empty %}
-                    <p class="text-[11px] text-white/40 italic">Sin registros académicos.</p>
-                    {% endfor %}
+                    <p><i class="fas fa-map-marker-alt mr-2 w-4 text-blue-300"></i> {{ perfil.direcciondomiciliaria|default:"Manta, Ecuador" }}</p>
                 </div>
             </section>
 
             <section class="mb-10">
                 <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Nacionalidad</h3>
-                <p class="text-[13px] uppercase">{{ perfil.nacionalidad|default:"No especificada" }}</p>
-                <p class="text-[11px] text-blue-300 mt-1">{{ perfil.lugarnacimiento }}</p>
+                <p class="text-[13px] uppercase">{{ perfil.nacionalidad|default:"Ecuatoriana" }}</p>
+                <p class="text-[11px] text-blue-300 mt-1">{{ perfil.lugarnacimiento|default:"Manta" }}</p>
             </section>
 
             <section>
@@ -189,12 +171,9 @@
         <main class="main-content">
             <header class="mb-10">
                 <h1 class="text-[45px] font-extrabold text-slate-900 uppercase leading-none">
-                    {{ perfil.nombres|default:"Nombre" }}<br>
-                    <span class="text-blue-600">{{ perfil.apellidos|default:"Apellido" }}</span>
+                    {{ perfil.nombres|default:"JONATHAN ALEXANDER" }}<br>
+                    <span class="text-blue-600">{{ perfil.apellidos|default:"BERMELLO SANCHEZ" }}</span>
                 </h1>
-                <p class="text-slate-400 font-bold text-[12px] tracking-widest mt-2 uppercase">
-                    {{ perfil.estadocivil|default:"" }} {% if perfil.sexo %}• {{ perfil.sexo }}{% endif %}
-                </p>
             </header>
 
             <section class="mb-10">
@@ -224,12 +203,27 @@
             </section>
 
             <section class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Productos Académicos</h2>
+                <div class="space-y-6">
+                    {% for prod in productos_academicos %}
+                    <div class="relative pl-6 border-l-2 border-blue-100">
+                        <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-white border-4 border-blue-600"></div>
+                        <h3 class="font-extrabold text-slate-800 uppercase text-[13px]">{{ prod.nombrerecurso }}</h3>
+                        <p class="text-blue-600 text-[11px] font-bold uppercase">{{ prod.clasificador }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-slate-400 text-[12px] italic">No hay productos académicos disponibles.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
                 <div class="space-y-8">
                     {% for exp in experiencias %}
                     <div class="relative pl-6 border-l-2 border-slate-100">
                         <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-600 border-4 border-white"></div>
-                        <h3 class="font-extrabold text-slate-800">{{ exp.cargodesempenado }}</h3>
+                        <h3 class="font-extrabold text-slate-800 uppercase">{{ exp.cargodesempenado }}</h3>
                         <div class="flex justify-between items-center">
                             <p class="text-blue-600 text-[11px] font-bold uppercase">{{ exp.nombrempresa }}</p>
                             <span class="text-[10px] font-bold text-slate-400">{{ exp.fechainiciogestion|date:"M Y" }} - {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"M Y" }}{% else %}Actualidad{% endif %}</span>
@@ -244,113 +238,19 @@
         </main>
     </div>
 
-    <div id="modalCert" class="modal"><div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4">
-        <h2 class="font-bold text-xl mb-4 italic border-b pb-2">Capacitación y Cursos</h2>
-        <div class="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2">
-            {% for curso in cursos %}
-            <div class="flex items-center gap-4 border-b border-slate-100 pb-2 cursor-pointer hover:bg-slate-50 transition"
-                 onclick="abrirVisor('{{ curso.rutacertificado.url|default:'' }}', '{{ curso.nombrerecurso }}', '{{ curso.entidadpatrocinadora }}')">
-                <div class="mini-box"><i class="fas fa-file-lines"></i></div>
-                <div>
-                    <p class="text-sm font-bold uppercase">{{ curso.nombrerecurso }}</p>
-                    <p class="text-[10px] text-blue-500 font-bold uppercase">Abrir para descargar</p>
-                </div>
-            </div>
-            {% empty %}
-            <p class="text-center text-slate-400 py-4">Sin registros.</p>
-            {% endfor %}
-        </div>
-        <button onclick="toggleModal('modalCert')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
-    </div></div>
-    
-    <div id="modalRec" class="modal"><div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4">
-        <h2 class="font-bold text-xl mb-4 italic text-emerald-600 border-b pb-2">Reconocimientos</h2>
-        <div class="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2">
-            {% for rec in reconocimientos %}
-            <div class="flex items-center gap-4 bg-emerald-50 p-3 rounded-xl border border-emerald-100 cursor-pointer hover:bg-emerald-100 transition"
-                 onclick="abrirVisor('{{ rec.rutacertificado.url|default:'' }}', '{{ rec.descripcionreconocimiento }}', '{{ rec.entidadpatrocinadora }}')">
-                <div class="mini-box" style="color:#059669"><i class="fas fa-award"></i></div>
-                <div>
-                    <p class="text-sm font-bold uppercase text-emerald-800">{{ rec.descripcionreconocimiento }}</p>
-                    <p class="text-[10px] text-emerald-600 font-bold uppercase">Ver Reconocimiento</p>
-                </div>
-            </div>
-            {% empty %}
-            <p class="text-center text-slate-400 py-4">Sin registros.</p>
-            {% endfor %}
-        </div>
-        <button onclick="toggleModal('modalRec')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
-    </div></div>
-
     <div id="modalPDF" class="modal">
         <div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4 shadow-2xl">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-file-pdf text-2xl"></i>
-                </div>
-                <h2 class="font-bold text-2xl text-slate-800 uppercase italic">Exportar PDF</h2>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Personaliza tu documento</p>
-            </div>
-
-            <form action="{% url 'export_pdf' user_viewed.username %}" method="GET" target="_blank" class="space-y-2">
-                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="sobre_mi" checked class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-slate-700 uppercase">Sobre Mí</span>
-                </label>
-                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="lenguajes" checked class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-slate-700 uppercase">Lenguajes de Programación</span>
-                </label>
+            <h2 class="font-bold text-2xl text-slate-800 uppercase italic mb-6">Exportar PDF</h2>
+            <form action="{% url 'export_pdf' user_viewed.username %}" method="GET" target="_blank" class="space-y-4">
                 <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
                     <input type="checkbox" name="productos_acad" checked class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-slate-700 uppercase">Productos Académicos</span>
+                    <span class="text-xs font-extrabold text-slate-700 uppercase">Incluir Productos Académicos</span>
                 </label>
-                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="habilidades" checked class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-slate-700 uppercase">Habilidades</span>
-                </label>
-                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="experiencia" checked class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-slate-700 uppercase">Experiencia Laboral</span>
-                </label>
-                <label class="flex items-center p-3 bg-blue-50 rounded-xl cursor-pointer border border-blue-200">
-                    <input type="checkbox" name="certificados" checked class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-blue-800 uppercase">Cursos y Reconocimientos (Anexos)</span>
-                </label>
-                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="garage" class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-slate-700 uppercase">Garage (Productos en venta)</span>
-                </label>
-
                 <div class="flex gap-3 mt-6">
-                    <button type="button" onclick="toggleModal('modalPDF')" class="flex-1 py-4 text-slate-400 font-bold uppercase tracking-widest text-[10px]">Cerrar</button>
-                    <button type="submit" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition uppercase tracking-widest text-[10px]">
-                        Generar PDF
-                    </button>
+                    <button type="button" onclick="toggleModal('modalPDF')" class="flex-1 py-4 text-slate-400 font-bold uppercase text-[10px]">Cerrar</button>
+                    <button type="submit" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition uppercase text-[10px]">Generar PDF</button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <div id="modalVisor" class="modal">
-        <div class="preview-container">
-            <div class="pdf-side">
-                <div class="text-center">
-                    <i class="fas fa-file-circle-check text-[120px] text-blue-600 opacity-20"></i>
-                    <p class="mt-4 text-slate-400 font-bold uppercase text-xs tracking-widest">Documento Listo</p>
-                </div>
-            </div>
-            <div class="info-side">
-                <div class="mb-8">
-                    <i class="fas fa-cloud-arrow-down text-5xl text-blue-500 mb-4"></i>
-                    <h2 id="visorTitulo" class="text-xl font-black text-slate-800 uppercase leading-tight"></h2>
-                    <p id="visorSub" class="text-sm text-slate-500 italic mt-2"></p>
-                </div>
-                <a id="visorBtnDescarga" href="" target="_blank" download class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-3 hover:bg-blue-700 transition">
-                    <i class="fas fa-download"></i> DESCARGAR DOCUMENTO
-                </a>
-                <button onclick="toggleModal('modalVisor')" class="mt-8 text-xs text-slate-400 font-bold uppercase tracking-widest">Regresar</button>
-            </div>
         </div>
     </div>
 
@@ -361,18 +261,6 @@
             document.getElementById('trigger').classList.toggle('open');
         }
         function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
-
-        function abrirVisor(ruta, titulo, entidad) {
-            if (!ruta || ruta === "None" || ruta === "") {
-                alert("No hay un archivo disponible.");
-                return;
-            }
-            document.getElementById('visorTitulo').innerText = titulo;
-            document.getElementById('visorSub').innerText = entidad;
-            document.getElementById('visorBtnDescarga').href = ruta;
-            toggleModal('modalVisor');
-        }
-
         window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); }
     </script>
 </body>
