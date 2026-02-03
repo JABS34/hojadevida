@@ -9,223 +9,213 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/DragControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        html, body { margin: 0; padding: 0; overflow: hidden; background-color: #020617; width: 100%; height: 100%; }
+        /* Estilos Base */
+        html, body { margin: 0; padding: 0; overflow: hidden; background-color: #1e293b; width: 100%; height: 100%; font-family: sans-serif; }
         #canvas-3d { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 1; cursor: grab; }
         
         .hero-content { 
             position: relative; z-index: 10; pointer-events: none;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 10px rgba(255,255,255,0.2);
         }
         .hero-content button { pointer-events: auto; }
 
-        /* --- SECCIÓN SELECCIONAR PERFIL (DISEÑO ESPACIAL) --- */
+        /* SECCIÓN SELECTOR DE PERFIL */
         #profile-selector {
             position: fixed; inset: 0; z-index: 100; display: none;
             flex-direction: column; align-items: center; justify-content: center;
-            background: #020617;
-            overflow: hidden;
+            background: linear-gradient(135deg, #2e1065 0%, #020617 100%);
         }
 
-        /* Fondo Animado de Estrellas/Nebulosa */
-        .stars-container {
-            position: absolute; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
-            z-index: -1;
+        /* Gatos Pixel Animados en el Fondo */
+        .pixel-cat {
+            position: absolute; width: 64px; height: 64px;
+            image-rendering: pixelated;
+            pointer-events: none; z-index: 1;
+            opacity: 0.7;
         }
 
-        /* Tarjetas Estilo Cristal Moderno */
-        .profile-card-new {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 40px;
-            width: 320px;
+        /* Recuadros con Zoom */
+        .profile-card-pixel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 4px solid #4f46e5;
+            border-radius: 20px;
+            padding: 30px;
+            width: 280px;
             text-align: center;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+        .profile-card-pixel:hover { transform: scale(1.1); border-color: #818cf8; }
+
+        .img-container {
+            width: 120px; height: 120px; margin: 0 auto 20px;
+            border-radius: 50%; border: 4px solid #6366f1; overflow: hidden;
+        }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Botón con Vibración */
+        .btn-vibrate {
+            background: #6366f1; color: white; padding: 12px; border-radius: 10px;
+            width: 100%; font-weight: bold; transition: all 0.2s;
+        }
+        .btn-vibrate:hover {
+            animation: vibrate 0.1s linear infinite;
+            background: #4f46e5;
         }
 
-        .profile-card-new:hover {
-            transform: translateY(-15px) scale(1.02);
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(99, 102, 241, 0.5);
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+        @keyframes vibrate {
+            0% { transform: translate(0); }
+            25% { transform: translate(2px, -2px); }
+            50% { transform: translate(-2px, 2px); }
+            75% { transform: translate(2px, 2px); }
+            100% { transform: translate(-2px, -2px); }
         }
 
-        /* Corregido el error de object-cover */
-        .img-glow {
-            width: 140px; height: 140px; margin: 0 auto 25px;
-            border-radius: 50%; padding: 5px;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
-        }
-        
-        .img-glow img { 
-            width: 100%; height: 100%; border-radius: 50%; 
-            object-fit: cover; /* CORRECCIÓN AQUÍ */
-            border: 4px solid #0f172a; 
-        }
-
-        .btn-modern {
-            background: linear-gradient(90deg, #6366f1, #a855f7);
-            border-radius: 12px; font-weight: 800; letter-spacing: 1px;
-            padding: 12px 0; color: white; width: 100%;
-            transition: all 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-        }
-        .btn-modern:hover { filter: brightness(1.1); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6); }
-
-        .explosion-emoji {
-            position: absolute; pointer-events: none; z-index: 50;
-            font-size: 2.5rem; animation: emojiAnim 0.8s ease-out forwards;
-        }
-
-        @keyframes emojiAnim {
-            0% { transform: scale(0) rotate(0deg); opacity: 1; }
-            100% { transform: scale(1.8) rotate(20deg) translateY(-100px); opacity: 0; }
+        /* Partículas Pixel (Minecraft Style) */
+        .pixel-particle {
+            position: absolute; width: 15px; height: 15px;
+            background: #6366f1; pointer-events: none; z-index: 200;
         }
     </style>
 </head>
-<body class="text-white">
+<body>
 
     <input type="hidden" id="total-activos" value="{{ total_activos|default:0 }}">
     <input type="hidden" id="username-unico" value="{{ username_unico }}">
 
     <div id="profile-selector">
-        <div class="stars-container"></div>
-        <h2 class="text-5xl font-black mb-16 tracking-tight text-white drop-shadow-2xl">
-            Selecciona un Perfil
-        </h2>
-        <div class="flex flex-wrap justify-center gap-12 z-10">
+        <div id="cat-field" class="absolute inset-0 overflow-hidden"></div>
+        
+        <h2 class="text-4xl font-black mb-12 text-white z-10 uppercase tracking-widest">Selecciona tu Avatar</h2>
+        
+        <div class="flex flex-wrap justify-center gap-8 z-10">
             {% for perfil in perfiles_activos %}
-            <div class="profile-card-new group">
-                <div class="img-glow">
+            <div class="profile-card-pixel">
+                <div class="img-container">
                     {% if perfil.foto %}
-                        <img src="{{ perfil.foto.url }}" alt="Foto">
+                        <img src="{{ perfil.foto.url }}">
                     {% else %}
-                        <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-4xl">👤</div>
+                        <div class="w-full h-full bg-slate-700 flex items-center justify-center text-3xl">🐱</div>
                     {% endif %}
                 </div>
-                <h3 class="text-2xl font-bold text-white mb-8">{{ perfil.nombres }}</h3>
-                <button onclick="goToProfile('{{ perfil.user.username }}')" class="btn-modern">
+                <h3 class="text-white font-bold text-xl mb-6">{{ perfil.nombres }}</h3>
+                <button onclick="minecraftExplosion(event, '{{ perfil.user.username }}')" class="btn-vibrate">
                     MIRA MI CV
                 </button>
             </div>
             {% endfor %}
         </div>
-        <button onclick="document.getElementById('profile-selector').style.display='none'" class="mt-16 text-slate-400 hover:text-white transition-all text-sm uppercase tracking-widest">
-            ← Volver al inicio
-        </button>
     </div>
 
     <section id="hero-main" class="relative w-screen h-screen flex flex-col items-center justify-center text-center">
         <div id="canvas-3d"></div> 
         <div class="hero-content" id="ui-wrapper">
-            <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-indigo-400">
+            <h1 class="text-6xl md:text-8xl font-black mb-4 text-slate-800">
                 Bienvenido a Mi CV <br>Profesional
             </h1>
-            <p class="text-slate-300 text-xl md:text-2xl font-light mb-12 max-w-2xl mx-auto italic">
-                Te invito a explorar mi trayectoria, mis proyectos y las habilidades que he cultivado.
+            <p class="text-slate-600 text-xl md:text-2xl font-medium mb-12 max-w-2xl mx-auto">
+                Trayectoria, proyectos y habilidades en una experiencia 3D.
             </p>
-            <button onclick="handleCVAction()" class="px-12 py-6 bg-indigo-600 rounded-2xl font-black text-2xl shadow-[0_15px_0_rgb(49,46,129)] hover:translate-y-1 active:shadow-none active:translate-y-[15px] transition-all">
-                Mira mi CV aquí 👇
+            <button onclick="handleCVAction()" class="px-12 py-6 bg-indigo-500 text-white rounded-full font-bold text-2xl shadow-xl hover:bg-indigo-600 transition-all active:scale-95">
+                Comenzar ahora
             </button>
         </div>
     </section>
 
     <script>
-        // Función de Explosión mejorada
-        function triggerEmoji(x, y) {
-            const emojis = ['🚀', '💻', '🐍', '🔥', '⚡', '✨'];
-            for(let i=0; i<8; i++) {
-                const span = document.createElement('span');
-                span.className = 'explosion-emoji';
-                span.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-                span.style.left = x + (Math.random() * 40 - 20) + 'px';
-                span.style.top = y + (Math.random() * 40 - 20) + 'px';
-                document.body.appendChild(span);
-                setTimeout(() => span.remove(), 800);
+        // --- LÓGICA DE GATOS PIXEL ---
+        const catField = document.getElementById('cat-field');
+        const catGifs = [
+            'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueXN6Znd4ZzRreW5qZzRreW5qZzRreW5qZzRreW5qZzRreSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3o72EX5QZ9N9d51dq0/giphy.gif', // Caminando
+            'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2ZqcGZ6Znd4ZzRreW5qZzRreW5qZzRreW5qZzRreW5qZzRreSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/JIX9t2j0ZTN9S/giphy.gif'   // Jugando
+        ];
+
+        for(let i=0; i<10; i++) {
+            const cat = document.createElement('img');
+            cat.src = catGifs[Math.floor(Math.random() * catGifs.length)];
+            cat.className = 'pixel-cat';
+            cat.style.left = Math.random() * 100 + '%';
+            cat.style.top = Math.random() * 100 + '%';
+            cat.style.transform = `scale(${0.5 + Math.random()})`;
+            catField.appendChild(cat);
+            
+            // Movimiento aleatorio simple
+            setInterval(() => {
+                cat.style.left = (parseFloat(cat.style.left) + (Math.random() - 0.5) * 5) + '%';
+                cat.style.top = (parseFloat(cat.style.top) + (Math.random() - 0.5) * 5) + '%';
+            }, 3000);
+        }
+
+        // --- EXPLOSIÓN MINECRAFT ---
+        function minecraftExplosion(e, username) {
+            const rect = e.target.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.className = 'pixel-particle';
+                p.style.left = centerX + 'px';
+                p.style.top = centerY + 'px';
+                p.style.backgroundColor = ['#6366f1', '#818cf8', '#ffffff', '#312e81'][Math.floor(Math.random()*4)];
+                document.body.appendChild(p);
+
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 50 + Math.random() * 150;
+                
+                p.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }
+                ], { duration: 600, easing: 'cubic-bezier(0, .9, .57, 1)' });
+
+                setTimeout(() => p.remove(), 600);
             }
+            
+            setTimeout(() => { window.location.href = "/perfil/" + username + "/"; }, 500);
         }
 
         function handleCVAction() {
             const total = parseInt(document.getElementById('total-activos').value);
             const user = document.getElementById('username-unico').value;
-            if (total === 1) goToProfile(user);
+            if (total === 1) window.location.href = "/perfil/" + user + "/";
             else document.getElementById('profile-selector').style.display = 'flex';
         }
 
-        function goToProfile(username) {
-            document.getElementById('ui-wrapper').style.opacity = "0";
-            document.getElementById('ui-wrapper').style.transform = "scale(0.8)";
-            document.getElementById('ui-wrapper').style.transition = "all 0.6s ease";
-            setTimeout(() => { window.location.href = "/perfil/" + username + "/"; }, 600);
-        }
-
-        // --- MOTOR 3D ORIGINAL + INTERACTIVO ---
+        // --- MOTOR 3D (MUNDO CLARO) ---
         const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xdbeafe); // Azul muy claro
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-3d').appendChild(renderer.domElement);
 
         const objects = [];
-        const indigoMat = new THREE.MeshPhongMaterial({ color: 0x4338ca, wireframe: true, transparent: true, opacity: 0.4 });
-        
-        function createCodeBlock(text) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 512; canvas.height = 128;
-            ctx.fillStyle = '#818cf8';
-            ctx.font = 'Bold 44px monospace';
-            ctx.fillText(text, 20, 80);
-            const texture = new THREE.CanvasTexture(canvas);
-            return new THREE.Mesh(new THREE.PlaneGeometry(8, 2), new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide }));
+        const colors = [0x6366f1, 0x818cf8, 0xbfdbfe];
+
+        for(let i=0; i<40; i++) {
+            const geo = [new THREE.IcosahedronGeometry(1.5), new THREE.TorusGeometry(1, 0.4, 16, 32), new THREE.BoxGeometry(2,2,2)][i%3];
+            const mat = new THREE.MeshPhongMaterial({ color: colors[i%3], shininess: 100 });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set((Math.random()-0.5)*50, (Math.random()-0.5)*30, (Math.random()-0.5)*20);
+            mesh.userData = { velocity: new THREE.Vector3((Math.random()-0.5)*0.05, (Math.random()-0.5)*0.05, (Math.random()-0.5)*0.02) };
+            scene.add(mesh);
+            objects.push(mesh);
         }
 
-        const codes = ["def push_code():", "import sqlite3", "render(request)", "os.path.join()", "class Meta:"];
-
-        for(let i=0; i<35; i++) {
-            let obj;
-            if(i < 12) obj = createCodeBlock(codes[i % codes.length]);
-            else {
-                const geo = i % 2 === 0 ? new THREE.IcosahedronGeometry(Math.random()*2, 0) : new THREE.BoxGeometry(2,2,2);
-                obj = new THREE.Mesh(geo, indigoMat);
-            }
-            obj.position.set((Math.random()-0.5)*50, (Math.random()-0.5)*30, (Math.random()-0.5)*20);
-            obj.userData = { velocity: new THREE.Vector3((Math.random()-0.5)*0.1, (Math.random()-0.5)*0.1, (Math.random()-0.5)*0.02), isDragging: false };
-            scene.add(obj);
-            objects.push(obj);
-        }
-
-        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-        camera.position.z = 28;
-
-        const drag = new THREE.DragControls(objects, camera, renderer.domElement);
-        drag.addEventListener('dragstart', (e) => { e.object.userData.isDragging = true; });
-        drag.addEventListener('dragend', (e) => { e.object.userData.isDragging = false; });
-
-        window.addEventListener('click', (e) => {
-            const raycaster = new THREE.Raycaster();
-            const mouse = new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(objects);
-            if(intersects.length > 0) {
-                triggerEmoji(e.clientX, e.clientY);
-                intersects[0].object.position.set((Math.random()-0.5)*50, (Math.random()-0.5)*30, 0);
-            }
-        });
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(1, 1, 2);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        camera.position.z = 30;
 
         function animate() {
             requestAnimationFrame(animate);
             objects.forEach(obj => {
-                if (!obj.userData.isDragging) {
-                    obj.position.add(obj.userData.velocity);
-                    obj.rotation.x += 0.005; obj.rotation.y += 0.005;
-                    if (Math.abs(obj.position.x) > 40) obj.userData.velocity.x *= -1;
-                    if (Math.abs(obj.position.y) > 25) obj.userData.velocity.y *= -1;
-                }
+                obj.position.add(obj.userData.velocity);
+                obj.rotation.x += 0.01; obj.rotation.y += 0.01;
+                if (Math.abs(obj.position.x) > 35) obj.userData.velocity.x *= -1;
+                if (Math.abs(obj.position.y) > 25) obj.userData.velocity.y *= -1;
             });
             renderer.render(scene, camera);
         }
