@@ -144,13 +144,19 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.title} - by {self.user.username}"
 
-# 9. CONTROL DE VISIBILIDAD (MODIFICADO)
+# 9. CONTROL DE VISIBILIDAD (CON FIX PARA RENDER)
 class ConfiguracionVisible(models.Model):
-    idperfilconqueestaactivo = models.OneToOneField(DatosPersonales, on_delete=models.CASCADE, null=True, blank=True)
-    mostrar_garage = models.BooleanField(default=True)
-    mostrar_cursos = models.BooleanField(default=True)
-    mostrar_reconocimientos = models.BooleanField(default=True)
-    mostrar_editar = models.BooleanField(default=True)
+    idperfilconqueestaactivo = models.OneToOneField(
+        DatosPersonales, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True,
+        verbose_name="Perfil Asociado"
+    )
+    mostrar_garage = models.BooleanField(default=True, verbose_name="Ver Garage")
+    mostrar_cursos = models.BooleanField(default=True, verbose_name="Ver Cursos")
+    mostrar_reconocimientos = models.BooleanField(default=True, verbose_name="Ver Reconocimientos")
+    mostrar_editar = models.BooleanField(default=True, verbose_name="Ver Botón Editar")
 
     class Meta:
         verbose_name = "Configuración de Botón"
