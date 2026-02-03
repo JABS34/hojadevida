@@ -75,7 +75,6 @@
         .pdf-side { flex: 1.5; background: #f8fafc; display: flex; align-items: center; justify-content: center; border-right: 1px solid #e2e8f0; }
         .info-side { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; text-align: center; }
         
-        /* CUADRITO PEQUEÑO */
         .mini-box { width: 40px; height: 40px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6; border: 1px solid #e2e8f0; flex-shrink: 0; }
 
         @media print { .no-print { display: none !important; } .cv-page { margin: 0; box-shadow: none; width: 100%; } }
@@ -281,6 +280,56 @@
         </div>
         <button onclick="toggleModal('modalRec')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
     </div></div>
+
+    <div id="modalPDF" class="modal">
+        <div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4 shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-file-pdf text-2xl"></i>
+                </div>
+                <h2 class="font-bold text-2xl text-slate-800 uppercase italic">Exportar PDF</h2>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Personaliza tu documento</p>
+            </div>
+
+            <form action="{% url 'export_pdf' user_viewed.username %}" method="GET" target="_blank" class="space-y-2">
+                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
+                    <input type="checkbox" name="sobre_mi" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-slate-700 uppercase">Sobre Mí</span>
+                </label>
+                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
+                    <input type="checkbox" name="lenguajes" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-slate-700 uppercase">Lenguajes de Programación</span>
+                </label>
+                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
+                    <input type="checkbox" name="productos_acad" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-slate-700 uppercase">Productos Académicos</span>
+                </label>
+                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
+                    <input type="checkbox" name="habilidades" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-slate-700 uppercase">Habilidades</span>
+                </label>
+                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
+                    <input type="checkbox" name="experiencia" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-slate-700 uppercase">Experiencia Laboral</span>
+                </label>
+                <label class="flex items-center p-3 bg-blue-50 rounded-xl cursor-pointer border border-blue-200">
+                    <input type="checkbox" name="certificados" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-blue-800 uppercase">Cursos y Reconocimientos (Anexos)</span>
+                </label>
+                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
+                    <input type="checkbox" name="garage" class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-slate-700 uppercase">Garage (Productos en venta)</span>
+                </label>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="toggleModal('modalPDF')" class="flex-1 py-4 text-slate-400 font-bold uppercase tracking-widest text-[10px]">Cerrar</button>
+                    <button type="submit" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition uppercase tracking-widest text-[10px]">
+                        Generar PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <div id="modalVisor" class="modal">
         <div class="preview-container">

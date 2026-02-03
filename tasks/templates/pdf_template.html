@@ -7,13 +7,62 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @page { size: A4; margin: 0; }
-        body { font-family: sans-serif; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        .page-pdf { width: 210mm; height: 297mm; display: flex; overflow: hidden; page-break-after: always; }
-        .sidebar { width: 32%; background-color: #254b94 !important; color: white; padding: 40px 20px; }
-        .main-content { width: 68%; padding: 50px; }
-        .appendix { width: 210mm; min-height: 297mm; padding: 25mm; page-break-before: always; background: white; }
-        .badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); padding: 4px 8px; border-radius: 4px; font-size: 10px; margin: 0 4px 6px 0; display: inline-block; }
-        img { max-width: 100%; display: block; }
+        body { 
+            font-family: sans-serif; 
+            background: white; 
+            margin: 0; 
+            padding: 0; 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact; 
+        }
+        /* Contenedor principal del CV */
+        .page-pdf { 
+            width: 210mm; 
+            height: 297mm; 
+            display: flex; 
+            overflow: hidden; 
+            page-break-after: always; 
+        }
+        .sidebar { 
+            width: 32%; 
+            background-color: #1e3a8a !important; 
+            color: white; 
+            padding: 40px 20px; 
+        }
+        .main-content { 
+            width: 68%; 
+            padding: 50px; 
+        }
+        /* Estilo para anexos a hoja completa */
+        .appendix { 
+            width: 210mm; 
+            height: 297mm; 
+            page-break-before: always; 
+            background: white; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .full-page-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .full-page-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .badge { 
+            background: rgba(255,255,255,0.1); 
+            border: 1px solid rgba(255,255,255,0.3); 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 10px; 
+            margin: 0 4px 6px 0; 
+            display: inline-block; 
+        }
     </style>
 </head>
 <body>
@@ -30,25 +79,26 @@
             <div class="text-[11px] space-y-2 mb-10">
                 <p><i class="fas fa-envelope mr-1"></i> {{ user_viewed.email }}</p>
                 <p><i class="fas fa-map-marker-alt mr-1"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
+                <p><i class="fas fa-phone mr-1"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional }}</p>
             </div>
-
-            {% if show_formacion %}
-            <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Formación</h3>
-            {% for edu in estudios %}
-                <div class="mb-4">
-                    <p class="text-[12px] font-bold uppercase">{{ edu.institucion }}</p>
-                    <p class="text-[10px] text-blue-200">{{ edu.titulo }}</p>
-                </div>
-            {% endfor %}
-            {% endif %}
 
             {% if show_habilidades %}
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Habilidades</h3>
-            <div class="flex flex-wrap">
+            <div class="flex flex-wrap mb-10">
                 {% for hab in habilidades %}
-                    <span class="badge">{{ hab.nombre }}</span>
+                    <span class="badge">{{ hab.nombre_habilidad }}</span>
                 {% endfor %}
             </div>
+            {% endif %}
+
+            {% if show_productos_acad %}
+            <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Formación Académica</h3>
+            {% for prod in productos_academicos %}
+                <div class="mb-4">
+                    <p class="text-[12px] font-bold uppercase leading-tight">{{ prod.nombrerecurso }}</p>
+                    <p class="text-[10px] text-blue-200">{{ prod.clasificador }}</p>
+                </div>
+            {% endfor %}
             {% endif %}
         </aside>
 
@@ -56,27 +106,46 @@
             <header class="mb-10">
                 <h1 class="text-4xl font-black text-slate-900 uppercase leading-tight">
                     {{ perfil.nombres }}<br>
-                    <span class="text-[#254b94]">{{ perfil.apellidos }}</span>
+                    <span class="text-[#1e3a8a]">{{ perfil.apellidos }}</span>
                 </h1>
             </header>
 
             {% if show_sobre_mi %}
             <section class="mb-8">
-                <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 italic">Perfil</h2>
+                <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 italic">Sobre Mí</h2>
                 <div class="text-[13px] text-slate-600 italic leading-relaxed border-l-4 border-slate-100 pl-4">
-                    "{{ perfil.descripcionperfil|default:'Sin descripción.' }}"
+                    "{{ perfil.descripcionperfil|default:'Sin descripción disponible.' }}"
+                </div>
+            </section>
+            {% endif %}
+
+            {% if show_lenguajes %}
+            <section class="mb-8">
+                <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Lenguajes de Programación</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    {% for lang in lenguajes %}
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-[11px] font-bold">{{ lang.nombre }}</span>
+                            <span class="text-[10px]">{{ lang.nivel_porcentaje }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-1 rounded-full">
+                            <div class="bg-[#1e3a8a] h-1 rounded-full" style="width: {{ lang.nivel_porcentaje }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </section>
             {% endif %}
 
             {% if show_experiencia %}
             <section>
-                <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Experiencia</h2>
+                <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Experiencia Laboral</h2>
                 {% for exp in experiencias %}
                 <div class="mb-6">
-                    <h3 class="text-[14px] font-bold text-slate-800 uppercase">{{ exp.puesto }}</h3>
-                    <p class="text-[11px] text-[#254b94] font-bold uppercase">{{ exp.empresa }}</p>
-                    <p class="text-[12px] text-slate-500 mt-1">{{ exp.descripcion }}</p>
+                    <h3 class="text-[14px] font-bold text-slate-800 uppercase">{{ exp.cargodesempenado }}</h3>
+                    <p class="text-[11px] text-[#1e3a8a] font-bold uppercase">{{ exp.nombrempresa }}</p>
+                    <p class="text-[12px] text-slate-500 mt-1">{{ exp.descripcionfunciones }}</p>
                 </div>
                 {% endfor %}
             </section>
@@ -84,29 +153,47 @@
         </main>
     </div>
 
-    {% if show_cursos %}
-        {% for cert in certificados %}
-        <div class="appendix">
-            <h2 class="text-2xl font-bold text-[#254b94] border-b-4 border-[#254b94] pb-2 uppercase mb-4">Certificación</h2>
-            <p class="text-xl font-bold italic mb-6">{{ cert.titulo }}</p>
-            {% if cert.imagen %}<img src="{{ cert.imagen.url }}" class="w-full shadow-2xl rounded-lg border border-slate-200">{% endif %}
+    {% if show_garage %}
+    <div class="appendix p-12">
+        <h2 class="text-3xl font-black text-slate-900 uppercase border-b-4 border-yellow-400 pb-2 mb-8">Catálogo Garage</h2>
+        <div class="grid grid-cols-2 gap-8">
+            {% for prod in productos_garage %}
+            <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-slate-50">
+                {% if prod.imagen %}
+                <img src="{{ prod.imagen.url }}" class="w-full h-40 object-cover">
+                {% endif %}
+                <div class="p-4">
+                    <h3 class="font-bold text-slate-800 uppercase text-sm">{{ prod.nombreproducto }}</h3>
+                    <p class="text-xs text-slate-500 mb-2">{{ prod.descripcion }}</p>
+                    <div class="text-lg font-black text-slate-900">${{ prod.valordelbien }}</div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+    </div>
     {% endif %}
 
-    {% if show_reconocimientos %}
+    {% if show_certificados %}
+        {% for curso in cursos %}
+            {% if curso.rutacertificado %}
+            <div class="appendix">
+                <iframe src="{{ curso.rutacertificado }}" class="full-page-iframe"></iframe>
+            </div>
+            {% endif %}
+        {% endfor %}
+
         {% for rec in reconocimientos %}
-        <div class="appendix">
-            <h2 class="text-2xl font-bold text-emerald-600 border-b-4 border-emerald-600 pb-2 uppercase mb-4">Reconocimiento</h2>
-            <p class="text-xl font-bold italic mb-6">{{ rec.titulo }}</p>
-            {% if rec.imagen %}<img src="{{ rec.imagen.url }}" class="w-full shadow-2xl rounded-lg border border-slate-200">{% endif %}
-        </div>
+            {% if rec.rutacertificado %}
+            <div class="appendix">
+                <iframe src="{{ rec.rutacertificado }}" class="full-page-iframe"></iframe>
+            </div>
+            {% endif %}
         {% endfor %}
     {% endif %}
 
     <script>
         window.addEventListener('load', function() {
-            setTimeout(function() { window.print(); }, 800);
+            setTimeout(function() { window.print(); }, 1000);
         });
     </script>
 </body>

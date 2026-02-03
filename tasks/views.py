@@ -116,7 +116,48 @@ def garage_store(request, username):
     productos = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else []
     return render(request, 'garage.html', {'user_viewed': user_viewed, 'productos': productos})
 
-# --- VISTA PARA EXPORTAR PDF ---
+# --- VISTA PARA EXPORTAR PDF (MODIFICADA SEGÚN TU SOLICITUD) ---
 def export_pdf(request, username):
-    from django.http import HttpResponse
-    return HttpResponse(f"Generando PDF para {username}...")
+    user_viewed = get_object_or_404(User, username=username)
+    perfil = DatosPersonales.objects.filter(user=user_viewed).first()
+    
+    if not perfil:
+        return redirect('home')
+
+    # Detectar qué opciones fueron seleccionadas en el modal
+    show_sobre_mi = request.GET.get('sobre_mi') == 'on'
+    show_lenguajes = request.GET.get('lenguajes') == 'on'
+    show_productos_acad = request.GET.get('productos_acad') == 'on'
+    show_habilidades = request.GET.get('habilidades') == 'on'
+    show_experiencia = request.GET.get('experiencia') == 'on'
+    show_certificados = request.GET.get('certificados') == 'on'
+    show_garage = request.GET.get('garage') == 'on'
+
+    contexto = {
+        'user_viewed': user_viewed,
+        'perfil': perfil,
+        'show_sobre_mi': show_sobre_mi,
+        'show_lenguajes': show_lenguajes,
+        'show_productos_acad': show_productos_acad,
+        'show_habilidades': show_habilidades,
+        'show_experiencia': show_experiencia,
+        'show_certificados': show_certificados,
+        'show_garage': show_garage,
+    }
+
+    # Carga de datos filtrada por la selección del usuario
+    if show_experiencia:
+        contexto['experiencias'] = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    if show_habilidades:
+        contexto['habilidades'] = Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    if show_lenguajes:
+        contexto['lenguajes'] = LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    if show_productos_acad:
+        contexto['productos_academicos'] = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    if show_certificados:
+        contexto['cursos'] = CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+        contexto['reconocimientos'] = Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+    if show_garage:
+        contexto['productos_garage'] = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
+
+    return render(request, 'pdf_template.html', contexto)
