@@ -140,17 +140,17 @@ class Task(models.Model):
 
 # 9. CONTROL DE VISIBILIDAD
 class ConfiguracionVisible(models.Model):
-    mostrar_garage = models.BooleanField(default=True, verbose_name="Mostrar Botón Garage")
-    mostrar_cursos = models.BooleanField(default=True, verbose_name="Mostrar Botón Cursos")
-    mostrar_reconocimientos = models.BooleanField(default=True, verbose_name="Mostrar Botón Reconocimientos")
+    mostrar_garage = models.BooleanField(default=True, verbose_name="¿Mostrar Garage?")
+    mostrar_cursos = models.BooleanField(default=True, verbose_name="¿Mostrar Cursos?")
+    mostrar_reconocimientos = models.BooleanField(default=True, verbose_name="¿Mostrar Reconocimientos?")
 
     class Meta:
-        verbose_name = "Configuración de Botones"
-        verbose_name_plural = "Configuración de Botones"
+        verbose_name = "Configuración de Visibilidad"
+        verbose_name_plural = "Configuración de Visibilidad"
 
     def __str__(self):
-        return "Interruptores de Visibilidad"
-
+        return f"Configuración General de Botones (ID: {self.id})"
+    
 # 10. LENGUAJES DE PROGRAMACIÓN
 class LenguajeProgramacion(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)

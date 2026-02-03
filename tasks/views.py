@@ -22,11 +22,14 @@ def home(request):
         primer_perfil = perfiles_activos.first()
         username_unico = primer_perfil.user.username if primer_perfil else ""
 
+        # Usamos get_or_create para evitar el Error 500 si no existe el registro
+        config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
+
         contexto = {
             'perfiles_activos': perfiles_activos,
             'total_activos': total_activos,
             'username_unico': username_unico,
-            'config': ConfiguracionVisible.objects.first(),
+            'config': config_botones,
         }
     except Exception as e:
         contexto = {'perfiles_activos': [], 'total_activos': 0, 'username_unico': "", 'config': None}
@@ -62,7 +65,7 @@ def signout(request):
     logout(request)
     return redirect('home')
 
-# --- PERFIL CV PÚBLICO (CORREGIDO PARA PRODUCTOS) ---
+# --- PERFIL CV PÚBLICO ---
 def profile_cv(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
@@ -70,7 +73,9 @@ def profile_cv(request, username):
     if not perfil:
         return redirect('home')
 
-    # Obtenemos los productos académicos asegurándonos de que el nombre de la variable sea el correcto
+    # Evitamos error 500 asegurando que exista el registro de configuración
+    config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
+
     productos_academicos = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
 
     contexto = {
@@ -79,11 +84,11 @@ def profile_cv(request, username):
         'experiencias': ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'cursos': CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'reconocimientos': Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
-        'productos_academicos': productos_academicos, # Esta variable debe alimentar el for del HTML
+        'productos_academicos': productos_academicos, 
         'productos_laborales': ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'lenguajes': LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'habilidades': Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
-        'config': ConfiguracionVisible.objects.first(),
+        'config': config_botones, # Ahora es seguro y no dará error 500
     }
     return render(request, 'profile_cv.html', contexto)
 
@@ -102,10 +107,18 @@ def tasks(request):
 def garage_store(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
+    
+    # También pasamos la config aquí por si acaso
+    config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
+    
     productos = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else []
-    return render(request, 'garage.html', {'user_viewed': user_viewed, 'productos': productos})
+    return render(request, 'garage.html', {
+        'user_viewed': user_viewed, 
+        'productos': productos,
+        'config': config_botones
+    })
 
-# --- EXPORTAR PDF (CORREGIDO PARA PRODUCTOS) ---
+# --- EXPORTAR PDF ---
 def export_pdf(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
@@ -113,7 +126,6 @@ def export_pdf(request, username):
     if not perfil:
         return redirect('home')
 
-    # Capturamos los checks del modal
     show_options = {
         'show_sobre_mi': request.GET.get('sobre_mi') == 'on',
         'show_lenguajes': request.GET.get('lenguajes') == 'on',
@@ -130,7 +142,6 @@ def export_pdf(request, username):
         **show_options
     }
 
-    # Cargamos datos según selección
     if show_options['show_experiencia']:
         contexto['experiencias'] = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
@@ -140,7 +151,6 @@ def export_pdf(request, username):
     if show_options['show_lenguajes']:
         contexto['lenguajes'] = LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
-    # IMPORTANTE: Aquí se cargan los productos para el PDF
     if show_options['show_productos_acad']:
         contexto['productos_academicos'] = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     

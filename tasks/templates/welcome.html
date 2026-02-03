@@ -219,7 +219,16 @@
             return new THREE.Mesh(new THREE.PlaneGeometry(10, 2.5), mat);
         }
 
-        const codes = ["python manage.py", "git push origin", "npm run dev", "docker-compose up", "SELECT * FROM"];
+        const codes = [];
+        // Lógica de visibilidad controlada desde Django Admin
+        {% if config.mostrar_garage %} codes.push("VENTA GARAGE"); {% endif %}
+        {% if config.mostrar_cursos %} codes.push("CURSOS REALIZADOS"); {% endif %}
+        {% if config.mostrar_reconocimientos %} codes.push("RECONOCIMIENTOS"); {% endif %}
+        
+        // Si no hay ninguno activo, ponemos códigos por defecto para que no se vea vacío
+        if (codes.length === 0) {
+            codes.push("python manage.py", "git push origin", "npm run dev");
+        }
 
         for(let i=0; i<40; i++) {
             let obj;
