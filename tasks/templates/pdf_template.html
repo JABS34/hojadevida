@@ -15,38 +15,40 @@
             -webkit-print-color-adjust: exact; 
             print-color-adjust: exact; 
         }
+        
+        /* Evita que el CV se corte a la mitad */
         .page-pdf { 
             width: 210mm; 
-            height: 297mm; 
+            min-height: 297mm; 
             display: flex; 
-            overflow: hidden; 
             page-break-after: always; 
         }
+
         .sidebar { width: 32%; background-color: #1e3a8a !important; color: white; padding: 40px 20px; }
         .main-content { width: 68%; padding: 50px; }
-        
-        /* Contenedor de Anexos */
+
+        /* Estilo para que los certificados PNG ocupen toda la hoja */
         .appendix { 
             width: 210mm; 
             height: 297mm; 
             page-break-before: always; 
-            background: white; 
             display: flex; 
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            background: white;
         }
 
-        /* Estilo para que la IMAGEN parezca un documento PDF a pantalla completa */
-        .img-as-pdf {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Mantiene la proporción sin estirar */
-            display: block;
+        .cert-img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border: 1px solid #eee;
         }
 
-        .full-page-pdf { width: 100%; height: 100%; border: none; }
-        .badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); padding: 4px 8px; border-radius: 4px; font-size: 10px; margin: 0 4px 6px 0; display: inline-block; }
+        /* Ocultar elementos innecesarios al imprimir */
+        @media print {
+            .no-print { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -58,37 +60,37 @@
                     <img src="{{ perfil.foto.url }}" class="w-32 h-32 rounded-full mx-auto border-4 border-white/20 object-cover shadow-lg">
                 {% endif %}
             </div>
+            
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Contacto</h3>
             <div class="text-[11px] space-y-2 mb-10">
                 <p><i class="fas fa-envelope mr-1"></i> {{ user_viewed.email }}</p>
-                <p><i class="fas fa-map-marker-alt mr-1"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
                 <p><i class="fas fa-phone mr-1"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional }}</p>
+                <p><i class="fas fa-map-marker-alt mr-1"></i> {{ perfil.direcciondomiciliaria|default:"Manta, Ecuador" }}</p>
             </div>
-            {% if show_habilidades %}
+
+            {% if habilidades %}
             <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Habilidades</h3>
-            <div class="flex flex-wrap mb-10">
+            <div class="flex flex-wrap gap-2">
                 {% for hab in habilidades %}
-                    <span class="badge">{{ hab.nombre_habilidad }}</span>
+                    <span class="bg-white/10 border border-white/30 px-2 py-1 rounded text-[10px]">{{ hab.nombre_habilidad }}</span>
                 {% endfor %}
             </div>
             {% endif %}
         </aside>
 
         <main class="main-content">
-            <header class="mb-10">
-                <h1 class="text-4xl font-black text-slate-900 uppercase leading-tight">
-                    {{ perfil.nombres }}<br>
-                    <span class="text-[#1e3a8a]">{{ perfil.apellidos }}</span>
-                </h1>
-            </header>
-            {% if show_experiencia %}
+            <h1 class="text-4xl font-black text-slate-900 uppercase mb-10">
+                {{ perfil.nombres }} <span class="text-[#1e3a8a]">{{ perfil.apellidos }}</span>
+            </h1>
+
+            {% if experiencias %}
             <section>
-                <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Experiencia Laboral</h2>
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Experiencia Laboral</h2>
                 {% for exp in experiencias %}
                 <div class="mb-6">
-                    <h3 class="text-[14px] font-bold text-slate-800 uppercase">{{ exp.cargodesempenado }}</h3>
-                    <p class="text-[11px] text-[#1e3a8a] font-bold uppercase">{{ exp.nombrempresa }}</p>
-                    <p class="text-[12px] text-slate-500 mt-1">{{ exp.descripcionfunciones }}</p>
+                    <h3 class="text-lg font-bold text-slate-800 uppercase">{{ exp.cargodesempenado }}</h3>
+                    <p class="text-sm text-[#1e3a8a] font-bold">{{ exp.nombrempresa }}</p>
+                    <p class="text-sm text-slate-500 mt-1">{{ exp.descripcionfunciones }}</p>
                 </div>
                 {% endfor %}
             </section>
@@ -100,10 +102,10 @@
         {% for curso in cursos %}
             {% if curso.rutacertificado %}
             <div class="appendix">
-                {% if ".png" in curso.rutacertificado.url|lower or ".jpg" in curso.rutacertificado.url|lower or ".jpeg" in curso.rutacertificado.url|lower %}
-                    <img src="{{ curso.rutacertificado.url }}" class="img-as-pdf">
+                {% if ".pdf" in curso.rutacertificado.url|lower %}
+                    <embed src="{{ curso.rutacertificado.url }}" type="application/pdf" width="100%" height="100%">
                 {% else %}
-                    <embed src="{{ curso.rutacertificado.url }}" type="application/pdf" class="full-page-pdf">
+                    <img src="{{ curso.rutacertificado.url }}" class="cert-img">
                 {% endif %}
             </div>
             {% endif %}
@@ -112,10 +114,10 @@
         {% for rec in reconocimientos %}
             {% if rec.rutacertificado %}
             <div class="appendix">
-                {% if ".png" in rec.rutacertificado.url|lower or ".jpg" in rec.rutacertificado.url|lower or ".jpeg" in rec.rutacertificado.url|lower %}
-                    <img src="{{ rec.rutacertificado.url }}" class="img-as-pdf">
+                {% if ".pdf" in rec.rutacertificado.url|lower %}
+                    <embed src="{{ rec.rutacertificado.url }}" type="application/pdf" width="100%" height="100%">
                 {% else %}
-                    <embed src="{{ rec.rutacertificado.url }}" type="application/pdf" class="full-page-pdf">
+                    <img src="{{ rec.rutacertificado.url }}" class="cert-img">
                 {% endif %}
             </div>
             {% endif %}
@@ -123,9 +125,12 @@
     {% endif %}
 
     <script>
-        window.addEventListener('load', function() {
-            setTimeout(function() { window.print(); }, 1500);
-        });
+        // Esperamos a que todas las imágenes carguen antes de imprimir
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 1000);
+        };
     </script>
 </body>
 </html>
