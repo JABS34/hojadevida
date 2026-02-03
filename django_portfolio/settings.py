@@ -99,9 +99,9 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Reemplaza estos valores con tus credenciales de Cloudinary
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'tu_cloud_name_aqui',
-    'API_KEY': 'tu_api_key_aqui',
-    'API_SECRET': 'tu_api_secret_aqui'
+    'CLOUD_NAME': 'dpaajunu7',
+    'API_KEY': '229623356596985',
+    'API_SECRET': 'i1mOO4cLQU1HzOGKfEehH1ryaPU'
 }
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
