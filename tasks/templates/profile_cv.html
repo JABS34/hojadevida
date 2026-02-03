@@ -14,7 +14,7 @@
             min-height: 100vh; margin: 0;
         }
 
-        /* --- BARRA DE NAVEGACIÓN (SIN CAMBIOS SEGÚN TU PEDIDO) --- */
+        /* --- BARRA DE NAVEGACIÓN (SIN CAMBIOS) --- */
         .top-navbar {
             width: 100%; height: 80px;
             background: linear-gradient(90deg, #1e3a8a 0%, #6366f1 50%, #1e3a8a 100%);
@@ -69,6 +69,11 @@
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .modal.active { display: flex; }
+
+        /* NUEVOS ESTILOS PARA VISTA PREVIA SPLIT */
+        .preview-container { display: flex; width: 90%; max-width: 1100px; height: 80vh; background: white; border-radius: 24px; overflow: hidden; }
+        .pdf-side { flex: 2; background: #333; }
+        .info-side { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fdfdfd; text-align: center; border-left: 1px solid #eee; }
 
         @media print { .no-print { display: none !important; } .cv-page { margin: 0; box-shadow: none; width: 100%; } }
     </style>
@@ -223,9 +228,10 @@
         <h2 class="font-bold text-xl mb-4 italic border-b pb-2">Capacitación y Cursos</h2>
         <div class="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2">
             {% for curso in cursos %}
-            <div class="border-b border-slate-100 pb-2">
-                <p class="text-sm font-bold uppercase">{{ curso.nombrerecurso }}</p>
-                <p class="text-xs text-slate-500">{{ curso.entidadpatrocinadora }} ({{ curso.totalhoras }} hrs)</p>
+            <div class="border-b border-slate-100 pb-2 cursor-pointer hover:bg-blue-50 p-2 rounded-lg transition" 
+                 onclick="lanzarVistaPrevia('{{ curso.rutacertificado }}', '{{ curso.nombrerecurso }}', '{{ curso.entidadpatrocinadora }}')">
+                <p class="text-sm font-bold uppercase text-blue-700">{{ curso.nombrerecurso }}</p>
+                <p class="text-xs text-slate-500">{{ curso.entidadpatrocinadora }} • <span class="text-blue-500 font-bold">Ver y Descargar</span></p>
             </div>
             {% empty %}
             <p class="text-center text-slate-400 py-4">Sin registros.</p>
@@ -238,9 +244,10 @@
         <h2 class="font-bold text-xl mb-4 italic text-emerald-600 border-b pb-2">Reconocimientos</h2>
         <div class="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2">
             {% for rec in reconocimientos %}
-            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 cursor-pointer hover:bg-emerald-100 transition"
+                 onclick="lanzarVistaPrevia('{{ rec.rutacertificado }}', '{{ rec.descripcionreconocimiento }}', '{{ rec.entidadpatrocinadora }}')">
                 <p class="text-sm font-bold uppercase text-emerald-800"><i class="fas fa-medal mr-2"></i>{{ rec.descripcionreconocimiento }}</p>
-                <p class="text-[10px] text-emerald-600 mt-1">Otorgado por: {{ rec.entidadpatrocinadora }}</p>
+                <p class="text-[10px] text-emerald-600 mt-1">Institución: {{ rec.entidadpatrocinadora }} • <span class="font-bold">Ver Certificado</span></p>
             </div>
             {% empty %}
             <p class="text-center text-slate-400 py-4">Sin registros.</p>
@@ -248,6 +255,31 @@
         </div>
         <button onclick="toggleModal('modalRec')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
     </div></div>
+
+    <div id="modalVistaPrevia" class="modal">
+        <div class="preview-container">
+            <div class="pdf-side">
+                <iframe id="iframePDF" src="" width="100%" height="100%" style="border:none;"></iframe>
+            </div>
+            <div class="info-side">
+                <div class="mb-10">
+                    <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h2 id="tituloPrev" class="text-xl font-extrabold text-slate-800 uppercase leading-tight mb-2"></h2>
+                    <p id="subtituloPrev" class="text-sm text-slate-500 font-bold italic"></p>
+                </div>
+                
+                <a id="linkDescarga" href="" download class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition flex items-center justify-center gap-3 mb-4">
+                    <i class="fas fa-download"></i> DESCARGAR ARCHIVO
+                </a>
+                
+                <button onclick="toggleModal('modalVistaPrevia')" class="text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:text-slate-600 transition">
+                    Cerrar Vista Previa
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div id="modalPDF" class="modal"><div class="bg-white p-10 rounded-3xl max-w-sm w-full mx-4 text-center">
         <h2 class="font-black text-2xl mb-6 italic">Exportar Hoja de Vida</h2>
@@ -263,6 +295,26 @@
             document.getElementById('trigger').classList.toggle('open');
         }
         function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
+
+        // Función nueva para la vista previa
+        function lanzarVistaPrevia(ruta, titulo, entidad) {
+            if (!ruta || ruta === "None" || ruta === "") {
+                alert("No hay un archivo PDF cargado para este elemento.");
+                return;
+            }
+            
+            // Ajuste de ruta para que cargue correctamente desde media
+            const urlCompleta = ruta.startsWith('/') ? ruta : '/' + ruta;
+            
+            document.getElementById('iframePDF').src = urlCompleta;
+            document.getElementById('tituloPrev').innerText = titulo;
+            document.getElementById('subtituloPrev').innerText = entidad;
+            document.getElementById('linkDescarga').href = urlCompleta;
+            
+            // Abrimos el nuevo modal
+            toggleModal('modalVistaPrevia');
+        }
+
         window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); }
     </script>
 </body>
