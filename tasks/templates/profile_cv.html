@@ -94,37 +94,29 @@
         </div>
         <div class="menu-wrapper">
             <div id="groupLeft" class="nav-group">
-                {% if config.mostrar_cursos %}
                 <div class="nav-item" onclick="toggleModal('modalCert')">
                     <i class="fas fa-graduation-cap"></i>
                     <span class="label">Cursos</span>
                     <span class="pointer-hand hand-l">👉</span>
                     <span class="pointer-hand hand-r">👈</span>
                 </div>
-                {% endif %}
-                
-                {% if config.mostrar_reconocimientos %}
                 <div class="nav-item" onclick="toggleModal('modalRec')">
                     <i class="fas fa-trophy"></i>
                     <span class="label">Premios</span>
                     <span class="pointer-hand hand-l">👉</span>
                     <span class="pointer-hand hand-r">👈</span>
                 </div>
-                {% endif %}
             </div>
             <div id="trigger" class="menu-trigger" onclick="toggleBrote()">
                 <i class="fas fa-bars"></i>
             </div>
             <div id="groupRight" class="nav-group">
-                {% if config.mostrar_garage %}
                 <a href="{% url 'garage_store' user_viewed.username %}" class="nav-item">
                     <i class="fas fa-car-side"></i>
                     <span class="label">Garage</span>
                     <span class="pointer-hand hand-l">👉</span>
                     <span class="pointer-hand hand-r">👈</span>
                 </a>
-                {% endif %}
-                
                 <div class="nav-item" onclick="toggleModal('modalPDF')">
                     <i class="fas fa-file-pdf"></i>
                     <span class="label">Exportar</span>
@@ -321,20 +313,14 @@
                     <input type="checkbox" name="experiencia" checked class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-slate-700 uppercase">Experiencia Laboral</span>
                 </label>
-                
-                {% if config.mostrar_cursos or config.mostrar_reconocimientos %}
                 <label class="flex items-center p-3 bg-blue-50 rounded-xl cursor-pointer border border-blue-200">
                     <input type="checkbox" name="certificados" checked class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-blue-800 uppercase">Cursos y Reconocimientos (Anexos)</span>
                 </label>
-                {% endif %}
-
-                {% if config.mostrar_garage %}
                 <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
                     <input type="checkbox" name="garage" class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-slate-700 uppercase">Garage (Productos en venta)</span>
                 </label>
-                {% endif %}
 
                 <div class="flex gap-3 mt-6">
                     <button type="button" onclick="toggleModal('modalPDF')" class="flex-1 py-4 text-slate-400 font-bold uppercase tracking-widest text-[10px]">Cerrar</button>

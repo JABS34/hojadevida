@@ -150,7 +150,7 @@ class ConfiguracionVisible(models.Model):
 
     def __str__(self):
         return f"Configuración General de Botones (ID: {self.id})"
-    
+        
 # 10. LENGUAJES DE PROGRAMACIÓN
 class LenguajeProgramacion(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
