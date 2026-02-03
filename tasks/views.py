@@ -22,6 +22,7 @@ def home(request):
         primer_perfil = perfiles_activos.first()
         username_unico = primer_perfil.user.username if primer_perfil else ""
 
+        # Obtenemos la configuración única (ID 1)
         config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
 
         contexto = {
@@ -72,7 +73,7 @@ def profile_cv(request, username):
     if not perfil:
         return redirect('home')
 
-    # Registro de configuración para evitar Error 500
+    # Obtenemos la configuración para los botones del navbar
     config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
 
     contexto = {
@@ -85,7 +86,7 @@ def profile_cv(request, username):
         'productos_laborales': ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'lenguajes': LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
         'habilidades': Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True),
-        'config': config_botones,
+        'config': config_botones, # <--- Enviamos la configuración al template
     }
     return render(request, 'profile_cv.html', contexto)
 
@@ -93,60 +94,16 @@ def profile_cv(request, username):
 def garage_store(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
+    
+    # Verificamos si el garage debe estar visible globalmente
     config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
     
+    # Si la opción está desactivada en admin, redirigimos al perfil o home
+    if not config_botones.mostrar_garage:
+        return redirect('profile_cv', username=username)
+
     productos = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else []
-    return render(request, 'garage.html', {
-        'user_viewed': user_viewed, 
-        'productos': productos,
-        'config': config_botones
-    })
-
-# --- EXPORTAR PDF (IGUAL AL TUYO) ---
-def export_pdf(request, username):
-    user_viewed = get_object_or_404(User, username=username)
-    perfil = DatosPersonales.objects.filter(user=user_viewed).first()
-    if not perfil: return redirect('home')
-    show_options = {
-        'show_sobre_mi': request.GET.get('sobre_mi') == 'on',
-        'show_lenguajes': request.GET.get('lenguajes') == 'on',
-        'show_productos_acad': request.GET.get('productos_acad') == 'on',
-        'show_habilidades': request.GET.get('habilidades') == 'on',
-        'show_experiencia': request.GET.get('experiencia') == 'on',
-        'show_certificados': request.GET.get('certificados') == 'on',
-        'show_garage': request.GET.get('garage') == 'on',
-    }
-    contexto = {'user_viewed': user_viewed, 'perfil': perfil, **show_options}
-    if show_options['show_experiencia']: contexto['experiencias'] = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    if show_options['show_habilidades']: contexto['habilidades'] = Habilidad.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    if show_options['show_lenguajes']: contexto['lenguajes'] = LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    if show_options['show_productos_acad']: contexto['productos_academicos'] = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    if show_options['show_certificados']:
-        contexto['cursos'] = CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-        contexto['reconocimientos'] = Reconocimiento.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    if show_options['show_garage']: contexto['productos_garage'] = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
-    return render(request, 'pdf_template.html', contexto)
-
-# --- TAREAS Y DASHBOARD ---
-@login_required
-def dashboard(request):
-    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
-    return render(request, 'dashboard.html', {'tasks': tasks})
-
-@login_required
-def tasks(request):
-    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
-    return render(request, 'tasks.html', {'tasks': tasks})
-
-# --- GARAGE ---
-def garage_store(request, username):
-    user_viewed = get_object_or_404(User, username=username)
-    perfil = DatosPersonales.objects.filter(user=user_viewed).first()
     
-    # También pasamos la config aquí por si acaso
-    config_botones, _ = ConfiguracionVisible.objects.get_or_create(id=1)
-    
-    productos = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else []
     return render(request, 'garage.html', {
         'user_viewed': user_viewed, 
         'productos': productos,
@@ -177,6 +134,7 @@ def export_pdf(request, username):
         **show_options
     }
 
+    # Consultas condicionales según el formulario de exportación
     if show_options['show_experiencia']:
         contexto['experiencias'] = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
@@ -197,3 +155,14 @@ def export_pdf(request, username):
         contexto['productos_garage'] = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
 
     return render(request, 'pdf_template.html', contexto)
+
+# --- TAREAS Y DASHBOARD ---
+@login_required
+def dashboard(request):
+    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
+    return render(request, 'dashboard.html', {'tasks': tasks})
+
+@login_required
+def tasks(request):
+    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
+    return render(request, 'tasks.html', {'tasks': tasks})

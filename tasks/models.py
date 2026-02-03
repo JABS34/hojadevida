@@ -105,6 +105,9 @@ class ProductosAcademicos(models.Model):
     descripcion = models.CharField(max_length=800)
     activarparaqueseveaenfront = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.nombrerecurso
+
 # 6. PRODUCTOS LABORALES
 class ProductosLaborales(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
@@ -112,6 +115,9 @@ class ProductosLaborales(models.Model):
     fechaproducto = models.DateField()
     descripcion = models.CharField(max_length=100)
     activarparaqueseveaenfront = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombreproducto
 
 # 7. VENTA DE GARAGE
 class VentaGarage(models.Model):
@@ -138,7 +144,7 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.title} - by {self.user.username}"
 
-# 9. CONTROL DE VISIBILIDAD
+# 9. CONTROL DE VISIBILIDAD DE BOTONES
 class ConfiguracionVisible(models.Model):
     mostrar_garage = models.BooleanField(default=True, verbose_name="¿Mostrar Garage?")
     mostrar_cursos = models.BooleanField(default=True, verbose_name="¿Mostrar Cursos?")
@@ -146,10 +152,10 @@ class ConfiguracionVisible(models.Model):
 
     class Meta:
         verbose_name = "Configuración de Visibilidad"
-        verbose_name_plural = "Configuración de Visibilidad"
+        verbose_name_plural = "Configuraciones de Visibilidad"
 
     def __str__(self):
-        return f"Configuración General de Botones (ID: {self.id})"
+        return "Panel de Control: Visibilidad de Botones"
         
 # 10. LENGUAJES DE PROGRAMACIÓN
 class LenguajeProgramacion(models.Model):

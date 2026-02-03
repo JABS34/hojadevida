@@ -32,7 +32,7 @@
         .nav-item {
             position: relative; color: white; display: flex; flex-direction: column;
             align-items: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 10px; border-radius: 15px;
+            padding: 10px; border-radius: 15px; text-decoration: none;
         }
         .nav-item i { font-size: 1.8rem; }
         .nav-item span.label { font-size: 10px; font-weight: 800; margin-top: 4px; text-transform: uppercase; }
@@ -71,7 +71,6 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .modal.active { display: flex; }
 
-        /* ESTILOS VISTA PREVIA SPLIT */
         .preview-container { display: flex; width: 85%; max-width: 900px; height: 60vh; background: white; border-radius: 24px; overflow: hidden; }
         .pdf-side { flex: 1.5; background: #f8fafc; display: flex; align-items: center; justify-content: center; border-right: 1px solid #e2e8f0; }
         .info-side { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; text-align: center; }
@@ -156,7 +155,9 @@
                     {% if perfil.numerocedula %}<p><i class="fas fa-id-card mr-2 w-4 text-blue-300"></i> {{ perfil.numerocedula }}</p>{% endif %}
                     <p><i class="fas fa-phone mr-2 w-4 text-blue-300"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional|default:"Sin teléfono" }}</p>
                     <p><i class="fas fa-map-marker-alt mr-2 w-4 text-blue-300"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
-                    {% if perfil.sitioweb %}<p><i class="fas fa-globe mr-2 w-4 text-blue-300"></i> {{ perfil.sitioweb }}</p>{% endif %}
+                    {% if perfil.sitioweb %}
+                    <p><i class="fas fa-globe mr-2 w-4 text-blue-300"></i> {{ perfil.sitioweb }}</p>
+                    {% endif %}
                 </div>
             </section>
 
@@ -252,6 +253,7 @@
         </main>
     </div>
 
+    {% if config.mostrar_cursos %}
     <div id="modalCert" class="modal"><div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4">
         <h2 class="font-bold text-xl mb-4 italic border-b pb-2">Capacitación y Cursos</h2>
         <div class="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2">
@@ -270,7 +272,9 @@
         </div>
         <button onclick="toggleModal('modalCert')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
     </div></div>
+    {% endif %}
     
+    {% if config.mostrar_reconocimientos %}
     <div id="modalRec" class="modal"><div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4">
         <h2 class="font-bold text-xl mb-4 italic text-emerald-600 border-b pb-2">Reconocimientos</h2>
         <div class="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2">
@@ -289,6 +293,7 @@
         </div>
         <button onclick="toggleModal('modalRec')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">CERRAR</button>
     </div></div>
+    {% endif %}
 
     <div id="modalPDF" class="modal">
         <div class="bg-white p-8 rounded-3xl max-w-lg w-full mx-4 shadow-2xl">
@@ -299,6 +304,7 @@
                 <h2 class="font-bold text-2xl text-slate-800 uppercase italic">Exportar PDF</h2>
                 <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Personaliza tu documento</p>
             </div>
+
             <form action="{% url 'export_pdf' user_viewed.username %}" method="GET" target="_blank" class="space-y-2">
                 <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
                     <input type="checkbox" name="sobre_mi" checked class="w-5 h-5 text-blue-600 rounded mr-3">
@@ -320,6 +326,73 @@
                     <input type="checkbox" name="experiencia" checked class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-slate-700 uppercase">Experiencia Laboral</span>
                 </label>
+                <label class="flex items-center p-3 bg-blue-50 rounded-xl cursor-pointer border border-blue-200">
+                    <input type="checkbox" name="certificados" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-blue-800 uppercase">Cursos y Reconocimientos (Anexos)</span>
+                </label>
+                
+                {% if config.mostrar_garage %}
+                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
+                    <input type="checkbox" name="garage" class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-slate-700 uppercase">Garage (Productos en venta)</span>
+                </label>
+                {% endif %}
 
-                {% if config.mostrar_cursos or config.mostrar_reconocimientos %}
-                <label class="flex items-center p-3 bg-blue-5
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="toggleModal('modalPDF')" class="flex-1 py-4 text-slate-400 font-bold uppercase tracking-widest text-[10px]">Cerrar</button>
+                    <button type="submit" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition uppercase tracking-widest text-[10px]">
+                        Generar PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalVisor" class="modal">
+        <div class="preview-container">
+            <div class="pdf-side">
+                <div class="text-center">
+                    <i class="fas fa-file-circle-check text-[120px] text-blue-600 opacity-20"></i>
+                    <p class="mt-4 text-slate-400 font-bold uppercase text-xs tracking-widest">Documento Listo</p>
+                </div>
+            </div>
+            <div class="info-side">
+                <div class="mb-8">
+                    <i class="fas fa-cloud-arrow-down text-5xl text-blue-500 mb-4"></i>
+                    <h2 id="visorTitulo" class="text-xl font-black text-slate-800 uppercase leading-tight"></h2>
+                    <p id="visorSub" class="text-sm text-slate-500 italic mt-2"></p>
+                </div>
+                <a id="visorBtnDescarga" href="" target="_blank" download class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-3 hover:bg-blue-700 transition">
+                    <i class="fas fa-download"></i> DESCARGAR DOCUMENTO
+                </a>
+                <button onclick="toggleModal('modalVisor')" class="mt-8 text-xs text-slate-400 font-bold uppercase tracking-widest">Regresar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleBrote() {
+            document.getElementById('groupLeft').classList.toggle('active');
+            document.getElementById('groupRight').classList.toggle('active');
+            document.getElementById('trigger').classList.toggle('open');
+        }
+        function toggleModal(id) { 
+            const modal = document.getElementById(id);
+            if(modal) modal.classList.toggle('active'); 
+        }
+
+        function abrirVisor(ruta, titulo, entidad) {
+            if (!ruta || ruta === "None" || ruta === "") {
+                alert("No hay un archivo disponible.");
+                return;
+            }
+            document.getElementById('visorTitulo').innerText = titulo;
+            document.getElementById('visorSub').innerText = entidad;
+            document.getElementById('visorBtnDescarga').href = ruta; 
+            toggleModal('modalVisor');
+        }
+
+        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); }
+    </script>
+</body>
+</html>

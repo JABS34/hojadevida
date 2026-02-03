@@ -3,7 +3,7 @@ from .models import (
     Task, DatosPersonales, ExperienciaLaboral, 
     CursosRealizados, Reconocimiento, VentaGarage,
     ProductosAcademicos, ProductosLaborales,
-    LenguajeProgramacion, Habilidad # Nuevos importados
+    LenguajeProgramacion, Habilidad, ConfiguracionVisible
 )
 
 # 1. TAREAS
@@ -53,16 +53,38 @@ class VentaGarageAdmin(admin.ModelAdmin):
     list_editable = ('valordelbien', 'estadoproducto', 'activarparaqueseveaenfront')
     search_fields = ('nombreproducto',)
 
-# 9. LENGUAJES DE PROGRAMACIÓN (NUEVO)
+# 9. LENGUAJES DE PROGRAMACIÓN
 @admin.register(LenguajeProgramacion)
 class LenguajeProgramacionAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'nivel_porcentaje', 'idperfilconqueestaactivo', 'activarparaqueseveaenfront')
     list_editable = ('nivel_porcentaje', 'activarparaqueseveaenfront')
     list_filter = ('activarparaqueseveaenfront',)
 
-# 10. HABILIDADES (NUEVO)
+# 10. HABILIDADES
 @admin.register(Habilidad)
 class HabilidadAdmin(admin.ModelAdmin):
     list_display = ('nombre_habilidad', 'categoria', 'idperfilconqueestaactivo', 'activarparaqueseveaenfront')
     list_filter = ('categoria', 'activarparaqueseveaenfront')
     list_editable = ('activarparaqueseveaenfront',)
+
+# 11. CONFIGURACIÓN DE VISIBILIDAD DE BOTONES
+@admin.register(ConfiguracionVisible)
+class ConfiguracionVisibleAdmin(admin.ModelAdmin):
+    list_display = ('id', '__str__', 'mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_garage')
+    list_editable = ('mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_garage')
+    
+    # Organizamos los campos en el formulario de edición
+    fieldsets = (
+        ('Control Global de Visibilidad', {
+            'description': 'Activa o desactiva la visualización de secciones en el Perfil Público y Garage.',
+            'fields': ('mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_garage')
+        }),
+    )
+
+    def has_add_permission(self, request):
+        # Si ya existe un registro, ocultamos el botón de "Añadir"
+        return False if self.model.objects.count() > 0 else True
+
+    def has_delete_permission(self, request, obj=None):
+        # Opcional: Evitar que borren la configuración por error
+        return False
