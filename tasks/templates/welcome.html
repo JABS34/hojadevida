@@ -9,72 +9,92 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/DragControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap');
+
         html, body { margin: 0; padding: 0; overflow: hidden; background-color: #020617; width: 100%; height: 100%; }
         #canvas-3d { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 1; cursor: grab; }
-        #canvas-3d:active { cursor: grabbing; }
         
         .hero-content { 
             position: relative; 
             z-index: 10; 
             pointer-events: none;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
         }
-        .hero-content button, .hero-content a { pointer-events: auto; }
-        
-        /* Animación de Explosión */
-        .explosion-out {
-            animation: explosion 0.8s forwards cubic-bezier(0.165, 0.84, 0.44, 1);
-            pointer-events: none;
-        }
+        .hero-content button { pointer-events: auto; font-family: 'Syncopate', sans-serif; }
 
-        @keyframes explosion {
-            0% { transform: scale(1); opacity: 1; filter: brightness(1) blur(0px); }
-            30% { transform: scale(1.1); opacity: 0.8; filter: brightness(2) blur(2px); }
-            100% { transform: scale(2); opacity: 0; filter: brightness(5) blur(20px); }
-        }
-
-        /* Diseño de Tarjetas Mejorado (Glassmorphism) */
+        /* DISEÑO DE TARJETAS NEOMORFISTA / CYBERPUNK */
         .profile-card {
-            background: rgba(30, 41, 59, 0.4);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .profile-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: #6366f1;
-            background: rgba(49, 46, 129, 0.4);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.2);
-        }
-
-        .profile-card img {
-            transition: all 0.4s ease;
-        }
-
-        .profile-card:hover img {
-            transform: scale(1.1) rotate(3deg);
-            border-color: #818cf8;
-        }
-
-        /* Botón con brillo */
-        .btn-glow {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            width: 320px;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
         }
 
-        .btn-glow:hover {
-            background-color: #4f46e5;
-            box-shadow: 0 0 20px rgba(79, 70, 229, 0.6);
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, transparent, transparent, #6366f1);
+            animation: rotate-border 4s linear infinite;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
+        .profile-card:hover::before { opacity: 1; }
+
+        .profile-card:hover {
+            transform: translateY(-15px) rotateX(10deg);
+            border-color: #818cf8;
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.4);
+        }
+
+        @keyframes rotate-border {
+            100% { transform: rotate(360deg); }
+        }
+
+        .profile-img-container {
+            width: 150px; height: 150px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            padding: 5px;
+            background: linear-gradient(45deg, #6366f1, #a855f7);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+        }
+
+        /* SELECTOR DE PERFIL */
         #profile-selector {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.8) 0%, rgba(2, 6, 23, 1) 100%);
+            position: fixed; inset: 0;
+            background: radial-gradient(circle at center, rgba(7, 10, 25, 0.95), #020617);
             z-index: 100;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+        }
+
+        .btn-action {
+            background: #6366f1;
+            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+            transition: all 0.3s;
+        }
+        .btn-action:hover {
+            background: #818cf8;
+            padding-left: 20px; padding-right: 20px;
+            filter: drop-shadow(0 0 10px #6366f1);
+        }
+
+        .explosion-emoji {
+            position: absolute; pointer-events: none; z-index: 50;
+            font-size: 2rem; animation: float-up 1s ease-out forwards;
+        }
+
+        @keyframes float-up {
+            0% { transform: scale(0) translateY(0); opacity: 1; }
+            100% { transform: scale(2) translateY(-100px); opacity: 0; }
         }
     </style>
 </head>
@@ -84,86 +104,72 @@
     <input type="hidden" id="username-unico" value="{{ username_unico }}">
 
     <div id="profile-selector" class="p-8">
-        <h2 class="text-4xl md:text-5xl font-black mb-16 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tighter">
-            Selecciona un Perfil
-        </h2>
-        <div class="flex flex-wrap justify-center gap-10 max-w-6xl">
+        <h2 class="text-5xl font-black mb-16 tracking-tighter italic text-indigo-400">ACCESS_GRANTED.SYS</h2>
+        <div class="flex flex-wrap justify-center gap-12">
             {% for perfil in perfiles_activos %}
-            <div class="profile-card p-10 rounded-[2.5rem] text-center w-80 shadow-2xl">
-                <div class="relative inline-block mb-8">
+            <div class="profile-card group">
+                <div class="profile-img-container">
                     {% if perfil.foto %}
-                        <img src="{{ perfil.foto.url }}" class="w-36 h-36 rounded-full mx-auto object-cover border-4 border-indigo-500/50 shadow-2xl">
+                        <img src="{{ perfil.foto.url }}" class="w-full h-full rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                     {% else %}
-                        <div class="w-36 h-36 rounded-full mx-auto bg-slate-800 flex items-center justify-center text-6xl shadow-inner border-4 border-slate-700">👤</div>
+                        <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-5xl">👤</div>
                     {% endif %}
-                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 border-4 border-[#0f172a] rounded-full"></div>
                 </div>
-                <h3 class="text-2xl font-bold mb-8 text-white tracking-tight">{{ perfil.nombres }} {{ perfil.apellidos }}</h3>
-                <button onclick="goToProfile('{{ perfil.user.username }}')" class="btn-glow w-full py-4 bg-indigo-600 rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg">
-                    MIRA MI CV
+                <h3 class="text-2xl font-bold mb-6 tracking-widest uppercase">{{ perfil.nombres }}</h3>
+                <button onclick="goToProfile('{{ perfil.user.username }}')" class="btn-action w-full py-4 font-black text-sm italic">
+                    INITIALIZE_CV
                 </button>
             </div>
             {% endfor %}
         </div>
-        <button onclick="document.getElementById('profile-selector').style.display='none'" class="mt-16 text-slate-500 hover:text-indigo-400 transition-all text-sm font-medium tracking-widest uppercase">
-            ← Volver al inicio
-        </button>
+        <button onclick="document.getElementById('profile-selector').style.display='none'" class="mt-16 text-xs tracking-[0.5em] text-slate-500 hover:text-white transition-all uppercase">Terminar Sesión</button>
     </div>
 
-    <section id="hero-main" class="relative w-screen h-screen flex flex-col items-center justify-center text-center overflow-hidden">
+    <section id="hero-main" class="relative w-screen h-screen flex flex-col items-center justify-center text-center">
         <div id="canvas-3d"></div> 
 
         <div class="hero-content" id="ui-wrapper">
-            <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-indigo-500 select-none">
-                Bienvenido a Mi CV <br>Profesional
+            <h1 class="text-7xl md:text-9xl font-black tracking-tighter mb-4 italic uppercase">
+                PORTFOLIO<span class="text-indigo-500">2026</span>
             </h1>
-            <p class="text-slate-400 text-xl md:text-2xl font-light mb-12 max-w-2xl mx-auto italic select-none">
-                Te invito a explorar mi trayectoria, mis proyectos y las habilidades que he cultivado.
-            </p>
+            <p class="text-indigo-300/60 text-lg md:text-xl font-bold mb-12 tracking-[0.3em] uppercase">Digital Experience Architect</p>
 
-            <button onclick="handleCVAction()" class="btn-glow px-14 py-7 bg-indigo-600 rounded-3xl font-black text-2xl shadow-[0_10px_40px_rgba(79,70,229,0.3)] hover:-translate-y-1 active:translate-y-1 transition-all pointer-events-auto">
-                Mira mi CV aquí 👇
+            <button onclick="handleCVAction()" class="group relative px-12 py-6 bg-transparent border-2 border-indigo-500 overflow-hidden transition-all duration-500 hover:border-white">
+                <span class="relative z-10 font-black italic group-hover:text-black">ENTER_SYSTEM</span>
+                <div class="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
             </button>
         </div>
     </section>
 
     <script>
-        function handleCVAction() {
-            const total = parseInt(document.getElementById('total-activos').value);
-            const username = document.getElementById('username-unico').value;
-            
-            if (total === 0) {
-                Swal.fire({
-                    title: '¡SISTEMA VACÍO!',
-                    text: 'No hay perfiles activos para mostrar.',
-                    icon: 'warning',
-                    background: '#020617',
-                    color: '#fff',
-                    confirmButtonColor: '#6366f1'
-                });
-            } else if (total === 1 && username !== "") {
-                goToProfile(username);
-            } else {
-                document.getElementById('profile-selector').style.display = 'flex';
+        // --- LÓGICA DE EXPLOSIÓN DE EMOJIS ---
+        function createEmojiExplosion(x, y) {
+            const emojis = ['🚀', '💻', '🔥', '✨', '⚡️', '🌈', '💎', '👾', '👑'];
+            for(let i=0; i<8; i++) {
+                const span = document.createElement('span');
+                span.className = 'explosion-emoji';
+                span.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                span.style.left = x + (Math.random() - 0.5) * 100 + 'px';
+                span.style.top = y + (Math.random() - 0.5) * 100 + 'px';
+                document.body.appendChild(span);
+                setTimeout(() => span.remove(), 1000);
             }
         }
 
-        function goToProfile(username) {
-            // Aplicar animación de explosión a los elementos visibles
-            const ui = document.getElementById('ui-wrapper');
-            const selector = document.getElementById('profile-selector');
-            const canvas = document.getElementById('canvas-3d');
-
-            ui.classList.add('explosion-out');
-            canvas.classList.add('explosion-out');
-            if(selector.style.display === 'flex') selector.classList.add('explosion-out');
-            
-            setTimeout(() => {
-                window.location.href = "/perfil/" + username + "/"; 
-            }, 750);
+        // --- LÓGICA DE NAVEGACIÓN ---
+        function handleCVAction() {
+            const total = parseInt(document.getElementById('total-activos').value);
+            const user = document.getElementById('username-unico').value;
+            if (total === 1) goToProfile(user);
+            else document.getElementById('profile-selector').style.display = 'flex';
         }
 
-        // --- FONDO DINÁMICO MEJORADO ---
+        function goToProfile(username) {
+            document.body.classList.add('explosion-out'); // Tu efecto de explosión anterior
+            setTimeout(() => { window.location.href = "/perfil/" + username + "/"; }, 800);
+        }
+
+        // --- MOTOR 3D CON FÍSICA DE LANZAMIENTO Y REBOTE ---
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -171,84 +177,96 @@
         document.getElementById('canvas-3d').appendChild(renderer.domElement);
 
         const objects = [];
-        const indigoMat = new THREE.MeshPhongMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.3 });
-        const particleMat = new THREE.PointsMaterial({ color: 0x818cf8, size: 0.05 });
+        const mouse = new THREE.Vector2();
+        const raycaster = new THREE.Raycaster();
 
-        // Partículas de fondo (polvo estelar moviéndose)
-        const partGeo = new THREE.BufferGeometry();
-        const partCount = 1500;
-        const posArray = new Float32Array(partCount * 3);
-        for(let i=0; i < partCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 100;
-        }
-        partGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particles = new THREE.Points(partGeo, particleMat);
-        scene.add(particles);
+        // Materiales
+        const mats = [
+            new THREE.MeshPhongMaterial({ color: 0x6366f1, wireframe: true }),
+            new THREE.MeshStandardMaterial({ color: 0x4338ca, metalness: 0.8, roughness: 0.2 })
+        ];
 
-        function createCodeBlock(text) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 512; canvas.height = 128;
-            ctx.fillStyle = '#6366f1';
-            ctx.font = 'Bold 40px monospace';
-            ctx.fillText(text, 20, 80);
-            const texture = new THREE.CanvasTexture(canvas);
-            const mat = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
-            return new THREE.Mesh(new THREE.PlaneGeometry(10, 2.5), mat);
-        }
-
-        const codes = ["python manage.py", "git push origin", "docker-compose up", "npm install", "SELECT * FROM"];
-
-        for(let i=0; i<40; i++) {
-            let obj;
-            if(i < 15) {
-                obj = createCodeBlock(codes[i % codes.length]);
-            } else {
-                const geo = i % 2 === 0 ? new THREE.IcosahedronGeometry(Math.random()*2, 0) : new THREE.TorusGeometry(1, 0.3, 16, 32);
-                obj = new THREE.Mesh(geo, indigoMat);
-            }
-            obj.position.set((Math.random()-0.5)*60, (Math.random()-0.5)*40, (Math.random()-0.5)*30);
-            obj.userData = { 
-                velocity: new THREE.Vector3((Math.random()-0.5)*0.05, (Math.random()-0.5)*0.05, (Math.random()-0.5)*0.02),
-                rotSpeed: Math.random() * 0.01 
+        // Crear objetos flotantes
+        for(let i=0; i<30; i++) {
+            const geo = i % 2 === 0 ? new THREE.IcosahedronGeometry(1.5, 0) : new THREE.TorusGeometry(1, 0.4, 16, 32);
+            const mesh = new THREE.Mesh(geo, mats[i % 2]);
+            
+            mesh.position.set((Math.random()-0.5)*40, (Math.random()-0.5)*30, (Math.random()-0.5)*10);
+            
+            // Propiedades de física
+            mesh.userData = {
+                velocity: new THREE.Vector3((Math.random()-0.5)*0.1, (Math.random()-0.5)*0.1, (Math.random()-0.5)*0.05),
+                isDragging: false,
+                lastPosition: new THREE.Vector3()
             };
-            scene.add(obj);
-            objects.push(obj);
+            
+            scene.add(mesh);
+            objects.push(mesh);
         }
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        const pointLight = new THREE.PointLight(0x6366f1, 2);
-        pointLight.position.set(20, 20, 20);
-        scene.add(pointLight);
-        camera.position.z = 30;
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const light = new THREE.PointLight(0x6366f1, 2, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+        camera.position.z = 25;
 
-        // Movimiento sutil con el mouse
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX - window.innerWidth / 2) / 100;
-            mouseY = (e.clientY - window.innerHeight / 2) / 100;
+        // Drag Controls con lanzamiento
+        const drag = new THREE.DragControls(objects, camera, renderer.domElement);
+        
+        drag.addEventListener('dragstart', (e) => {
+            e.object.userData.isDragging = true;
+        });
+
+        drag.addEventListener('drag', (e) => {
+            // Calcular velocidad basada en el movimiento del mouse
+            const currentPos = e.object.position.clone();
+            e.object.userData.velocity.subVectors(currentPos, e.object.userData.lastPosition).multiplyScalar(0.8);
+            e.object.userData.lastPosition.copy(currentPos);
+        });
+
+        drag.addEventListener('dragend', (e) => {
+            e.object.userData.isDragging = false;
+        });
+
+        // Click para explotar
+        window.addEventListener('click', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObjects(objects);
+            if (intersects.length > 0) {
+                const obj = intersects[0].object;
+                createEmojiExplosion(e.clientX, e.clientY);
+                
+                // Efecto de "empuje" al explotar
+                obj.scale.set(0,0,0);
+                setTimeout(() => {
+                    obj.scale.set(1,1,1);
+                    obj.position.set((Math.random()-0.5)*40, (Math.random()-0.5)*30, 0);
+                }, 1500);
+            }
         });
 
         function animate() {
             requestAnimationFrame(animate);
             
-            particles.rotation.y += 0.001;
-            particles.rotation.x += 0.0005;
-
             objects.forEach(obj => {
-                obj.position.add(obj.userData.velocity);
-                obj.rotation.x += obj.userData.rotSpeed;
-                obj.rotation.y += obj.userData.rotSpeed;
+                if (!obj.userData.isDragging) {
+                    // Aplicar velocidad
+                    obj.position.add(obj.userData.velocity);
+                    obj.rotation.x += 0.01;
+                    obj.rotation.y += 0.01;
 
-                // Rebotar en bordes invisibles
-                if (Math.abs(obj.position.x) > 40) obj.userData.velocity.x *= -1;
-                if (Math.abs(obj.position.y) > 30) obj.userData.velocity.y *= -1;
+                    // Límites y rebote (Pantalla)
+                    if (Math.abs(obj.position.x) > 25) obj.userData.velocity.x *= -1.1; // Rebote con un poco de energía
+                    if (Math.abs(obj.position.y) > 18) obj.userData.velocity.y *= -1.1;
+                    
+                    // Fricción ambiental para que no aceleren infinitamente
+                    obj.userData.velocity.multiplyScalar(0.995);
+                }
+                obj.userData.lastPosition.copy(obj.position);
             });
-
-            // Reacción suave de la cámara al mouse
-            camera.position.x += (mouseX - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY - camera.position.y) * 0.05;
-            camera.lookAt(scene.position);
 
             renderer.render(scene, camera);
         }
