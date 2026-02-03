@@ -114,7 +114,7 @@ def garage_store(request, username):
     productos = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True) if perfil else []
     return render(request, 'garage.html', {'user_viewed': user_viewed, 'productos': productos})
 
-# --- VISTA PARA EXPORTAR PDF MODIFICADA ---
+# --- VISTA PARA EXPORTAR PDF (MODIFICADA SEGÚN SOLICITUD) ---
 def export_pdf(request, username):
     user_viewed = get_object_or_404(User, username=username)
     perfil = DatosPersonales.objects.filter(user=user_viewed).first()
@@ -123,7 +123,6 @@ def export_pdf(request, username):
         return redirect('home')
 
     # Detectar qué opciones fueron seleccionadas en el modal (Checkboxes)
-    # Usamos request.GET.get porque el formulario del modal usa method="GET"
     show_options = {
         'show_sobre_mi': request.GET.get('sobre_mi') == 'on',
         'show_lenguajes': request.GET.get('lenguajes') == 'on',
@@ -138,10 +137,10 @@ def export_pdf(request, username):
     contexto = {
         'user_viewed': user_viewed,
         'perfil': perfil,
-        **show_options  # Esto añade todas las variables show_ al contexto
+        **show_options
     }
 
-    # Carga de datos de la base de datos SOLO si la casilla está marcada
+    # Carga de datos de la base de datos SOLO si la casilla correspondiente está marcada
     if show_options['show_experiencia']:
         contexto['experiencias'] = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
@@ -151,6 +150,7 @@ def export_pdf(request, username):
     if show_options['show_lenguajes']:
         contexto['lenguajes'] = LenguajeProgramacion.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
+    # Aseguramos que se carguen los productos académicos si la opción está activa
     if show_options['show_productos_acad']:
         contexto['productos_academicos'] = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil, activarparaqueseveaenfront=True)
     
