@@ -44,12 +44,7 @@
             justify-content: center;
             align-items: center;
         }
-        .full-page-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        .full-page-iframe {
+        .full-page-pdf {
             width: 100%;
             height: 100%;
             border: none;
@@ -177,7 +172,7 @@
         {% for curso in cursos %}
             {% if curso.rutacertificado %}
             <div class="appendix">
-                <iframe src="{{ curso.rutacertificado }}" class="full-page-iframe"></iframe>
+                <embed src="{{ curso.rutacertificado.url }}" type="application/pdf" class="full-page-pdf">
             </div>
             {% endif %}
         {% endfor %}
@@ -185,7 +180,7 @@
         {% for rec in reconocimientos %}
             {% if rec.rutacertificado %}
             <div class="appendix">
-                <iframe src="{{ rec.rutacertificado }}" class="full-page-iframe"></iframe>
+                <embed src="{{ rec.rutacertificado.url }}" type="application/pdf" class="full-page-pdf">
             </div>
             {% endif %}
         {% endfor %}
@@ -193,7 +188,8 @@
 
     <script>
         window.addEventListener('load', function() {
-            setTimeout(function() { window.print(); }, 1000);
+            // Un pequeño retraso asegura que los archivos PDF carguen antes de abrir el diálogo de impresión
+            setTimeout(function() { window.print(); }, 1500);
         });
     </script>
 </body>
