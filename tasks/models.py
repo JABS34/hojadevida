@@ -144,19 +144,26 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.title} - by {self.user.username}"
 
-# 9. CONTROL DE VISIBILIDAD DE BOTONES
+# 9. CONTROL DE VISIBILIDAD DE BOTONES (MODIFICADO)
 class ConfiguracionVisible(models.Model):
-    mostrar_garage = models.BooleanField(default=True, verbose_name="¿Mostrar Garage?")
-    mostrar_cursos = models.BooleanField(default=True, verbose_name="¿Mostrar Cursos?")
+    # Atributos fijos para el control de la interfaz
+    mostrar_sobre_mi = models.BooleanField(default=True, verbose_name="¿Mostrar Sobre Mí?")
+    mostrar_experiencia = models.BooleanField(default=True, verbose_name="¿Mostrar Experiencia Laboral?")
+    mostrar_cursos = models.BooleanField(default=True, verbose_name="¿Mostrar Cursos Realizados?")
     mostrar_reconocimientos = models.BooleanField(default=True, verbose_name="¿Mostrar Reconocimientos?")
+    mostrar_productos_academicos = models.BooleanField(default=True, verbose_name="¿Mostrar Productos Académicos?")
+    mostrar_productos_laborales = models.BooleanField(default=True, verbose_name="¿Mostrar Productos Laborales?")
+    mostrar_lenguajes = models.BooleanField(default=True, verbose_name="¿Mostrar Lenguajes de Programación?")
+    mostrar_habilidades = models.BooleanField(default=True, verbose_name="¿Mostrar Habilidades?")
+    mostrar_garage = models.BooleanField(default=True, verbose_name="¿Mostrar Botón de Garage?")
 
     class Meta:
-        verbose_name = "Configuración de Visibilidad"
-        verbose_name_plural = "Configuraciones de Visibilidad"
+        verbose_name = "Ajustes de Visibilidad Web"
+        verbose_name_plural = "Ajustes de Visibilidad Web"
 
     def __str__(self):
-        return "Panel de Control: Visibilidad de Botones"
-        
+        return "Configuración Global de Botones"
+
 # 10. LENGUAJES DE PROGRAMACIÓN
 class LenguajeProgramacion(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
