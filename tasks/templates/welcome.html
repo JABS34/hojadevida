@@ -41,9 +41,15 @@
                 Te invito a explorar mi trayectoria, mis proyectos y las habilidades que he cultivado.
             </p>
 
-            <button onclick="goToProfile()" class="px-12 py-6 bg-indigo-600 rounded-2xl font-black text-2xl shadow-[0_15px_0_rgb(49,46,129)] hover:translate-y-1 active:shadow-none active:translate-y-[15px] transition-all">
-                Mira mi CV aquí 👇
-            </button>
+            {% if admin_user %}
+                <button onclick="goToProfile('{{ admin_user.username }}')" class="px-12 py-6 bg-indigo-600 rounded-2xl font-black text-2xl shadow-[0_15px_0_rgb(49,46,129)] hover:translate-y-1 active:shadow-none active:translate-y-[15px] transition-all">
+                    Mira mi CV aquí 👇
+                </button>
+            {% else %}
+                <a href="/admin" class="px-12 py-6 bg-slate-700 rounded-2xl font-black text-2xl pointer-events-auto">
+                    Configurar Admin Primero ⚙️
+                </a>
+            {% endif %}
         </div>
     </section>
 
@@ -147,17 +153,15 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- DIRECCIÓN FORZADA A JABS ---
-            function goToProfile() {
-        // Animación de salida
-        document.getElementById('ui-wrapper').classList.add('fade-out-all');
-        document.getElementById('canvas-3d').classList.add('fade-out-all');
-        
-        setTimeout(() => {
-            // CAMBIO AQUÍ: de /profile/ a /perfil/ para que coincida con tu urls.py
-            window.location.href = "/perfil/jabs/"; 
-        }, 800);
-    }
+        function goToProfile(username) {
+            document.getElementById('ui-wrapper').classList.add('fade-out-all');
+            document.getElementById('canvas-3d').classList.add('fade-out-all');
+            
+            setTimeout(() => {
+                // Redirige dinámicamente usando el username del admin
+                window.location.href = "/perfil/" + username + "/"; 
+            }, 800);
+        }
     </script>
 </body>
 </html>
