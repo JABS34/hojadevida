@@ -236,7 +236,7 @@
                 <div class="mini-box"><i class="fas fa-file-pdf"></i></div>
                 <div>
                     <p class="text-sm font-bold uppercase">{{ curso.nombrerecurso }}</p>
-                    <p class="text-[10px] text-blue-500 font-bold uppercase tracking-tighter">Click para ver más</p>
+                    <p class="text-[10px] text-blue-500 font-bold uppercase tracking-tighter">Click para vista previa</p>
                 </div>
             </div>
             {% empty %}
@@ -284,12 +284,6 @@
         </div>
     </div>
 
-    <div id="modalPDF" class="modal"><div class="bg-white p-10 rounded-3xl max-w-sm w-full mx-4 text-center">
-        <h2 class="font-black text-2xl mb-6 italic">Exportar Hoja de Vida</h2>
-        <button onclick="window.print()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg mb-4 hover:bg-blue-700">DESCARGAR CV</button>
-        <button onclick="toggleModal('modalPDF')" class="text-xs text-slate-400 font-bold uppercase">Cancelar</button>
-    </div></div>
-
     <script>
         function toggleBrote() {
             document.getElementById('groupLeft').classList.toggle('active');
@@ -300,20 +294,28 @@
 
         function abrirVisor(ruta, titulo, entidad) {
             if (!ruta || ruta === "None" || ruta === "") {
-                alert("No hay un archivo o link guardado para este registro.");
+                alert("No hay un archivo guardado para este registro.");
                 return;
             }
             
-            let urlEmbed = ruta;
-            // Si es link de Drive, lo preparamos para el iframe
+            let urlFinal = ruta;
+            
+            // Lógica para forzar vista previa de Google Drive sin pedir cuenta
             if (ruta.includes("drive.google.com")) {
-                urlEmbed = ruta.replace("/view?usp=sharing", "/preview").replace("/view", "/preview");
+                // Extraemos el ID del archivo
+                const regex = /\/d\/(.*?)(\/|$|preview|view)/;
+                const match = ruta.match(regex);
+                if (match && match[1]) {
+                    const fileId = match[1];
+                    // Usamos el visor público de Google Docs para evitar el login obligatorio
+                    urlFinal = `https://docs.google.com/viewer?url=https://drive.google.com/uc?id=${fileId}&embedded=true`;
+                }
             }
 
-            document.getElementById('iframeVisor').src = urlEmbed;
+            document.getElementById('iframeVisor').src = urlFinal;
             document.getElementById('visorTitulo').innerText = titulo;
             document.getElementById('visorSub').innerText = entidad;
-            document.getElementById('visorBtnDescarga').href = ruta; // Usa el link original para descargar
+            document.getElementById('visorBtnDescarga').href = ruta; 
             
             toggleModal('modalVisor');
         }
