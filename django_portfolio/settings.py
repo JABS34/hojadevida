@@ -8,8 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG será True si no existe la variable de entorno RENDER (Local)
+# DEBUG será True solo si NO estamos en Render
 DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = ["*"]
@@ -20,20 +19,23 @@ if RENDER_EXTERNAL_HOSTNAME:
 
 # Application definition
 INSTALLED_APPS = [
+    # 1. Cloudinary debe ir ARRIBA para sobreescribir staticfiles si fuera necesario
+    "cloudinary_storage",
+    "cloudinary",
+    
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "cloudinary_storage", # AGREGADO
-    "cloudinary",          # AGREGADO
-    "tasks", # Tu aplicación principal
+    
+    "tasks", # Tu app
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Para servir estáticos en Render
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Vital para Render
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -63,10 +65,10 @@ TEMPLATES = [
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# Lee la variable DATABASE_URL que Render provee automáticamente
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://bd_a0j3_user:nnGxsl1SFP9oMhFJVj2Wei23xJlUcmg2@dpg-d60jocchg0os73b1gvd0-a.oregon-postgres.render.com/bd_a0j3',
+        default='sqlite:///db.sqlite3', # Fallback para local
         conn_max_age=600
     )
 }
@@ -94,19 +96,17 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Media Files (Configuración Cloudinary para Render)
 MEDIA_URL = '/media/'
-# DEFAULT_FILE_STORAGE se encarga de enviar las fotos a Cloudinary en lugar del disco de Render
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-# Reemplaza estos valores con tus credenciales de Cloudinary
+# --- SEGURIDAD: LEER DESDE VARIABLES DE ENTORNO ---
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'SEBAS',
-    'API_KEY': '229623356596985',
-    'API_SECRET': 'i1mOO4cLQU1HzOGKfEehH1ryaPU'
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY':    os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
 }
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Redirección al loguearse si intentan entrar a zonas protegidas
 LOGIN_URL = "/signin"
