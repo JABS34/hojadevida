@@ -2,10 +2,8 @@ import os
 from pathlib import Path
 import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
 
 # DEBUG será True solo si NO estamos en Render
@@ -17,9 +15,8 @@ RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# Application definition
 INSTALLED_APPS = [
-    # 1. Cloudinary debe ir ARRIBA para sobreescribir staticfiles si fuera necesario
+    # 1. Cloudinary debe ir PRIMERO
     "cloudinary_storage",
     "cloudinary",
     
@@ -28,14 +25,14 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
+    "django.contrib.staticfiles", # Django necesita esto, pero Cloudinary lo manejará
     
-    "tasks", # Tu app
+    "tasks",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Vital para Render (Arregla la interfaz fea)
+    # "whitenoise.middleware.WhiteNoiseMiddleware",  <-- BORRAMOS WHITENOISE (Ya no lo usamos)
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -64,16 +61,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
-# Database
-# Lee la variable DATABASE_URL que Render provee automáticamente
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3', # Fallback para local
+        default='sqlite:///db.sqlite3',
         conn_max_age=600
     )
 }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -81,34 +75,30 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# Internationalization
 LANGUAGE_CODE = "es-ec"
 TIME_ZONE = "America/Guayaquil"
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = "/static/"
+# --- CAMBIO IMPORTANTE AQUÍ ---
 
-# Carpeta donde Render buscará los archivos
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+# Configuración de Cloudinary (LEE DESDE VARIABLES DE ENTORNO DE RENDER)
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY':    os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+    'STATIC_TAG': 'static_files',  # Etiqueta para organizar archivos en Cloudinary
+}
 
-# CAMBIO IMPORTANTE: Usamos "CompressedStaticFilesStorage"
-# Es más seguro que "CompressedManifest..." porque no falla si falta un archivo pequeño.
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
-# Media Files (Configuración Cloudinary para Render)
+# 1. Archivos Estáticos (CSS, JS, Admin) -> SE VAN A CLOUDINARY
+STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
+
+# 2. Archivos Multimedia (Fotos subidas) -> SE VAN A CLOUDINARY
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-# --- CORRECCIÓN IMPORTANTE ---
-# Usamos las claves genéricas aquí. Tienes que poner los valores REALES (dpaajunu7, etc.)
-# en la sección "Environment Variables" de la página web de Render.
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('dpaajunu7'),
-    'API_KEY':    os.environ.get('229623356596985'),
-    'API_SECRET': os.environ.get('i1mOO4cLQU1HzOGKfEehH1ryaPU')
-}
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
