@@ -12,7 +12,8 @@ admin.site.register(Task)
 # 2. DATOS PERSONALES
 @admin.register(DatosPersonales)
 class DatosPersonalesAdmin(admin.ModelAdmin):
-    list_display = ('nombres', 'apellidos', 'numerocedula', 'nacionalidad', 'user')
+    list_display = ('nombres', 'apellidos', 'numerocedula', 'nacionalidad', 'user', 'activarparaqueseveaenfront')
+    list_editable = ('activarparaqueseveaenfront',)
     search_fields = ('nombres', 'apellidos', 'numerocedula')
 
 # 3. EXPERIENCIA LABORAL
@@ -25,13 +26,13 @@ class ExperienciaLaboralAdmin(admin.ModelAdmin):
 # 4. RECONOCIMIENTOS
 @admin.register(Reconocimiento)
 class ReconocimientoAdmin(admin.ModelAdmin):
-    list_display = ('descripcionreconocimiento', 'entidadpatrocinadora', 'tiporeconocimiento', 'fechareconocimiento')
+    list_display = ('descripcionreconocimiento', 'entidadpatrocinadora', 'tiporeconocimiento', 'fechareconocimiento', 'activarparaqueseveaenfront')
     list_filter = ('tiporeconocimiento', 'activarparaqueseveaenfront')
 
 # 5. CURSOS REALIZADOS
 @admin.register(CursosRealizados)
 class CursosRealizadosAdmin(admin.ModelAdmin):
-    list_display = ('nombrerecurso', 'entidadpatrocinadora', 'totalhoras', 'fechafin')
+    list_display = ('nombrerecurso', 'entidadpatrocinadora', 'totalhoras', 'fechafin', 'activarparaqueseveaenfront')
     search_fields = ('nombrerecurso', 'entidadpatrocinadora')
 
 # 6. PRODUCTOS ACADÉMICOS
@@ -51,7 +52,7 @@ class VentaGarageAdmin(admin.ModelAdmin):
     list_display = ('nombreproducto', 'valordelbien', 'estadoproducto', 'activarparaqueseveaenfront')
     list_filter = ('estadoproducto', 'activarparaqueseveaenfront')
     list_editable = ('valordelbien', 'estadoproducto', 'activarparaqueseveaenfront')
-    search_fields = ('nombreproducto',)
+    search_fields = ('nombreproducto',)   
 
 # 9. LENGUAJES DE PROGRAMACIÓN
 @admin.register(LenguajeProgramacion)
@@ -67,24 +68,23 @@ class HabilidadAdmin(admin.ModelAdmin):
     list_filter = ('categoria', 'activarparaqueseveaenfront')
     list_editable = ('activarparaqueseveaenfront',)
 
-# 11. CONFIGURACIÓN DE VISIBILIDAD DE BOTONES
+# 11. CONFIGURACIÓN DE VISIBILIDAD (CORREGIDO)
 @admin.register(ConfiguracionVisible)
 class ConfiguracionVisibleAdmin(admin.ModelAdmin):
-    list_display = ('id', '__str__', 'mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_garage')
+    # Solo usamos los campos que existen en tu Models
+    list_display = ('__str__', 'mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_garage')
     list_editable = ('mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_garage')
-    
-    # Organizamos los campos en el formulario de edición
+
     fieldsets = (
-        ('Control Global de Visibilidad', {
-            'description': 'Activa o desactiva la visualización de secciones en el Perfil Público y Garage.',
+        ('Control de Visibilidad', {
+            'description': 'Activa o desactiva los botones de la web.',
             'fields': ('mostrar_cursos', 'mostrar_reconocimientos', 'mostrar_garage')
         }),
     )
 
     def has_add_permission(self, request):
-        # Si ya existe un registro, ocultamos el botón de "Añadir"
+        # Si ya hay una configuración, no deja añadir otra
         return False if self.model.objects.count() > 0 else True
 
     def has_delete_permission(self, request, obj=None):
-        # Opcional: Evitar que borren la configuración por error
         return False
