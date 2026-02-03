@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "cloudinary_storage", # AGREGADO
+    "cloudinary",          # AGREGADO
     "tasks", # Tu aplicación principal
 ]
 
@@ -90,8 +92,18 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # Importante para Render
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Media Files (Imágenes subidas por el usuario)
+# Media Files (Configuración Cloudinary para Render)
 MEDIA_URL = '/media/'
+# DEFAULT_FILE_STORAGE se encarga de enviar las fotos a Cloudinary en lugar del disco de Render
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Reemplaza estos valores con tus credenciales de Cloudinary
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'tu_cloud_name_aqui',
+    'API_KEY': 'tu_api_key_aqui',
+    'API_SECRET': 'tu_api_secret_aqui'
+}
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
