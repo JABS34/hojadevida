@@ -8,12 +8,14 @@ from .models import (
 )
 
 # --- NUEVO: CONTROL DE VISIBILIDAD DE BOTONES ---
+# admin.py
 @admin.register(ConfiguracionVisible)
 class ConfiguracionVisibleAdmin(admin.ModelAdmin):
-    list_display = ('user', 'mostrar_reconocimientos', 'mostrar_cursos', 'mostrar_garage', 'mostrar_editar')
+    # Cambia 'user' por el nombre real del campo en tu modelo
+    list_display = ('idperfilconqueestaactivo', 'mostrar_reconocimientos', 'mostrar_cursos', 'mostrar_garage', 'mostrar_editar')
     list_editable = ('mostrar_reconocimientos', 'mostrar_cursos', 'mostrar_garage', 'mostrar_editar')
-    # Esto permite que edites los checks directamente desde la lista principal del admin
 
+    
 # 1. TAREAS
 admin.site.register(Task)
 
