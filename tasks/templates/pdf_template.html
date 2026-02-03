@@ -8,7 +8,7 @@
     <style>
         @page { size: A4; margin: 0; }
         body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: sans-serif; 
             background: white; 
             margin: 0; 
             padding: 0; 
@@ -51,43 +51,26 @@
             background: white;
         }
 
-        /* DISEÑO DE TARJETA TIPO TIENDA (GARAGE) */
-        .garage-grid {
-            display: grid;
-            grid-template-cols: repeat(2, 1fr);
-            gap: 25px;
-            margin-top: 20px;
-        }
-
-        .garage-card {
-            background: #0f172a !important; /* Azul muy oscuro/Negro */
-            border-radius: 16px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            page-break-inside: avoid;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .garage-card img {
+        .cert-img-box {
             width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-bottom: 1px solid #1e293b;
+            margin-bottom: 30px;
+            text-align: center;
+            page-break-inside: avoid;
         }
 
-        .garage-card-info {
-            padding: 16px;
-            color: white;
-        }
-
-        .price-badge {
-            background-color: #f59e0b !important; /* Naranja vibrante */
-            color: #000 !important;
-            font-weight: 800;
-            padding: 4px 12px;
+        .cert-img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            font-size: 14px;
+        }
+
+        /* Estilo Garage Horizontal (Como estaba antes) */
+        .garage-item-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
         }
 
         @media print { .no-print { display: none; } }
@@ -108,7 +91,7 @@
                 <p><i class="fas fa-envelope mr-2 w-4"></i> {{ user_viewed.email }}</p>
                 <p><i class="fas fa-phone mr-2 w-4"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional }}</p>
                 <p><i class="fas fa-map-marker-alt mr-2 w-4"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
-                <p><i class="fas fa-globe mr-2 w-4"></i> {{ perfil.nacionalidad|default:"Ecuatoriana" }}</p>
+                <p><i class="fas fa-flag mr-2 w-4"></i> {{ perfil.nacionalidad|default:"Ecuatoriana" }}</p>
             </div>
 
             {% if show_productos_acad and productos_academicos %}
@@ -194,11 +177,12 @@
                 <i class="fas fa-certificate text-blue-800"></i>
                 <h2>Anexos y Certificaciones</h2>
             </div>
+
             {% for curso in cursos %}
                 {% if curso.rutacertificado %}
-                <div class="mb-10 text-center page-break-inside-avoid">
+                <div class="cert-img-box">
                     <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">CURSO: {{ curso.nombrerecurso }}</p>
-                    <img src="{{ curso.rutacertificado.url }}" class="max-w-full rounded-lg border shadow-sm mx-auto">
+                    <img src="{{ curso.rutacertificado.url }}" class="cert-img">
                 </div>
                 {% endif %}
             {% endfor %}
@@ -212,24 +196,16 @@
             <i class="fas fa-car-side text-blue-800"></i>
             <h2>Catálogo Garage</h2>
         </div>
-        
-        <div class="garage-grid">
+        <div class="space-y-6">
             {% for item in productos_garage %}
-            <div class="garage-card">
+            <div class="flex items-center gap-6 border border-slate-100 p-4 rounded-2xl bg-slate-50 page-break-inside-avoid">
                 {% if item.imagenproducto %}
-                    <img src="{{ item.imagenproducto.url }}" alt="{{ item.nombreproducto }}">
-                {% else %}
-                    <div class="h-[200px] bg-slate-800 flex items-center justify-center text-slate-500 italic">Sin imagen</div>
+                    <img src="{{ item.imagenproducto.url }}" class="garage-item-img border border-slate-200 shadow-sm">
                 {% endif %}
-
-                <div class="garage-card-info">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-sm font-extrabold uppercase leading-tight w-2/3">{{ item.nombreproducto }}</h3>
-                        <span class="price-badge">${{ item.precioventa }}</span>
-                    </div>
-                    <p class="text-[10px] text-slate-400 leading-snug">
-                        {{ item.descripcion|default:"Producto de alta calidad disponible en catálogo." }}
-                    </p>
+                <div>
+                    <p class="text-xs font-black text-blue-800 uppercase">{{ item.nombreproducto }}</p>
+                    <p class="text-xl font-bold text-slate-900 mt-1">${{ item.precioventa }}</p>
+                    <p class="text-[11px] text-slate-500 mt-1 uppercase">{{ item.descripcion|default:"" }}</p>
                 </div>
             </div>
             {% endfor %}
@@ -239,8 +215,7 @@
 
     <script>
         window.onload = function() {
-            // Tiempo extendido a 3 seg para asegurar que las fotos de Cloudinary carguen
-            setTimeout(function() { window.print(); }, 3000);
+            setTimeout(function() { window.print(); }, 2000);
         };
     </script>
 </body>
