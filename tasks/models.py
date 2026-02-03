@@ -24,6 +24,7 @@ class DatosPersonales(models.Model):
     sitioweb = models.CharField(max_length=60, blank=True, null=True)
     foto = models.ImageField(upload_to='perfil_fotos/', null=True, blank=True)
     instagram = models.CharField(max_length=50, blank=True, null=True)
+    
     activarparaqueseveaenfront = models.BooleanField(default=False, verbose_name="Activar para ver en Web")
 
     def __str__(self):
@@ -43,9 +44,11 @@ class ExperienciaLaboral(models.Model):
     fechafingestion = models.DateField()
     descripcionfunciones = models.CharField(max_length=100)
     activarparaqueseveaenfront = models.BooleanField(default=True)
+    # MODIFICADO: Acepta PDF y formatos de imagen (PNG, JPG, JPEG)
     rutacertificado = models.FileField(
         upload_to='certificados/experiencia/', 
-        blank=True, null=True,
+        blank=True, 
+        null=True,
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'png', 'jpg', 'jpeg'])]
     )
 
@@ -65,9 +68,11 @@ class CursosRealizados(models.Model):
     telefonocontactoauspicia = models.CharField(max_length=60)
     emailempresapatrocinadora = models.CharField(max_length=60)
     activarparaqueseveaenfront = models.BooleanField(default=True)
+    # MODIFICADO: Acepta PDF y formatos de imagen (PNG, JPG, JPEG)
     rutacertificado = models.FileField(
         upload_to='certificados/cursos/', 
-        blank=True, null=True,
+        blank=True, 
+        null=True,
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'png', 'jpg', 'jpeg'])]
     )
 
@@ -84,9 +89,11 @@ class Reconocimiento(models.Model):
     nombrecontactoauspicia = models.CharField(max_length=100)
     telefonocontactoauspicia = models.CharField(max_length=60)
     activarparaqueseveaenfront = models.BooleanField(default=True)
+    # MODIFICADO: Acepta PDF y formatos de imagen (PNG, JPG, JPEG)
     rutacertificado = models.FileField(
         upload_to='certificados/reconocimientos/', 
-        blank=True, null=True,
+        blank=True, 
+        null=True,
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'png', 'jpg', 'jpeg'])]
     )
 
@@ -101,9 +108,6 @@ class ProductosAcademicos(models.Model):
     descripcion = models.CharField(max_length=800)
     activarparaqueseveaenfront = models.BooleanField(default=True)
 
-    def __str__(self):
-        return self.nombrerecurso
-
 # 6. PRODUCTOS LABORALES
 class ProductosLaborales(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
@@ -111,9 +115,6 @@ class ProductosLaborales(models.Model):
     fechaproducto = models.DateField()
     descripcion = models.CharField(max_length=100)
     activarparaqueseveaenfront = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.nombreproducto
 
 # 7. VENTA DE GARAGE
 class VentaGarage(models.Model):
@@ -140,38 +141,32 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.title} - by {self.user.username}"
 
-# 9. CONTROL DE VISIBILIDAD (AQUÍ ESTÁN TUS BOTONES)
+# 9. CONTROL DE VISIBILIDAD
 class ConfiguracionVisible(models.Model):
-    idperfilconqueestaactivo = models.OneToOneField(
-        DatosPersonales, 
-        on_delete=models.CASCADE, 
-        null=True, 
-        blank=True,
-        verbose_name="Perfil"
-    )
-    mostrar_garage = models.BooleanField(default=True, verbose_name="¿Ver Garage?")
-    mostrar_cursos = models.BooleanField(default=True, verbose_name="¿Ver Cursos?")
-    mostrar_reconocimientos = models.BooleanField(default=True, verbose_name="¿Ver Reconocimientos?")
-    mostrar_editar = models.BooleanField(default=True, verbose_name="¿Ver Botón Editar?")
+    mostrar_garage = models.BooleanField(default=True)
+    mostrar_cursos = models.BooleanField(default=True)
+    mostrar_reconocimientos = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name = "Configuración de Botón"
-        verbose_name_plural = "Configuraciones de Botones"
+        verbose_name = "Configuración de Botones"
+        verbose_name_plural = "Configuración de Botones"
 
     def __str__(self):
-        return f"Ajustes de {self.idperfilconqueestaactivo}"
+        return "Interruptores de Visibilidad"
+
+# --- NUEVAS SECCIONES SOLICITADAS ---
 
 # 10. LENGUAJES DE PROGRAMACIÓN
 class LenguajeProgramacion(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=50)
-    nivel_porcentaje = models.IntegerField(default=50)
+    nivel_porcentaje = models.IntegerField(default=50, help_text="Nivel del 1 al 100")
     activarparaqueseveaenfront = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nombre
 
-# 11. HABILIDADES
+# 11. HABILIDADES (SKILLS)
 class Habilidad(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre_habilidad = models.CharField(max_length=100)
