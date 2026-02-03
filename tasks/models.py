@@ -24,7 +24,6 @@ class DatosPersonales(models.Model):
     sitioweb = models.CharField(max_length=60, blank=True, null=True)
     foto = models.ImageField(upload_to='perfil_fotos/', null=True, blank=True)
     instagram = models.CharField(max_length=50, blank=True, null=True)
-    
     activarparaqueseveaenfront = models.BooleanField(default=False, verbose_name="Activar para ver en Web")
 
     def __str__(self):
@@ -46,8 +45,7 @@ class ExperienciaLaboral(models.Model):
     activarparaqueseveaenfront = models.BooleanField(default=True)
     rutacertificado = models.FileField(
         upload_to='certificados/experiencia/', 
-        blank=True, 
-        null=True,
+        blank=True, null=True,
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'png', 'jpg', 'jpeg'])]
     )
 
@@ -69,8 +67,7 @@ class CursosRealizados(models.Model):
     activarparaqueseveaenfront = models.BooleanField(default=True)
     rutacertificado = models.FileField(
         upload_to='certificados/cursos/', 
-        blank=True, 
-        null=True,
+        blank=True, null=True,
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'png', 'jpg', 'jpeg'])]
     )
 
@@ -89,8 +86,7 @@ class Reconocimiento(models.Model):
     activarparaqueseveaenfront = models.BooleanField(default=True)
     rutacertificado = models.FileField(
         upload_to='certificados/reconocimientos/', 
-        blank=True, 
-        null=True,
+        blank=True, null=True,
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'png', 'jpg', 'jpeg'])]
     )
 
@@ -144,19 +140,19 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.title} - by {self.user.username}"
 
-# 9. CONTROL DE VISIBILIDAD (CON FIX PARA RENDER)
+# 9. CONTROL DE VISIBILIDAD (AQUÍ ESTÁN TUS BOTONES)
 class ConfiguracionVisible(models.Model):
     idperfilconqueestaactivo = models.OneToOneField(
         DatosPersonales, 
         on_delete=models.CASCADE, 
         null=True, 
         blank=True,
-        verbose_name="Perfil Asociado"
+        verbose_name="Perfil"
     )
-    mostrar_garage = models.BooleanField(default=True, verbose_name="Ver Garage")
-    mostrar_cursos = models.BooleanField(default=True, verbose_name="Ver Cursos")
-    mostrar_reconocimientos = models.BooleanField(default=True, verbose_name="Ver Reconocimientos")
-    mostrar_editar = models.BooleanField(default=True, verbose_name="Ver Botón Editar")
+    mostrar_garage = models.BooleanField(default=True, verbose_name="¿Ver Garage?")
+    mostrar_cursos = models.BooleanField(default=True, verbose_name="¿Ver Cursos?")
+    mostrar_reconocimientos = models.BooleanField(default=True, verbose_name="¿Ver Reconocimientos?")
+    mostrar_editar = models.BooleanField(default=True, verbose_name="¿Ver Botón Editar?")
 
     class Meta:
         verbose_name = "Configuración de Botón"
@@ -169,7 +165,7 @@ class ConfiguracionVisible(models.Model):
 class LenguajeProgramacion(models.Model):
     idperfilconqueestaactivo = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=50)
-    nivel_porcentaje = models.IntegerField(default=50, help_text="Nivel del 1 al 100")
+    nivel_porcentaje = models.IntegerField(default=50)
     activarparaqueseveaenfront = models.BooleanField(default=True)
 
     def __str__(self):
