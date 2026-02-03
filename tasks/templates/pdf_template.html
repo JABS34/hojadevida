@@ -51,25 +51,41 @@
             background: white;
         }
 
-        .cert-img-box {
-            width: 100%;
-            margin-bottom: 30px;
-            text-align: center;
+        /* Estilos de Tarjeta tipo Tienda para Garage */
+        .garage-grid {
+            display: grid;
+            grid-template-cols: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .garage-card {
+            background: #111827; /* Fondo oscuro como tu imagen */
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
             page-break-inside: avoid;
+            border: 1px solid #374151;
         }
 
-        .cert-img {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-
-        .garage-item-img {
-            width: 100px;
-            height: 100px;
+        .garage-card img {
+            width: 100%;
+            height: 180px;
             object-fit: cover;
-            border-radius: 8px;
+        }
+
+        .garage-card-body {
+            padding: 15px;
+            color: white;
+        }
+
+        .price-tag {
+            background-color: #f59e0b; /* Naranja de tu imagen */
+            color: #000;
+            font-weight: 900;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 14px;
         }
 
         @media print { .no-print { display: none; } }
@@ -176,21 +192,11 @@
                 <i class="fas fa-certificate text-blue-800"></i>
                 <h2>Anexos y Certificaciones</h2>
             </div>
-
             {% for curso in cursos %}
                 {% if curso.rutacertificado %}
                 <div class="cert-img-box">
                     <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">CURSO: {{ curso.nombrerecurso }}</p>
-                    <img src="{{ curso.rutacertificado.url }}" class="cert-img" onerror="this.style.display='none'">
-                </div>
-                {% endif %}
-            {% endfor %}
-
-            {% for rec in reconocimientos %}
-                {% if rec.rutacertificado %}
-                <div class="cert-img-box">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">RECONOCIMIENTO: {{ rec.descripcionreconocimiento }}</p>
-                    <img src="{{ rec.rutacertificado.url }}" class="cert-img" onerror="this.style.display='none'">
+                    <img src="{{ curso.rutacertificado.url }}" class="cert-img">
                 </div>
                 {% endif %}
             {% endfor %}
@@ -204,16 +210,24 @@
             <i class="fas fa-car-side text-blue-800"></i>
             <h2>Catálogo Garage</h2>
         </div>
-        <div class="space-y-6">
+        
+        <div class="garage-grid">
             {% for item in productos_garage %}
-            <div class="flex items-center gap-6 border border-slate-100 p-4 rounded-2xl bg-slate-50 page-break-inside-avoid">
+            <div class="garage-card">
                 {% if item.imagenproducto %}
-                    <img src="{{ item.imagenproducto.url }}" class="garage-item-img border border-slate-200 shadow-sm">
+                    <img src="{{ item.imagenproducto.url }}">
+                {% else %}
+                    <div style="height:180px; background:#222; display:flex; align-items:center; justify-content:center; color:#555;">Sin imagen</div>
                 {% endif %}
-                <div>
-                    <p class="text-xs font-black text-blue-800 uppercase">{{ item.nombreproducto }}</p>
-                    <p class="text-xl font-bold text-slate-900 mt-1">${{ item.precioventa }}</p>
-                    <p class="text-[11px] text-slate-500 mt-1 uppercase">{{ item.descripcion|default:"" }}</p>
+
+                <div class="garage-card-body">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-sm font-bold uppercase leading-tight w-2/3">{{ item.nombreproducto }}</h3>
+                        <span class="price-tag">${{ item.precioventa }}</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 line-clamp-3">
+                        {{ item.descripcion|default:"Sin descripción disponible." }}
+                    </p>
                 </div>
             </div>
             {% endfor %}
