@@ -23,8 +23,21 @@
             page-break-after: always; 
         }
 
-        .sidebar { width: 32%; background-color: #1e3a8a !important; color: white; padding: 40px 20px; }
-        .main-content { width: 68%; padding: 50px; }
+        .sidebar { width: 35%; background-color: #1e3a8a !important; color: white; padding: 40px 25px; }
+        .main-content { width: 65%; padding: 50px; }
+
+        .section-separator {
+            page-break-before: always;
+            width: 210mm;
+            height: 297mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8fafc !important;
+            color: #1e3a8a;
+            text-align: center;
+        }
 
         .appendix { 
             width: 210mm; 
@@ -40,12 +53,9 @@
             max-width: 90%;
             max-height: 90%;
             object-fit: contain;
-            border: 1px solid #eee;
         }
 
-        @media print {
-            .no-print { display: none; }
-        }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
@@ -54,65 +64,63 @@
         <aside class="sidebar">
             <div class="text-center mb-10">
                 {% if perfil.foto %}
-                    <img src="{{ perfil.foto.url }}" class="w-32 h-32 rounded-full mx-auto border-4 border-white/20 object-cover shadow-lg">
+                    <img src="{{ perfil.foto.url }}" class="w-36 h-36 rounded-3xl mx-auto border-4 border-white/20 object-cover shadow-xl">
                 {% endif %}
             </div>
             
-            <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Contacto</h3>
-            <div class="text-[11px] space-y-2 mb-10">
-                <p><i class="fas fa-envelope mr-1"></i> {{ user_viewed.email }}</p>
-                <p><i class="fas fa-phone mr-1"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional }}</p>
-                <p><i class="fas fa-map-marker-alt mr-1"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
+            <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4 text-blue-300 italic">Contacto</h3>
+            <div class="text-[11px] space-y-3 mb-10">
+                <p><i class="fas fa-envelope mr-2 w-4"></i> {{ user_viewed.email }}</p>
+                <p><i class="fas fa-phone mr-2 w-4"></i> {{ perfil.telefonofijo|default:perfil.telefonoconvencional }}</p>
+                <p><i class="fas fa-map-marker-alt mr-2 w-4"></i> {{ perfil.direcciondomiciliaria|default:"Ecuador" }}</p>
+                {% if perfil.sitioweb %}<p><i class="fas fa-globe mr-2 w-4"></i> {{ perfil.sitioweb }}</p>{% endif %}
             </div>
 
-            {% if show_habilidades and habilidades %}
-            <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Habilidades</h3>
-            <div class="flex flex-wrap gap-2 mb-10">
-                {% for hab in habilidades %}
-                    <span class="bg-white/10 border border-white/30 px-2 py-1 rounded text-[10px] uppercase font-bold">{{ hab.nombre_habilidad }}</span>
+            {% if show_productos_acad and productos_academicos %}
+            <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4 text-blue-300 italic">Productos Académicos</h3>
+            <div class="space-y-4 mb-10">
+                {% for prod in productos_academicos %}
+                <div>
+                    <p class="text-[11px] font-bold uppercase leading-tight">{{ prod.nombrerecurso }}</p>
+                    <p class="text-[9px] text-blue-200">{{ prod.clasificador }}</p>
+                </div>
                 {% endfor %}
             </div>
             {% endif %}
 
-            {% if show_productos_acad and productos_academicos %}
-            <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4">Formación Académica</h3>
-            <div class="text-[10px] space-y-3">
-                {% for prod in productos_academicos %}
-                <div>
-                    <p class="font-bold uppercase text-blue-200">{{ prod.nombrerecurso }}</p>
-                    <p class="italic text-white/70">{{ prod.clasificador }}</p>
-                </div>
+            {% if show_habilidades and habilidades %}
+            <h3 class="text-[10px] font-bold uppercase border-b border-white/20 pb-1 mb-4 text-blue-300 italic">Habilidades</h3>
+            <div class="flex flex-wrap gap-2 mb-10">
+                {% for hab in habilidades %}
+                    <span class="bg-white/10 border border-white/20 px-2 py-1 rounded text-[9px] uppercase font-bold">{{ hab.nombre_habilidad }}</span>
                 {% endfor %}
             </div>
             {% endif %}
         </aside>
 
         <main class="main-content">
-            <h1 class="text-4xl font-black text-slate-900 uppercase mb-4">
-                {{ perfil.nombres }} <span class="text-[#1e3a8a]">{{ perfil.apellidos }}</span>
-            </h1>
-
-            {% if show_sobre_mi %}
-            <section class="mb-10">
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 italic">Perfil Profesional</h2>
-                <p class="text-slate-600 text-sm leading-relaxed border-l-4 border-slate-100 pl-4">
-                    {{ perfil.descripcionperfil|default:"Profesional enfocado en resultados." }}
+            <header class="mb-10">
+                <h1 class="text-5xl font-black text-slate-900 uppercase leading-none">
+                    {{ perfil.nombres }}<br>
+                    <span class="text-blue-700">{{ perfil.apellidos }}</span>
+                </h1>
+                <p class="text-slate-400 font-bold text-[11px] tracking-widest mt-2 uppercase">
+                    {{ perfil.estadocivil|default:"" }} • {{ perfil.nacionalidad|default:"Ecuatoriana" }}
                 </p>
-            </section>
-            {% endif %}
+            </header>
 
             {% if show_lenguajes and lenguajes %}
             <section class="mb-10">
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Lenguajes de Programación</h2>
-                <div class="grid grid-cols-2 gap-4">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Lenguajes de Programación</h2>
+                <div class="grid grid-cols-2 gap-x-8 gap-y-4">
                     {% for lang in lenguajes %}
-                    <div class="text-sm">
-                        <div class="flex justify-between font-bold text-slate-700">
+                    <div>
+                        <div class="flex justify-between text-[11px] font-bold text-slate-700 uppercase mb-1">
                             <span>{{ lang.nombre }}</span>
                             <span>{{ lang.nivel_porcentaje }}%</span>
                         </div>
-                        <div class="w-full bg-slate-100 h-1 rounded-full mt-1">
-                            <div class="bg-blue-800 h-1 rounded-full" style="width: {{ lang.nivel_porcentaje }}%"></div>
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full">
+                            <div class="bg-blue-700 h-1.5 rounded-full" style="width: {{ lang.nivel_porcentaje }}%"></div>
                         </div>
                     </div>
                     {% endfor %}
@@ -120,30 +128,28 @@
             </section>
             {% endif %}
 
-            {% if show_experiencia and experiencias %}
-            <section>
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
-                {% for exp in experiencias %}
-                <div class="mb-8 border-l-2 border-slate-100 pl-4 relative">
-                    <div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-blue-800"></div>
-                    <h3 class="text-md font-bold text-slate-800 uppercase">{{ exp.cargodesempenado }}</h3>
-                    <div class="flex justify-between items-center mb-2">
-                        <p class="text-sm text-[#1e3a8a] font-extrabold">{{ exp.nombrempresa }}</p>
-                        <span class="text-[10px] text-slate-400 font-bold uppercase">{{ exp.fechainiciogestion|date:"M Y" }} - {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"M Y" }}{% else %}Actualidad{% endif %}</span>
-                    </div>
-                    <p class="text-xs text-slate-500 leading-relaxed">{{ exp.descripcionfunciones }}</p>
+            {% if show_sobre_mi %}
+            <section class="mb-10">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Sobre Mí</h2>
+                <div class="text-slate-600 text-sm leading-relaxed border-l-4 border-blue-100 pl-4 bg-slate-50 p-4 rounded-r-xl italic">
+                    "{{ perfil.descripcionperfil|default:'Perfil profesional enfocado en el desarrollo continuo.' }}"
                 </div>
-                {% endfor %}
             </section>
             {% endif %}
 
-            {% if show_garage and productos_garage %}
-            <section class="mt-10 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <h2 class="text-xs font-bold text-slate-800 uppercase tracking-widest mb-4"><i class="fas fa-store mr-2"></i>Catálogo Garage (En Venta)</h2>
-                <div class="grid grid-cols-2 gap-2">
-                    {% for item in productos_garage %}
-                    <div class="text-[10px] text-slate-600 bg-white p-2 rounded shadow-sm border border-slate-100">
-                        <span class="font-bold text-blue-800">{{ item.nombreproducto }}</span> - ${{ item.precioventa }}
+            {% if show_experiencia and experiencias %}
+            <section>
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
+                <div class="space-y-6">
+                    {% for exp in experiencias %}
+                    <div class="relative pl-5 border-l-2 border-slate-100">
+                        <div class="absolute -left-[6px] top-1 w-2.5 h-2.5 rounded-full bg-blue-700"></div>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase">{{ exp.cargodesempenado }}</h3>
+                        <div class="flex justify-between text-[11px] mb-1">
+                            <span class="text-blue-700 font-bold">{{ exp.nombrempresa }}</span>
+                            <span class="text-slate-400">{{ exp.fechainiciogestion|date:"M Y" }} - {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"M Y" }}{% else %}Actualidad{% endif %}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500">{{ exp.descripcionfunciones }}</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -152,14 +158,41 @@
         </main>
     </div>
 
+    {% if show_garage and productos_garage %}
+    <div class="section-separator">
+        <i class="fas fa-car-side text-6xl mb-4"></i>
+        <h1 class="text-3xl font-black uppercase tracking-tighter">Catálogo Garage</h1>
+        <p class="text-slate-500 uppercase text-xs tracking-widest mt-2">Productos disponibles del usuario</p>
+    </div>
+    <div class="page-pdf" style="display: block; padding: 50px;">
+        <div class="grid grid-cols-2 gap-6">
+            {% for item in productos_garage %}
+            <div class="border border-slate-200 p-4 rounded-2xl bg-slate-50">
+                <p class="text-xs font-black text-blue-800 uppercase">{{ item.nombreproducto }}</p>
+                <p class="text-lg font-bold text-slate-900 mt-1">${{ item.precioventa }}</p>
+                <p class="text-[10px] text-slate-500 mt-2 uppercase">Estado: {{ item.estado|default:"Disponible" }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     {% if show_certificados %}
+        {% if cursos or reconocimientos %}
+        <div class="section-separator">
+            <i class="fas fa-certificate text-6xl mb-4"></i>
+            <h1 class="text-3xl font-black uppercase tracking-tighter">Anexos y Certificaciones</h1>
+            <p class="text-slate-500 uppercase text-xs tracking-widest mt-2">Documentación respaldatoria</p>
+        </div>
+
         {% for curso in cursos %}
             {% if curso.rutacertificado %}
             <div class="appendix">
+                <div class="absolute top-10 left-10 text-[10px] font-bold text-slate-300 uppercase italic">Certificado: {{ curso.nombrerecurso }}</div>
                 {% if ".pdf" in curso.rutacertificado.url|lower %}
-                    <embed src="{{ curso.rutacertificado.url }}" type="application/pdf" width="100%" height="100%">
+                    <embed src="{{ curso.rutacertificado.url }}" type="application/pdf" width="90%" height="90%">
                 {% else %}
-                    <img src="{{ curso.rutacertificado.url }}" class="cert-img">
+                    <img src="{{ curso.rutacertificado.url }}" class="cert-img shadow-2xl">
                 {% endif %}
             </div>
             {% endif %}
@@ -168,21 +201,21 @@
         {% for rec in reconocimientos %}
             {% if rec.rutacertificado %}
             <div class="appendix">
+                <div class="absolute top-10 left-10 text-[10px] font-bold text-slate-300 uppercase italic">Reconocimiento: {{ rec.descripcionreconocimiento }}</div>
                 {% if ".pdf" in rec.rutacertificado.url|lower %}
-                    <embed src="{{ rec.rutacertificado.url }}" type="application/pdf" width="100%" height="100%">
+                    <embed src="{{ rec.rutacertificado.url }}" type="application/pdf" width="90%" height="90%">
                 {% else %}
-                    <img src="{{ rec.rutacertificado.url }}" class="cert-img">
+                    <img src="{{ rec.rutacertificado.url }}" class="cert-img shadow-2xl">
                 {% endif %}
             </div>
             {% endif %}
         {% endfor %}
+        {% endif %}
     {% endif %}
 
     <script>
         window.onload = function() {
-            setTimeout(function() {
-                window.print();
-            }, 1000);
+            setTimeout(function() { window.print(); }, 1200);
         };
     </script>
 </body>
