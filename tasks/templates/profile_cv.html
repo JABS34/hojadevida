@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -78,7 +79,46 @@
         
         .mini-box { width: 40px; height: 40px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6; border: 1px solid #e2e8f0; flex-shrink: 0; }
 
-        @media print { .no-print { display: none !important; } .cv-page { margin: 0; box-shadow: none; width: 100%; } }
+        /* ==========================================================================
+           ESTILOS PARA IMPRESIÓN NATIVA (Window.Print)
+           ========================================================================== */
+        @media print {
+            @page { margin: 0; size: auto; }
+            body { 
+                background: white !important; 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important;
+            }
+            /* Ocultar navegación y botones al imprimir */
+            .no-print, .top-navbar, .modal, .menu-trigger { display: none !important; }
+            
+            .sidebar {
+                position: fixed !important; left: 0; top: 0; bottom: 0;
+                height: 100%; width: 35%; 
+                background: #1e3a8a !important; /* Forzar fondo azul */
+                color: white !important;
+                -webkit-print-color-adjust: exact; 
+            }
+            
+            .cv-page { 
+                margin: 0 !important; 
+                box-shadow: none !important; 
+                width: 100% !important; 
+                border-radius: 0 !important;
+            }
+
+            /* Clase para ocultar secciones desmarcadas */
+            .hidden-on-print { display: none !important; }
+
+            /* Mostrar la sección de garage al imprimir si está activa */
+            #sec-garage-print {
+                display: block !important;
+                page-break-before: always;
+            }
+            #sec-garage-print.hidden-on-print { display: none !important; }
+        }
+
+        #sec-garage-print { display: none; } /* Oculto en web normal */
     </style>
 </head>
 <body>
@@ -94,13 +134,13 @@
         </div>
         <div class="menu-wrapper">
             <div id="groupLeft" class="nav-group">
-                <div class="nav-item" onclick="toggleModal('modalCert')">
+                <div id="btn-cursos" class="nav-item" onclick="toggleModal('modalCert')">
                     <i class="fas fa-graduation-cap"></i>
                     <span class="label">Cursos</span>
                     <span class="pointer-hand hand-l">👉</span>
                     <span class="pointer-hand hand-r">👈</span>
                 </div>
-                <div class="nav-item" onclick="toggleModal('modalRec')">
+                <div id="btn-premios" class="nav-item" onclick="toggleModal('modalRec')">
                     <i class="fas fa-trophy"></i>
                     <span class="label">Premios</span>
                     <span class="pointer-hand hand-l">👉</span>
@@ -111,7 +151,7 @@
                 <i class="fas fa-bars"></i>
             </div>
             <div id="groupRight" class="nav-group">
-                <a href="{% url 'garage_store' user_viewed.username %}" class="nav-item">
+                <a id="btn-garage" href="{% url 'garage_store' user_viewed.username %}" class="nav-item">
                     <i class="fas fa-car-side"></i>
                     <span class="label">Garage</span>
                     <span class="pointer-hand hand-l">👉</span>
@@ -152,7 +192,7 @@
                 </div>
             </section>
 
-            <section class="mb-10">
+            <section id="sec-productos-acad" class="mb-10">
                 <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Productos Académicos</h3>
                 <div class="space-y-4">
                     {% for prod in productos_academicos %}
@@ -172,7 +212,7 @@
                 <p class="text-[11px] text-blue-300 mt-1">{{ perfil.lugarnacimiento }}</p>
             </section>
 
-            <section>
+            <section id="sec-habilidades">
                 <h3 class="text-[10px] font-bold tracking-widest uppercase border-b border-white/20 pb-2 mb-4 text-blue-400 italic">Habilidades</h3>
                 <div class="flex flex-wrap gap-2">
                     {% for hab in habilidades %}
@@ -197,7 +237,7 @@
                 </p>
             </header>
 
-            <section class="mb-10">
+            <section id="sec-lenguajes" class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Lenguajes de Programación</h2>
                 <div class="grid grid-cols-2 gap-x-8 gap-y-4">
                     {% for lang in lenguajes %}
@@ -216,14 +256,14 @@
                 </div>
             </section>
 
-            <section class="mb-10">
+            <section id="sec-sobre-mi" class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Sobre Mí</h2>
                 <div class="text-slate-600 text-[14px] leading-relaxed italic border-l-4 border-blue-100 pl-4 bg-slate-50 p-4 rounded-xl">
                     "{{ perfil.descripcionperfil|default:'Perfil profesional en desarrollo.' }}"
                 </div>
             </section>
 
-            <section class="mb-10">
+            <section id="sec-experiencia" class="mb-10">
                 <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">Experiencia Laboral</h2>
                 <div class="space-y-8">
                     {% for exp in experiencias %}
@@ -241,6 +281,22 @@
                     {% endfor %}
                 </div>
             </section>
+
+            <section id="sec-garage-print" class="mb-10 pt-10 border-t border-slate-200">
+                <h2 class="text-[11px] font-black text-orange-500 uppercase tracking-widest mb-6 italic">Venta de Garage & Otros</h2>
+                <div class="space-y-2">
+                    {% for prod in productos_garage %}
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <div>
+                            <p class="text-[12px] font-bold text-slate-800 uppercase">{{ prod.nombreproducto }}</p>
+                            <p class="text-[10px] text-slate-400">{{ prod.descripcion }}</p>
+                        </div>
+                        <span class="text-[12px] font-bold text-orange-600">${{ prod.valordelbien }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
         </main>
     </div>
 
@@ -292,43 +348,39 @@
                 <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Personaliza tu documento</p>
             </div>
 
-            <form action="{% url 'export_pdf' user_viewed.username %}" method="GET" target="_blank" class="space-y-2">
+            <div class="space-y-2">
                 <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="sobre_mi" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <input type="checkbox" id="chk-sobre-mi" checked class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-slate-700 uppercase">Sobre Mí</span>
                 </label>
                 <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="lenguajes" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <input type="checkbox" id="chk-lenguajes" checked class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-slate-700 uppercase">Lenguajes de Programación</span>
                 </label>
                 <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="productos_acad" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <input type="checkbox" id="chk-productos-acad" checked class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-slate-700 uppercase">Productos Académicos</span>
                 </label>
                 <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="habilidades" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <input type="checkbox" id="chk-habilidades" checked class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-slate-700 uppercase">Habilidades</span>
                 </label>
                 <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="experiencia" checked class="w-5 h-5 text-blue-600 rounded mr-3">
+                    <input type="checkbox" id="chk-experiencia" checked class="w-5 h-5 text-blue-600 rounded mr-3">
                     <span class="text-xs font-extrabold text-slate-700 uppercase">Experiencia Laboral</span>
                 </label>
-                <label class="flex items-center p-3 bg-blue-50 rounded-xl cursor-pointer border border-blue-200">
-                    <input type="checkbox" name="certificados" checked class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-blue-800 uppercase">Cursos y Reconocimientos (Anexos)</span>
-                </label>
-                <label class="flex items-center p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-blue-50 transition border border-transparent hover:border-blue-200">
-                    <input type="checkbox" name="garage" class="w-5 h-5 text-blue-600 rounded mr-3">
-                    <span class="text-xs font-extrabold text-slate-700 uppercase">Garage (Productos en venta)</span>
+                <label class="flex items-center p-3 bg-orange-50 rounded-xl cursor-pointer hover:bg-orange-100 transition border border-orange-200">
+                    <input type="checkbox" id="chk-garage" class="w-5 h-5 text-orange-600 rounded mr-3">
+                    <span class="text-xs font-extrabold text-orange-700 uppercase">Incluir Venta de Garage</span>
                 </label>
 
                 <div class="flex gap-3 mt-6">
                     <button type="button" onclick="toggleModal('modalPDF')" class="flex-1 py-4 text-slate-400 font-bold uppercase tracking-widest text-[10px]">Cerrar</button>
-                    <button type="submit" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition uppercase tracking-widest text-[10px]">
+                    <button type="button" onclick="imprimirNativo()" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition uppercase tracking-widest text-[10px]">
                         Generar PDF
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -374,6 +426,71 @@
         }
 
         window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); }
+
+        // --- CONECTAR CON ADMIN.PY PARA OCULTAR BOTONES ---
+        document.addEventListener("DOMContentLoaded", function() {
+            // Leer valores de Django Config
+            const mostrarCursos = "{{ config.mostrar_cursos|yesno:'true,false' }}" === "true";
+            const mostrarPremios = "{{ config.mostrar_reconocimientos|yesno:'true,false' }}" === "true";
+            const mostrarGarage = "{{ config.mostrar_garage|yesno:'true,false' }}" === "true";
+
+            // Función para ocultar si es falso
+            function checkVis(id, visible) {
+                const el = document.getElementById(id);
+                if(el && !visible) el.style.display = 'none';
+            }
+
+            // Ejecutar chequeo
+            checkVis('btn-cursos', mostrarCursos);
+            checkVis('btn-premios', mostrarPremios);
+            checkVis('btn-garage', mostrarGarage);
+        });
+
+        // --- FUNCIÓN DE IMPRESIÓN NATIVA CON FILTROS ---
+        function imprimirNativo() {
+            toggleModal('modalPDF'); // Cerrar modal
+
+            // Mapa de checkboxes -> IDs de secciones
+            const mapa = {
+                'chk-sobre-mi': 'sec-sobre-mi',
+                'chk-lenguajes': 'sec-lenguajes',
+                'chk-productos-acad': 'sec-productos-acad',
+                'chk-habilidades': 'sec-habilidades',
+                'chk-experiencia': 'sec-experiencia'
+            };
+
+            // Ocultar lo que no se seleccionó
+            for (const [chkId, secId] of Object.entries(mapa)) {
+                const isChecked = document.getElementById(chkId).checked;
+                const section = document.getElementById(secId);
+                if (section) {
+                    if (!isChecked) section.classList.add('hidden-on-print');
+                    else section.classList.remove('hidden-on-print');
+                }
+            }
+
+            // Manejar Garage (funciona al revés, oculto por defecto)
+            const garageChecked = document.getElementById('chk-garage').checked;
+            const garageSection = document.getElementById('sec-garage-print');
+            if(garageChecked) {
+                garageSection.classList.remove('hidden-on-print'); // Asegurar que se vea
+                garageSection.style.display = 'block'; // Forzar display block para impresión
+            } else {
+                garageSection.style.display = 'none';
+            }
+
+            // Imprimir
+            setTimeout(() => {
+                window.print();
+                
+                // Restaurar vista web después de imprimir
+                for (const secId of Object.values(mapa)) {
+                    const section = document.getElementById(secId);
+                    if(section) section.classList.remove('hidden-on-print');
+                }
+                garageSection.style.display = 'none'; // Volver a ocultar garage
+            }, 300);
+        }
     </script>
 </body>
 </html>
