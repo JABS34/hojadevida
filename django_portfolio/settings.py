@@ -99,7 +99,7 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Reemplaza estos valores con tus credenciales de Cloudinary
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dpaajunu7',
+    'CLOUD_NAME': 'SEBAS',
     'API_KEY': '229623356596985',
     'API_SECRET': 'i1mOO4cLQU1HzOGKfEehH1ryaPU'
 }
